@@ -30,6 +30,7 @@ import { Divider } from "@/components/ui/divider";
 import { HStack } from "@/components/ui/hstack";
 import { AntDesign } from "@expo/vector-icons";
 import { Box } from "@/components/ui/box";
+import TermsConditionsModal from "./TermsConditionsModal";
 
 const SignInForm = () => {
   const [formData, setFormData] = useState({
@@ -46,6 +47,7 @@ const SignInForm = () => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showTermsConditions, setShowTermsConditions] = useState(false);
 
   const handleChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -159,7 +161,7 @@ const SignInForm = () => {
               <CheckboxIcon as={CheckIcon} />
             </CheckboxIndicator>
           </Checkbox>
-          <Pressable>
+          <Pressable onPress={() => setShowTermsConditions(true)}>
             <Text>
               I agree to{" "}
               <Text className="text-blue-600">terms and conditions</Text>
@@ -212,6 +214,13 @@ const SignInForm = () => {
           </Pressable>
         ))}
       </VStack>
+
+      {showTermsConditions && (
+        <TermsConditionsModal
+          show={showTermsConditions}
+          onClose={() => setShowTermsConditions(false)}
+        />
+      )}
     </VStack>
   );
 };

@@ -1,11 +1,6 @@
-import React, { useRef } from "react";
+import React from "react";
 import { SafeAreaView, ScrollView, View, Text, StyleSheet } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  interpolate,
-  useAnimatedScrollHandler,
-} from "react-native-reanimated";
+
 import GetStartedTabs from "@/auction-components/GetStartedTabs";
 
 const GetStartedScreen = () => {
