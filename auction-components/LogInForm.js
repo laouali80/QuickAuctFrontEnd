@@ -10,103 +10,129 @@ import {
   FormControlHelperText,
 } from "@/components/ui/form-control";
 import { VStack } from "@/components/ui/vstack";
-import { AlertCircleIcon } from "@/components/ui/icon";
-import { EyeIcon, EyeOffIcon } from "@/components/ui/icon";
-import React from "react";
+import { AlertCircleIcon, EyeIcon, EyeOffIcon } from "@/components/ui/icon";
+import React, { useState } from "react";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { Divider } from "@/components/ui/divider";
 import { HStack } from "@/components/ui/hstack";
-import { AntDesign, FontAwesome6, Ionicons } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import { Box } from "@/components/ui/box";
 
 const LogInForm = () => {
-  const [isInvalid, setIsInvalid] = React.useState(false);
-  const [inputValue, setInputValue] = React.useState("12345");
-  const handleSubmit = () => {
-    if (inputValue.length < 6) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isInvalid, setIsInvalid] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const validateForm = () => {
+    if (!emailRegex.test(email)) {
+      setErrorMessage("Invalid email format");
       setIsInvalid(true);
-    } else {
-      setIsInvalid(false);
+      return false;
+    } else if (password.length < 6) {
+      setErrorMessage("Password must be at least 6 characters");
+      setIsInvalid(true);
+      return false;
+    }
+    setIsInvalid(false);
+    setErrorMessage("");
+    return true;
+  };
+
+  const handleSubmit = () => {
+    if (validateForm()) {
+      console.log("Login successful with:", { email, password });
+      // Handle login API call here
     }
   };
 
-  const [showPassword, setShowPassword] = React.useState(false);
-  const handleState = () => {
-    setShowPassword((showState) => {
-      return !showState;
-    });
-  };
   return (
-    <VStack className="w-full w-full  p-4">
-      <FormControl
-        isInvalid={isInvalid}
-        size="md"
-        isDisabled={false}
-        isReadOnly={false}
-        isRequired={false}
-      >
+    <VStack className="px-8 py-4">
+      <FormControl isInvalid={isInvalid} size="md" className="gap-y-4">
+        {/* Email Field */}
         <VStack space="xs">
           <Text className="text-typography-500">Email</Text>
           <Input className="min-w-[250px]">
-            <InputField type="text" />
+            <InputField
+              type="text"
+              value={email}
+              onChangeText={(text) => setEmail(text)}
+              placeholder="Enter your email"
+            />
           </Input>
         </VStack>
+
+        {/* Password Field */}
         <VStack space="xs">
           <FormControlLabel>
             <FormControlLabelText>Password</FormControlLabelText>
           </FormControlLabel>
-          <Input className="text-center">
-            <InputField type={showPassword ? "text" : "password"} />
-            <InputSlot className="pr-3" onPress={handleState}>
+          <Input className="min-w-[250px]">
+            <InputField
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChangeText={(text) => setPassword(text)}
+              placeholder="Enter your password"
+            />
+            <InputSlot
+              className="pr-3"
+              onPress={() => setShowPassword(!showPassword)}
+            >
               <InputIcon as={showPassword ? EyeIcon : EyeOffIcon} />
             </InputSlot>
           </Input>
 
+          {isInvalid && (
+            <FormControlError>
+              <FormControlErrorIcon as={AlertCircleIcon} />
+              <FormControlErrorText>{errorMessage}</FormControlErrorText>
+            </FormControlError>
+          )}
+
           <FormControlHelper>
             <FormControlHelperText>
-              Must be atleast 6 characters.
+              Password must be at least 6 characters.
             </FormControlHelperText>
           </FormControlHelper>
-          <FormControlError>
-            <FormControlErrorIcon as={AlertCircleIcon} />
-            <FormControlErrorText>
-              Atleast 6 characters are required.
-            </FormControlErrorText>
-          </FormControlError>
         </VStack>
       </FormControl>
 
+      {/* Login Button */}
+      {/* <Box space="lg" className="pt-4"> */}
       <Button
-        className="w-fit self-center mt-4"
+        className="w-full self-center mt-4 bg-[#259e47] rounded-lg"
         size="sm"
         onPress={handleSubmit}
+        isDisabled={!email || !password}
       >
         <ButtonText>Log In</ButtonText>
       </Button>
+      {/* </Box> */}
 
-      <HStack className="items-center">
-        <Divider className="w-full" />
+      {/* OR Divider */}
+      <HStack className="flex items-center my-4">
+        <Divider className="flex-1" />
         <Text className="font-semibold mx-2">Or</Text>
-        <Divider className="w-full" />
+        <Divider className="flex-1" />
       </HStack>
 
-      <VStack>
-        <Box className="p-6 border border-outline-200 rounded-full">
-          <HStack>
-            <AntDesign name="google" size={24} color="black" />
-            <Text>Continue with Google</Text>
-          </HStack>
+      {/* Social Login Buttons */}
+      <VStack space="sm" className="mt-auto">
+        <Box className="p-4 border border-outline-200 rounded-full flex-row items-center justify-center">
+          <AntDesign name="google" size={20} color="black" />
+          <Text className="ml-2">Continue with Google</Text>
         </Box>
-        <Box className="p-6 border border-outline-200 rounded-full">
-          <HStack>
-            <AntDesign name="apple1" size={24} color="black" />
-            <Text>Continue with Apple</Text>
-          </HStack>
+        <Box className="p-4 border border-outline-200 rounded-full flex-row items-center justify-center">
+          <AntDesign name="apple1" size={20} color="black" />
+          <Text className="ml-2">Continue with Apple</Text>
         </Box>
       </VStack>
     </VStack>
-    // <Text>test</Text>
   );
 };
 
