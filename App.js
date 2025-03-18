@@ -12,6 +12,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import mainNavigation from "./navigation/mainNavigation";
 import GetStartedScreen from "./screens/GetStartedScreen";
 import { Text } from "./components/ui/text";
+import OTPScreen from "./screens/OTPScreen";
 
 export default function App() {
   // const AppNavigator = mainNavigation();
@@ -34,7 +35,8 @@ export default function App() {
           </View> */}
 
           {/* <AppNavigator /> */}
-          <GetStartedScreen />
+          {/* <GetStartedScreen /> */}
+          <OTPScreen />
         </GluestackUIProvider>
       </KeyboardAvoidingView>
     </SafeAreaProvider>
