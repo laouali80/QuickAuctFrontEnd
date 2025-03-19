@@ -32,7 +32,7 @@ export default function App() {
   const statusBarStyle = isDarkMode ? "light-content" : "dark-content";
 
   const [initialized] = useState(true);
-  const [authenticated] = useState(false);
+  const [authenticated] = useState(true);
 
   return (
     <SafeAreaProvider>
