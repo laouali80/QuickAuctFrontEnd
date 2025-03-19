@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   useColorScheme,
 } from "react-native";
-import SignUpForm from "./SignInForm";
+import SignUpForm from "./SignUpForm";
 
 const GetStartedTabs = () => {
   const [selectedTab, setSelectedTab] = useState("Log In");
