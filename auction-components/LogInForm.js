@@ -13,7 +13,12 @@ import { AlertCircleIcon, EyeIcon, EyeOffIcon } from "@/components/ui/icon";
 import React, { useState } from "react";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { Keyboard, Pressable } from "react-native";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+} from "react-native";
 import SubmitButton from "./share-components/SubmitButton";
 import OrDivider from "./share-components/OrDivider";
 import SocialsButton from "./share-components/SocialsButton";
@@ -107,7 +112,7 @@ const LogInForm = () => {
         {/* Login Button */}
         <SubmitButton
           handleSubmit={handleSubmit}
-          text="Login In"
+          text="Log In"
           isDisabled={!email || !password}
         />
 

@@ -1,10 +1,16 @@
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import LogInForm from "./LogInForm";
 import { VStack } from "@/components/ui/vstack";
-import SignInForm from "./SignInForm";
-import { TouchableOpacity, useColorScheme } from "react-native";
+
+import {
+  KeyboardAvoidingView,
+  Platform,
+  TouchableOpacity,
+  useColorScheme,
+} from "react-native";
+import SignUpForm from "./SignInForm";
 
 const GetStartedTabs = () => {
   const [selectedTab, setSelectedTab] = useState("Log In");
@@ -54,7 +60,7 @@ const GetStartedTabs = () => {
       </HStack>
 
       {/* Dynamic Form */}
-      {selectedTab === "Log In" ? <LogInForm /> : <SignInForm />}
+      {selectedTab === "Log In" ? <LogInForm /> : <SignUpForm />}
     </VStack>
   );
 };
