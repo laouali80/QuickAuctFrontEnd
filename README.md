@@ -53,3 +53,6 @@ npx pod-install ios
 
 allows us to dismiss the keyboard with a touch on the screen
 <TouchableWithoutFeedback onPress={Keyboard.dismiss}></TouchableWithoutFeedback>
+
+React Native wrapper around SharedPreferences and Keychain to provide a secure alternative to Async Storage.
+https://www.npmjs.com/package/react-native-encrypted-storage
