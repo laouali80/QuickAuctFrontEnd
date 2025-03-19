@@ -1,14 +1,36 @@
-import React from "react";
-import { SafeAreaView, ScrollView, View, Text, StyleSheet } from "react-native";
+import React, { useLayoutEffect } from "react";
+import {
+  SafeAreaView,
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+  KeyboardAvoidingView,
+  PlatformColor,
+  Platform,
+} from "react-native";
 
 import GetStartedTabs from "@/auction-components/GetStartedTabs";
 
-const GetStartedScreen = () => {
-  return (
-    <SafeAreaView className="flex-1">
-      {/* Top Section */}
+const GetStartedScreen = ({ navigation }) => {
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
 
-      <ScrollView>
+  return (
+    <SafeAreaView className="flex-1" style={{ flex: 1 }}>
+      {/* Top Section */}
+      {/* <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? -64 : 0}
+      > */}
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
         <View className="h-[30%] bg-[#259e47] py-4 px-6">
           <Text
             style={styles.title}
@@ -32,6 +54,7 @@ const GetStartedScreen = () => {
           <GetStartedTabs />
         </View>
       </ScrollView>
+      {/* </KeyboardAvoidingView> */}
     </SafeAreaView>
   );
 };

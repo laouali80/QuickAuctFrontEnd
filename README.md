@@ -47,3 +47,9 @@ React Native countdown timer component in a circle shape with color and progress
 https://www.npmjs.com/package/react-native-countdown-circle-timer
 
 https://www.youtube.com/watch?v=zLdQxQX5nAs&list=PLswiMBSI75YtSVBBKUYY4dC20hQJ7OdAz&index=13
+
+If you're on a Mac and developing for iOS, you need to install the pods (via Cocoapods) to complete the linking.
+npx pod-install ios
+
+allows us to dismiss the keyboard with a touch on the screen
+<TouchableWithoutFeedback onPress={Keyboard.dismiss}></TouchableWithoutFeedback>
