@@ -39,3 +39,17 @@ You agree not to engage in any conduct that violates these Terms of Service or a
 
 **8. Intellectual Property**  
 All content on our Application, including text, graphics, logos, and images, is protected by copyright and other intellectual property laws. You may not reproduce, distribute, or transmit any content from our Application without our prior written consent.
+
+One time password, security, password icon
+https://www.flaticon.com/free-icons/otp
+
+React Native countdown timer component in a circle shape with color and progress animation.
+https://www.npmjs.com/package/react-native-countdown-circle-timer
+
+https://www.youtube.com/watch?v=zLdQxQX5nAs&list=PLswiMBSI75YtSVBBKUYY4dC20hQJ7OdAz&index=13
+
+If you're on a Mac and developing for iOS, you need to install the pods (via Cocoapods) to complete the linking.
+npx pod-install ios
+
+allows us to dismiss the keyboard with a touch on the screen
+<TouchableWithoutFeedback onPress={Keyboard.dismiss}></TouchableWithoutFeedback>

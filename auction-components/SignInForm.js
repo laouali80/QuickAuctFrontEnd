@@ -1,38 +1,32 @@
-import { Button, ButtonText } from "@/components/ui/button";
 import {
   FormControl,
-  FormControlError,
   FormControlErrorText,
-  FormControlErrorIcon,
   FormControlLabel,
   FormControlLabelText,
-  FormControlHelper,
-  FormControlHelperText,
 } from "@/components/ui/form-control";
 import { VStack } from "@/components/ui/vstack";
-import {
-  AlertCircleIcon,
-  EyeIcon,
-  EyeOffIcon,
-  CheckIcon,
-} from "@/components/ui/icon";
+import { EyeIcon, EyeOffIcon, CheckIcon } from "@/components/ui/icon";
 import React, { useState } from "react";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import {
   Checkbox,
   CheckboxIndicator,
-  CheckboxLabel,
   CheckboxIcon,
 } from "@/components/ui/checkbox";
-import { ScrollView, Pressable } from "react-native";
-import { Divider } from "@/components/ui/divider";
+import {
+  Pressable,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { HStack } from "@/components/ui/hstack";
-import { AntDesign } from "@expo/vector-icons";
-import { Box } from "@/components/ui/box";
 import TermsConditionsModal from "./TermsConditionsModal";
+import SubmitButton from "./share-components/SubmitButton";
+import OrDivider from "./share-components/OrDivider";
+import SocialsButton from "./share-components/SocialsButton";
 
-const SignInForm = () => {
+const SignUpForm = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -79,153 +73,141 @@ const SignInForm = () => {
   };
 
   return (
-    <VStack className="px-8 py-4">
-      <FormControl size="md" className="gap-y-4">
-        {[
-          { label: "First Name", name: "firstName" },
-          { label: "Last Name", name: "lastName" },
-          { label: "Username", name: "username" },
-          {
-            label: "Email",
-            name: "email",
-            props: { keyboardType: "email-address" },
-          },
-          {
-            label: "Phone Number",
-            name: "phoneNumber",
-            props: { keyboardType: "phone-pad" },
-          },
-        ].map(({ label, name, props }) => (
-          <VStack space="xs" key={name}>
-            <Text className="text-typography-500">{label}</Text>
-            <Input className="min-w-[250px]">
-              <InputField
-                type="text"
-                value={formData[name]}
-                onChangeText={(text) => handleChange(name, text)}
-                {...props}
-              />
-            </Input>
-            {errors[name] && (
-              <FormControlErrorText>{errors[name]}</FormControlErrorText>
+    <Pressable onPress={Keyboard.dismiss}>
+      <VStack className="px-8 py-4">
+        <FormControl size="md" className="gap-y-4">
+          {[
+            { label: "First Name", name: "firstName" },
+            { label: "Last Name", name: "lastName" },
+            { label: "Username", name: "username" },
+            {
+              label: "Email",
+              name: "email",
+              props: { keyboardType: "email-address" },
+            },
+            {
+              label: "Phone Number",
+              name: "phoneNumber",
+              props: { keyboardType: "phone-pad" },
+            },
+          ].map(({ label, name, props }) => (
+            <VStack space="xs" key={name}>
+              <Text className="text-typography-500">{label}</Text>
+              <Input className="min-w-[250px]">
+                <InputField
+                  type="text"
+                  value={formData[name]}
+                  onChangeText={(text) => handleChange(name, text)}
+                  {...props}
+                />
+              </Input>
+              {errors[name] && (
+                <FormControlErrorText>{errors[name]}</FormControlErrorText>
+              )}
+            </VStack>
+          ))}
+
+          {/* Password Fields */}
+          {[
+            { label: "Password", name: "password", show: showPassword },
+            {
+              label: "Confirm Password",
+              name: "confirmPassword",
+              show: showConfirmPassword,
+            },
+          ].map(({ label, name, show }) => (
+            <VStack space="xs" key={name}>
+              <FormControlLabel>
+                <FormControlLabelText>{label}</FormControlLabelText>
+              </FormControlLabel>
+              <Input className="text-center">
+                <InputField
+                  type={show ? "text" : "password"}
+                  value={formData[name]}
+                  onChangeText={(text) => handleChange(name, text)}
+                  autoCapitalize="none"
+                  autoFocus={false}
+                />
+                <InputSlot
+                  className="pr-3"
+                  onPress={() => {
+                    if (name === "password") {
+                      setShowPassword((prev) => !prev);
+                    } else {
+                      setShowConfirmPassword((prev) => !prev);
+                    }
+                  }}
+                >
+                  <InputIcon as={show ? EyeIcon : EyeOffIcon} />
+                </InputSlot>
+              </Input>
+              {errors[name] && (
+                <FormControlErrorText>{errors[name]}</FormControlErrorText>
+              )}
+            </VStack>
+          ))}
+
+          {/* Terms Checkbox */}
+          <HStack space="xs">
+            <Checkbox
+              size="md"
+              isChecked={formData.termsAccepted}
+              onChange={() =>
+                handleChange("termsAccepted", !formData.termsAccepted)
+              }
+            >
+              <CheckboxIndicator>
+                <CheckboxIcon as={CheckIcon} />
+              </CheckboxIndicator>
+            </Checkbox>
+            <Pressable onPress={() => setShowTermsConditions(true)}>
+              <Text>
+                I agree to{" "}
+                <Text className="text-blue-600">terms and conditions</Text>
+              </Text>
+            </Pressable>
+            {errors.termsAccepted && (
+              <FormControlErrorText>
+                {errors.termsAccepted}
+              </FormControlErrorText>
             )}
-          </VStack>
-        ))}
+          </HStack>
+        </FormControl>
 
-        {/* Password Fields */}
-        {[
-          { label: "Password", name: "password", state: showPassword },
-          {
-            label: "Confirm Password",
-            name: "confirmPassword",
-            state: showConfirmPassword,
-          },
-        ].map(({ label, name, state }) => (
-          <VStack space="xs" key={name}>
-            <FormControlLabel>
-              <FormControlLabelText>{label}</FormControlLabelText>
-            </FormControlLabel>
-            <Input className="text-center">
-              <InputField
-                type={state ? "text" : "password"}
-                value={formData[name]}
-                onChangeText={(text) => handleChange(name, text)}
-              />
-              <InputSlot
-                className="pr-3"
-                onPress={() =>
-                  name === "password"
-                    ? setShowPassword(!showPassword)
-                    : setShowConfirmPassword(!showConfirmPassword)
-                }
-              >
-                <InputIcon as={state ? EyeIcon : EyeOffIcon} />
-              </InputSlot>
-            </Input>
-            {errors[name] && (
-              <FormControlErrorText>{errors[name]}</FormControlErrorText>
-            )}
-          </VStack>
-        ))}
-
-        {/* Terms Checkbox */}
-        <HStack space="xs">
-          <Checkbox
-            size="md"
-            isChecked={formData.termsAccepted}
-            onChange={() =>
-              handleChange("termsAccepted", !formData.termsAccepted)
-            }
-          >
-            <CheckboxIndicator>
-              <CheckboxIcon as={CheckIcon} />
-            </CheckboxIndicator>
-          </Checkbox>
-          <Pressable onPress={() => setShowTermsConditions(true)}>
-            <Text>
-              I agree to{" "}
-              <Text className="text-blue-600">terms and conditions</Text>
-            </Text>
-          </Pressable>
-          {errors.termsAccepted && (
-            <FormControlErrorText>{errors.termsAccepted}</FormControlErrorText>
-          )}
-        </HStack>
-      </FormControl>
-
-      {/* Submit Button */}
-      <Button
-        className="w-full self-center mt-4 bg-[#259e47] rounded-lg"
-        size="sm"
-        onPress={handleSubmit}
-        isDisabled={
-          !formData.firstName ||
-          !formData.lastName ||
-          !formData.username ||
-          !formData.email ||
-          !formData.phoneNumber ||
-          !formData.password ||
-          !formData.confirmPassword ||
-          !formData.termsAccepted
-        }
-      >
-        <ButtonText>Sign Up</ButtonText>
-      </Button>
-
-      {/* OR Divider */}
-      <HStack className="flex items-center my-4">
-        <Divider className="flex-1" />
-        <Text className="font-semibold mx-2">Or</Text>
-        <Divider className="flex-1" />
-      </HStack>
-
-      {/* Social Login Buttons */}
-      <VStack space="sm" className="mt-4">
-        {[
-          { name: "google", label: "Continue with Google" },
-          { name: "apple1", label: "Continue with Apple" },
-        ].map(({ name, label }) => (
-          <Pressable
-            key={name}
-            className="p-4 border border-outline-200 rounded-full flex-row items-center justify-center"
-          >
-            <AntDesign name={name} size={24} color="black" />
-            <Text className="ml-2">{label}</Text>
-          </Pressable>
-        ))}
-      </VStack>
-
-      {showTermsConditions && (
-        <TermsConditionsModal
-          show={showTermsConditions}
-          onClose={() => setShowTermsConditions(false)}
+        {/* Submit Button */}
+        <SubmitButton
+          handleSubmit={handleSubmit}
+          text="Sign Up"
+          isDisabled={
+            !formData.firstName ||
+            !formData.lastName ||
+            !formData.username ||
+            !formData.email ||
+            !formData.phoneNumber ||
+            !formData.password ||
+            !formData.confirmPassword ||
+            !formData.termsAccepted
+          }
         />
-      )}
-    </VStack>
+
+        {/* OR Divider */}
+        <OrDivider />
+
+        {/* Social Buttons */}
+        <SocialsButton />
+
+        {showTermsConditions && (
+          <TermsConditionsModal
+            show={showTermsConditions}
+            onClose={() => setShowTermsConditions(false)}
+          />
+        )}
+      </VStack>
+    </Pressable>
   );
 };
 
-export default SignInForm;
+export default SignUpForm;
 
 // const SignInForm = () => {
 //   const [formData, setFormData] = useState({
