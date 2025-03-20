@@ -55,3 +55,6 @@ allows us to dismiss the keyboard with a touch on the screen
 <TouchableWithoutFeedback onPress={Keyboard.dismiss}></TouchableWithoutFeedback>
 
 npm install axios
+
+redux
+npm install @reduxjs/toolkit react-redux
