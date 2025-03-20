@@ -50,7 +50,7 @@ const GetStartedScreen = ({ navigation }) => {
           </View>
 
           {/* forms */}
-          <View className="h-[60%] py-5 px-2 justify-center items-center rounded-t-lg  ">
+          <View className="h-[60%] flex-1 py-5 px-2 justify-center items-center rounded-t-lg  ">
             <GetStartedTabs />
           </View>
         </ScrollView>
