@@ -54,4 +54,8 @@ npx pod-install ios
 allows us to dismiss the keyboard with a touch on the screen
 <TouchableWithoutFeedback onPress={Keyboard.dismiss}></TouchableWithoutFeedback>
 
+axios
 npm install axios
+
+React-native-encryted-storage
+npm install react-native-encrypted-storage
