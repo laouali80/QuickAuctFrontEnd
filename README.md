@@ -56,3 +56,8 @@ allows us to dismiss the keyboard with a touch on the screen
 
 React Native wrapper around SharedPreferences and Keychain to provide a secure alternative to Async Storage.
 https://www.npmjs.com/package/react-native-encrypted-storage
+
+react native image picker
+npm i react-native-image-picker
+
+Free images Unsplash.com
