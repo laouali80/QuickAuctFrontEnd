@@ -23,6 +23,10 @@ import ProfileScreen from "./screens/Profile/ProfileScreen";
 import { useState } from "react";
 import SplashScreen from "./screens/SplashScreen";
 import { Provider } from "react-redux";
+import AuctionOverviewScreen from "./screens/AuctionOverviewScreen";
+import CreateAuctionFormScreen from "./screens/CreateAuctionFormScreen";
+import AuctionBidsScreen from "./screens/AuctionBidsScreen";
+import AuctionScreen from "./screens/AuctionScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -62,10 +66,26 @@ export default function App() {
                 ) : (
                   <>
                     <Stack.Screen name="Home" component={HomeScreen} />
-                    {/* <Stack.Screen name="Insights" component={InsightsScreen} />
-                  <Stack.Screen name="Creation" component={CreationScren} />
-                  <Stack.Screen name="Chats" component={ChatsScreen} />
-                  <Stack.Screen name="Profile" component={ProfileScreen} /> */}
+
+                    {/* Auction */}
+                    <Stack.Screen name="Auction" component={AuctionScreen} />
+                    <Stack.Screen
+                      name="AuctionBids"
+                      component={AuctionBidsScreen}
+                    />
+                    <Stack.Screen
+                      name="AuctionOverview"
+                      component={AuctionOverviewScreen}
+                    />
+
+                    {/* Auction Creation */}
+                    <Stack.Screen
+                      name="CreateAuctionForm"
+                      component={CreateAuctionFormScreen}
+                    />
+
+                    {/* <Stack.Screen name="Chats" component={ChatsScreen} />
+                    <Stack.Screen name="Profile" component={ProfileScreen} /> */}
                   </>
                 )}
               </Stack.Navigator>
