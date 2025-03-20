@@ -22,39 +22,39 @@ const GetStartedScreen = ({ navigation }) => {
   return (
     <SafeAreaView className="flex-1" style={{ flex: 1 }}>
       {/* Top Section */}
-      {/* <KeyboardAvoidingView
+      <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === "ios" ? -64 : 0}
-      > */}
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1 }}
       >
-        <View className="h-[30%] bg-[#259e47] py-4 px-6">
-          <Text
-            style={styles.title}
-            className="text-white text-xl font-semibold "
-          >
-            QuickAuct
-          </Text>
-          <Text
-            style={styles.title}
-            className="text-white text-3xl font-bold mt-4 mb-2"
-          >
-            Get Started now
-          </Text>
-          <Text style={styles.title} className="text-lg text-white">
-            Create an account or login to view auctions
-          </Text>
-        </View>
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          <View className="h-[30%] bg-[#259e47] py-4 px-6">
+            <Text
+              style={styles.title}
+              className="text-white text-xl font-semibold "
+            >
+              QuickAuct
+            </Text>
+            <Text
+              style={styles.title}
+              className="text-white text-3xl font-bold mt-4 mb-2"
+            >
+              Get Started now
+            </Text>
+            <Text style={styles.title} className="text-lg text-white">
+              Create an account or login to view auctions
+            </Text>
+          </View>
 
-        {/* forms */}
-        <View className="h-[60%] py-5 px-2 justify-center items-center rounded-t-lg  ">
-          <GetStartedTabs />
-        </View>
-      </ScrollView>
-      {/* </KeyboardAvoidingView> */}
+          {/* forms */}
+          <View className="h-[60%] flex-1 py-5 px-2 justify-center items-center rounded-t-lg  ">
+            <GetStartedTabs />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

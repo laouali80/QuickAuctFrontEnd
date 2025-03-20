@@ -14,14 +14,20 @@ import {
   CheckboxIndicator,
   CheckboxIcon,
 } from "@/components/ui/checkbox";
-import { Pressable, Keyboard } from "react-native";
+import {
+  Pressable,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { HStack } from "@/components/ui/hstack";
 import TermsConditionsModal from "./TermsConditionsModal";
 import SubmitButton from "./share-components/SubmitButton";
 import OrDivider from "./share-components/OrDivider";
 import SocialsButton from "./share-components/SocialsButton";
+import api from "@/core/api";
 
-const SignInForm = () => {
+const SignUpForm = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -64,6 +70,32 @@ const SignInForm = () => {
   const handleSubmit = () => {
     if (validateForm()) {
       console.log("Form submitted:", formData);
+
+      // Make a request
+      api({
+        method: "POST",
+        url: "api/users/auth/register/",
+        data: formData,
+      })
+        .then((response) => {})
+        .catch((error) => {
+          if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+          } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            console.log(error.request);
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log("Error", error.message);
+          }
+          console.log(error.config);
+        });
     }
   };
 
@@ -104,20 +136,20 @@ const SignInForm = () => {
 
           {/* Password Fields */}
           {[
-            { label: "Password", name: "password", state: showPassword },
+            { label: "Password", name: "password", show: showPassword },
             {
               label: "Confirm Password",
               name: "confirmPassword",
-              state: showConfirmPassword,
+              show: showConfirmPassword,
             },
-          ].map(({ label, name, state }) => (
+          ].map(({ label, name, show }) => (
             <VStack space="xs" key={name}>
               <FormControlLabel>
                 <FormControlLabelText>{label}</FormControlLabelText>
               </FormControlLabel>
               <Input className="text-center">
                 <InputField
-                  type={state ? "text" : "password"}
+                  type={show ? "text" : "password"}
                   value={formData[name]}
                   onChangeText={(text) => handleChange(name, text)}
                   autoCapitalize="none"
@@ -125,13 +157,15 @@ const SignInForm = () => {
                 />
                 <InputSlot
                   className="pr-3"
-                  onPress={() =>
-                    name === "password"
-                      ? setShowPassword(!showPassword)
-                      : setShowConfirmPassword(!showConfirmPassword)
-                  }
+                  onPress={() => {
+                    if (name === "password") {
+                      setShowPassword((prev) => !prev);
+                    } else {
+                      setShowConfirmPassword((prev) => !prev);
+                    }
+                  }}
                 >
-                  <InputIcon as={state ? EyeIcon : EyeOffIcon} />
+                  <InputIcon as={show ? EyeIcon : EyeOffIcon} />
                 </InputSlot>
               </Input>
               {errors[name] && (
@@ -200,7 +234,7 @@ const SignInForm = () => {
   );
 };
 
-export default SignInForm;
+export default SignUpForm;
 
 // const SignInForm = () => {
 //   const [formData, setFormData] = useState({
