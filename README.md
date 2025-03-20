@@ -53,3 +53,5 @@ npx pod-install ios
 
 allows us to dismiss the keyboard with a touch on the screen
 <TouchableWithoutFeedback onPress={Keyboard.dismiss}></TouchableWithoutFeedback>
+
+npm install axios
