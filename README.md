@@ -59,5 +59,6 @@ https://www.npmjs.com/package/react-native-encrypted-storage
 
 react native image picker
 npm i react-native-image-picker
+https://www.npmjs.com/package/react-native-image-picker
 
 Free images Unsplash.com
