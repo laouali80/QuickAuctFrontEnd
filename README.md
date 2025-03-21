@@ -62,3 +62,5 @@ npm i react-native-image-picker
 https://www.npmjs.com/package/react-native-image-picker
 
 Free images Unsplash.com
+
+npm install axios
