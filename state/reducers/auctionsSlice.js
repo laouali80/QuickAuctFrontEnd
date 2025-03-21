@@ -23,7 +23,7 @@ export const getAuctionsStatus = (state) => state.auctions.status;
 export const getAuctionsError = (state) => state.auctions.error;
 
 // exporting the actions
-export const { updateUser } = userSlice.actions;
+export const { updateUser } = auctionsSlice.actions;
 
 // Exporting the reducer
 export default auctionsSlice.reducer;

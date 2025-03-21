@@ -27,6 +27,7 @@ import AuctionOverviewScreen from "./screens/AuctionOverviewScreen";
 import CreateAuctionFormScreen from "./screens/CreateAuctionFormScreen";
 import AuctionBidsScreen from "./screens/AuctionBidsScreen";
 import AuctionScreen from "./screens/AuctionScreen";
+import store from "./state/store";
 
 const Stack = createNativeStackNavigator();
 
@@ -65,10 +66,10 @@ export default function App() {
                   </>
                 ) : (
                   <>
-                    <Stack.Screen name="Home" component={HomeScreen} />
+                    {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
 
                     {/* Auction */}
-                    <Stack.Screen name="Auction" component={AuctionScreen} />
+                    {/* <Stack.Screen name="Auction" component={AuctionScreen} />
                     <Stack.Screen
                       name="AuctionBids"
                       component={AuctionBidsScreen}
@@ -76,7 +77,7 @@ export default function App() {
                     <Stack.Screen
                       name="AuctionOverview"
                       component={AuctionOverviewScreen}
-                    />
+                    /> */}
 
                     {/* Auction Creation */}
                     <Stack.Screen

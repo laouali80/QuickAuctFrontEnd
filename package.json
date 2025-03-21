@@ -11,6 +11,7 @@
   "dependencies": {
     "@expo/html-elements": "^0.4.2",
     "@expo/metro-runtime": "~4.0.1",
+    "@gluestack-ui/actionsheet": "^0.2.52",
     "@gluestack-ui/button": "^1.0.14",
     "@gluestack-ui/checkbox": "^0.1.39",
     "@gluestack-ui/divider": "^0.1.10",
@@ -21,6 +22,8 @@
     "@gluestack-ui/nativewind-utils": "^1.0.26",
     "@gluestack-ui/overlay": "^0.1.22",
     "@gluestack-ui/pressable": "^0.1.23",
+    "@gluestack-ui/select": "^0.1.31",
+    "@gluestack-ui/textarea": "^0.1.24",
     "@gluestack-ui/toast": "^1.0.9",
     "@legendapp/motion": "^2.4.0",
     "@react-navigation/bottom-tabs": "^7.2.1",
@@ -45,7 +48,7 @@
     "react-native-reanimated": "^3.17.1",
     "react-native-safe-area-context": "^5.3.0",
     "react-native-screens": "^4.9.2",
-    "react-native-svg": "^15.2.0",
+    "react-native-svg": "^15.11.2",
     "react-native-web": "~0.19.13",
     "react-redux": "^9.2.0",
     "tailwindcss": "^3.4.17"
@@ -53,7 +56,8 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@types/react": "~18.3.12",
-    "jscodeshift": "^0.15.2"
+    "jscodeshift": "^0.15.2",
+    "react-native-svg-transformer": "^1.5.0"
   },
   "private": true
 }

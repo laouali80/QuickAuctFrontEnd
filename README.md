@@ -70,3 +70,14 @@ Free images Unsplash.com
 
 redux
 npm install @reduxjs/toolkit react-redux
+
+react native elements
+https://reactnativeelements.com/
+
+icons
+https://www.iconfinder.com/
+
+to incorporate svg images
+npm install react-native-svg
+https://www.npmjs.com/package/react-native-svg
+npm i react-native-svg-transformer
