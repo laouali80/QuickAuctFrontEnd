@@ -1,6 +1,7 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import ProfileLogout from "@/auction-components/share-components/ProfileLogout";
+import ProfileImage from "@/auction-components/ProfileImage";
 
 const ProfileScreen = () => {
   return (
@@ -11,16 +12,8 @@ const ProfileScreen = () => {
         paddingTop: 100,
       }}
     >
-      <Image
-        source={require("../../assets/profiles/default.png")}
-        style={{
-          width: 100,
-          height: 100,
-          borderRadius: 90,
-          backgroundColor: "#e0e0e0",
-          marginBottom: 20,
-        }}
-      />
+      <ProfileImage />
+
       <Text
         style={{
           textAlign: "center",

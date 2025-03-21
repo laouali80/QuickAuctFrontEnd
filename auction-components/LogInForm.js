@@ -13,10 +13,17 @@ import { AlertCircleIcon, EyeIcon, EyeOffIcon } from "@/components/ui/icon";
 import React, { useState } from "react";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { Keyboard, Pressable } from "react-native";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+} from "react-native";
 import SubmitButton from "./share-components/SubmitButton";
 import OrDivider from "./share-components/OrDivider";
 import SocialsButton from "./share-components/SocialsButton";
+import api from "@/core/api";
+import utils from "@/core/utils";
 
 const LogInForm = () => {
   const [email, setEmail] = useState("");
@@ -43,10 +50,57 @@ const LogInForm = () => {
     return true;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
       console.log("Login successful with:", { email, password });
       // Handle login API call here
+
+      // const response = await fetch(
+      //   "https://localhost:8000/api/users/auth/login/",
+      //   {
+      //     method: "POST",
+      //     // headers: { "Content-Type": "application/json" },
+      //     headers: { "Content-Type": "multipart/form-data" },
+      //     body: JSON.stringify({ email, password }),
+      //   }
+      // );
+
+      // if (response.ok) {
+      //   console.log(response);
+      //   // const { token } = await response.json();
+
+      //   // return token;
+      // }
+      // const errMessage = await response.json();
+      // console.log(errMessage);
+
+      // Make a request
+      api({
+        method: "POST",
+        url: "users/auth/login/",
+        data: { email, password },
+      })
+        .then((response) => {
+          utils.log("login", response);
+        })
+        .catch((error) => {
+          if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.log(error.response.data);
+            // console.log(error.response.status);
+            // console.log(error.response.headers);
+          } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            console.log(error);
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log("Error", error.message);
+          }
+          console.log(error.config);
+        });
     }
   };
 
@@ -107,7 +161,7 @@ const LogInForm = () => {
         {/* Login Button */}
         <SubmitButton
           handleSubmit={handleSubmit}
-          text="Login In"
+          text="Log In"
           isDisabled={!email || !password}
         />
 
