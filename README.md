@@ -64,3 +64,6 @@ https://www.npmjs.com/package/react-native-image-picker
 Free images Unsplash.com
 
 npm install axios
+
+redux
+npm install @reduxjs/toolkit react-redux
