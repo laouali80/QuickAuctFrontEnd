@@ -19,7 +19,7 @@ const ProfileImage = () => {
       }}
     >
       <Image
-        source={require("../../assets/profiles/default.png")}
+        source={require("../assets/profiles/default.png")}
         style={{
           width: 100,
           height: 100,
