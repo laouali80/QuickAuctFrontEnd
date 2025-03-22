@@ -81,3 +81,6 @@ to incorporate svg images
 npm install react-native-svg
 https://www.npmjs.com/package/react-native-svg
 npm i react-native-svg-transformer
+
+react-native-curved-bottom-bar
+https://www.npmjs.com/package/react-native-curved-bottom-bar
