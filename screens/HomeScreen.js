@@ -15,17 +15,8 @@ import {
   View,
 } from "react-native";
 import { CurvedBottomBarExpo } from "react-native-curved-bottom-bar";
-import { Ionicons } from "@expo/vector-icons";
-
-// const Tab = createBottomTabNavigator();
-
-const Screen1 = () => {
-  return <View style={styles.screen1} />;
-};
-
-const Screen2 = () => {
-  return <View style={styles.screen2} />;
-};
+import { Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import Svg from "react-native-svg-web";
 
 const HomeScreen = ({ navigation }) => {
   useLayoutEffect(() => {
@@ -38,21 +29,27 @@ const HomeScreen = ({ navigation }) => {
     let icon = "";
 
     switch (routeName) {
-      case "title1":
-        icon = "ios-home-outline";
+      case "Auctions":
+        icon = (
+          <Ionicons
+            name={"home-outline"}
+            size={25}
+            color={routeName === selectedTab ? "black" : "gray"}
+          />
+        );
         break;
-      case "title2":
-        icon = "settings-outline";
+      case "Insights":
+        icon = <Feather name="trending-up" size={25} color="black" />;
+        break;
+      case "Chats":
+        icon = <Ionicons name="chatbubbles-outline" size={25} color="black" />;
+        break;
+      case "Profile":
+        icon = <FontAwesome5 name="user-circle" size={25} color="black" />;
         break;
     }
 
-    return (
-      <Ionicons
-        name={icon}
-        size={25}
-        color={routeName === selectedTab ? "black" : "gray"}
-      />
-    );
+    return icon;
   };
   const renderTabBar = ({ routeName, selectedTab, navigate }) => {
     return (
@@ -73,7 +70,7 @@ const HomeScreen = ({ navigation }) => {
       height={55}
       circleWidth={50}
       bgColor="white"
-      initialRouteName="title1"
+      initialRouteName="Auctions"
       borderTopLeftRight
       renderCircle={({ selectedTab, navigate }) => (
         <Animated.View style={styles.btnCircleUp}>
@@ -81,32 +78,32 @@ const HomeScreen = ({ navigation }) => {
             style={styles.button}
             onPress={() => Alert.alert("Click Action")}
           >
-            <Ionicons name={"apps-sharp"} color="gray" size={25} />
+            <Ionicons name="add" size={25} color="white" />
           </TouchableOpacity>
         </Animated.View>
       )}
       tabBar={renderTabBar}
     >
       <CurvedBottomBarExpo.Screen
-        name="title1"
+        name="Auctions"
         position="LEFT"
-        component={() => <Screen1 />}
+        component={() => <AuctionsScreen />}
       />
-      {/* <CurvedBottomBarExpo.Screen
-        name="title1"
-        position="LEFT"
-        component={() => <Screen1 />}
-      /> */}
       <CurvedBottomBarExpo.Screen
-        name="title2"
-        component={() => <Screen2 />}
+        name="Insights"
+        position="LEFT"
+        component={() => <InsightsScreen />}
+      />
+      <CurvedBottomBarExpo.Screen
+        name="Chats"
+        component={() => <ChatsScreen />}
         position="RIGHT"
       />
-      {/* <CurvedBottomBarExpo.Screen
-        name="title2"
-        component={() => <Screen2 />}
+      <CurvedBottomBarExpo.Screen
+        name="Profile"
+        component={() => <ProfileScreen />}
         position="RIGHT"
-      /> */}
+      />
     </CurvedBottomBarExpo.Navigator>
   );
 };
@@ -138,7 +135,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#E8E8E8",
+    backgroundColor: "#259e47",
     bottom: 30,
     shadowColor: "#000",
     shadowOffset: {
@@ -173,6 +170,7 @@ const styles = StyleSheet.create({
   },
 });
 
+// const Tab = createBottomTabNavigator();
 {
   /* <Tab.Navigator>
       <Tab.Screen name="Home" component={AuctionsScreen} />

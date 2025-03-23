@@ -84,3 +84,6 @@ npm i react-native-svg-transformer
 
 react-native-curved-bottom-bar
 https://www.npmjs.com/package/react-native-curved-bottom-bar
+
+This package can be used as a drop-in replacement for react-native-svg when targeting the web,
+https://www.npmjs.com/package/react-native-svg-web
