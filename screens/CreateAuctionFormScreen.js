@@ -66,6 +66,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
   return (
     <ScrollView style={{ flex: 1, marginVertical: 20, marginHorizontal: 20 }}>
       <VStack space="md" className="flex-1">
+        {/* Auction Images */}
         <VStack space="md">
           <Text className="text-xl font-semibold ">Add Images</Text>
           <HStack space="sm">
@@ -108,7 +109,9 @@ const CreateAuctionFormScreen = ({ navigation }) => {
           </HStack>
         </VStack>
 
+        {/* Auction Title, Description and Category */}
         <VStack space="sm">
+          {/* Title */}
           <TextInput
             placeholder="Product Title"
             style={{
@@ -120,6 +123,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
               height: 35,
             }}
           />
+          {/* Description */}
           <Textarea
             size="md"
             isReadOnly={false}
@@ -129,6 +133,8 @@ const CreateAuctionFormScreen = ({ navigation }) => {
           >
             <TextareaInput placeholder="Your text goes here..." />
           </Textarea>
+
+          {/* Category */}
           <SelectDrop
             placeholder="Category"
             selectItems={[
@@ -136,7 +142,19 @@ const CreateAuctionFormScreen = ({ navigation }) => {
               { key: "Furniture", value: "furniture" },
             ]}
           />
+        </VStack>
 
+        {/* Auction Price, Jump Bid, Length, Type, Delivery Type */}
+        <View
+          className="flex flex-col py-4  "
+          style={{
+            borderWidth: 4,
+            borderColor: "blue",
+            marginVertical: 9,
+          }}
+        >
+          {/* Starting Price */}
+          <Text className="text-xl font-semibold ">Starting Price</Text>
           <TextInput
             placeholder="Starting Price"
             keyboardType="numeric"
@@ -149,16 +167,23 @@ const CreateAuctionFormScreen = ({ navigation }) => {
               height: 35,
             }}
           />
-        </VStack>
 
-        <View
-          className="flex flex-col py-4  "
-          style={{
-            borderWidth: 4,
-            borderColor: "blue",
-            marginVertical: 9,
-          }}
-        >
+          {/* Increase Bid */}
+          <Text className="text-xl font-semibold ">
+            Increase Amount {"("}Optional{")"}
+          </Text>
+          <SelectDrop
+            placeholder={"Type"}
+            selectItems={[
+              { key: "100", value: "100" },
+              { key: "500", value: "500" },
+              { key: "1k", value: "1000" },
+              { key: "5k", value: "5000" },
+              { key: "10k", value: "10000" },
+            ]}
+          />
+
+          {/* Auction Length */}
           <Text className="text-xl font-semibold ">Auction Length</Text>
           <SelectDrop
             placeholder={"Duration"}
@@ -169,7 +194,6 @@ const CreateAuctionFormScreen = ({ navigation }) => {
             ]}
             handleSelect={handleSelect}
           />
-
           {selectedDuration && (
             <HStack space="xl" className="mt-8 py-6">
               {duration
@@ -204,6 +228,8 @@ const CreateAuctionFormScreen = ({ navigation }) => {
                 ))}
             </HStack>
           )}
+
+          {/* Auction Type */}
           <Text className="text-xl font-semibold ">Product Type</Text>
           <SelectDrop
             placeholder={"Type"}
@@ -212,6 +238,8 @@ const CreateAuctionFormScreen = ({ navigation }) => {
               { key: "New", value: "new" },
             ]}
           />
+
+          {/* Delivery Type */}
           <Text className="text-xl font-semibold">Delivery Type</Text>
           <SelectDrop
             placeholder={"Delivery"}
@@ -222,6 +250,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
           />
         </View>
 
+        {/* Auction Methods of Payment */}
         <View
           className="flex flex-col py-4  "
           style={{
