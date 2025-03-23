@@ -15,8 +15,6 @@ import {
 import { ChevronDownIcon } from "@/components/ui/icon";
 
 const SelectDrop = ({ placeholder, selectItems = [], handleSelect }) => {
-  const [select, setSelect] = useState();
-
   const handleValueChange = (value) => {
     if (handleSelect) {
       handleSelect(value); // Call parent function if provided
@@ -47,14 +45,6 @@ const SelectDrop = ({ placeholder, selectItems = [], handleSelect }) => {
                 value={item.value}
               />
             ))}
-          {/* <SelectItem label="UX Research" value="ux" />
-          <SelectItem label="Web Development" value="web" />
-          <SelectItem
-            label="Cross Platform Development Process"
-            value="Cross Platform Development Process"
-          />
-          <SelectItem label="UI Designing" value="ui" isDisabled={true} />
-          <SelectItem label="Backend Development" value="backend" /> */}
         </SelectContent>
       </SelectPortal>
     </Select>
