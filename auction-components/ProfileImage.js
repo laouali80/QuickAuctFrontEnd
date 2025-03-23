@@ -1,6 +1,13 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import {
+  Entypo,
+  EvilIcons,
+  Feather,
+  FontAwesome5,
+  Ionicons,
+} from "@expo/vector-icons";
 
 const ProfileImage = () => {
   return (
@@ -43,7 +50,8 @@ const ProfileImage = () => {
           borderColor: "white",
         }}
       >
-        <Entypo name="log-out" size={15} color="#d0d0d0" />
+        <EvilIcons name="pencil" size={20} color="#d0d0d0" />
+        {/* <Entypo name="log-out" size={15} color="#d0d0d0" /> */}
       </View>
     </TouchableOpacity>
   );

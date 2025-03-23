@@ -5,12 +5,13 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import Bids from "./components/Bids";
 import Sales from "./components/Sales";
 import Likes from "./components/Likes";
+import { COLORS } from "@/constants/COLORS";
 
 const InsightsScreen = () => {
   const [selectedTab, setSelectedTab] = useState("Bids");
@@ -25,17 +26,19 @@ const InsightsScreen = () => {
     <VStack className="flex-1">
       {/* Tab Switcher */}
       <HStack className=" mx-6 mt-6 items-center justify-between">
-        <HStack className="rounded-full w-full p-1.5 items-center bg-background-100 border border-outline-200">
+        <HStack className=" w-full p-1.5 items-center ">
           <TouchableOpacity
-            className={`rounded-full flex-1 justify-center items-center px-3 py-1.5 ${
-              selectedTab === "Bids" ? activeBg : "bg-background-100"
+            className={`rounded-lg flex-1 justify-center items-center p-4 ${
+              selectedTab === "Bids"
+                ? `bg-[${COLORS.primary}]`
+                : "bg-background-100"
             }`}
             onPress={handleBidsPress}
           >
             <Text
               size="sm"
-              className={`font-medium ${
-                selectedTab === "Bids" ? "text-black" : "text-gray-500"
+              className={`font-bold ${
+                selectedTab === "Bids" ? "text-[#fff]" : "text-gray-500"
               }`}
             >
               Bids
@@ -43,15 +46,17 @@ const InsightsScreen = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            className={`rounded-full flex-1 justify-center items-center px-3 py-1.5 ${
-              selectedTab === "Sales" ? activeBg : "bg-background-100"
+            className={`rounded-lg flex-1 justify-center items-center p-4  ${
+              selectedTab === "Sales"
+                ? `bg-[${COLORS.primary}]`
+                : "bg-background-100"
             }`}
             onPress={handleSalesPress}
           >
             <Text
               size="sm"
-              className={`font-medium ${
-                selectedTab === "Sales" ? "text-black" : "text-gray-500"
+              className={`font-bold ${
+                selectedTab === "Sales" ? "text-white" : "text-gray-500"
               }`}
             >
               Sales
@@ -59,15 +64,17 @@ const InsightsScreen = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            className={`rounded-full flex-1 justify-center items-center px-3 py-1.5 ${
-              selectedTab === "Likes" ? activeBg : "bg-background-100"
+            className={`rounded-lg flex-1 justify-center items-center p-4  ${
+              selectedTab === "Likes"
+                ? `bg-[${COLORS.primary}]`
+                : "bg-background-100"
             }`}
             onPress={handleLikesPress}
           >
             <Text
               size="sm"
-              className={`font-medium ${
-                selectedTab === "Likes" ? "text-black" : "text-gray-500"
+              className={`font-bold ${
+                selectedTab === "Likes" ? "text-white" : "text-gray-500"
               }`}
             >
               Likes
