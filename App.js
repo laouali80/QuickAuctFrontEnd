@@ -20,56 +20,61 @@ import InsightsScreen from "./screens/Insights/InsightsScreen";
 import ChatsScreen from "./screens/Chats/ChatsScreen";
 import CreationScren from "./screens/Creation/CreationScren";
 import ProfileScreen from "./screens/Profile/ProfileScreen";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SplashScreen from "./screens/SplashScreen";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import AuctionOverviewScreen from "./screens/AuctionOverviewScreen";
 import CreateAuctionFormScreen from "./screens/CreateAuctionFormScreen";
 import AuctionBidsScreen from "./screens/AuctionBidsScreen";
 import AuctionScreen from "./screens/AuctionScreen";
 import store from "./state/store";
+import { getAuthentication } from "./state/reducers/userSlice";
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
+function AppContent() {
   const colorScheme = useColorScheme(); // Detects light or dark mode
+  const authenticated = useSelector(getAuthentication);
+  console.log(authenticated);
 
   const isDarkMode = colorScheme === "dark";
   const statusBarStyle = isDarkMode ? "light-content" : "dark-content";
 
+  useEffect(() => {
+    console.log("Authenticated:", authenticated);
+  }, [authenticated]);
+
   const [initialized] = useState(true);
-  const [authenticated] = useState(true);
 
   return (
-    <Provider store={store}>
-      <SafeAreaProvider>
-        <GluestackUIProvider mode={isDarkMode ? "dark" : "light"}>
-          <NavigationContainer>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-              style={{ flex: 1 }}
-              keyboardVerticalOffset={Platform.OS === "ios" ? -64 : 0}
-            >
-              <StatusBar barStyle={statusBarStyle} translucent />
-              <Stack.Navigator>
-                {!initialized ? (
-                  <>
-                    <Stack.Screen name="Splash" component={SplashScreen} />
-                  </>
-                ) : !authenticated ? (
-                  <>
-                    <Stack.Screen
-                      name="GetStarted"
-                      component={GetStartedScreen}
-                    />
-                    <Stack.Screen name="OTP Verication" component={OTPScreen} />
-                  </>
-                ) : (
-                  <>
-                    <Stack.Screen name="Home" component={HomeScreen} />
+    <SafeAreaProvider>
+      <GluestackUIProvider mode={isDarkMode ? "dark" : "light"}>
+        <NavigationContainer>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1 }}
+            keyboardVerticalOffset={Platform.OS === "ios" ? -64 : 0}
+          >
+            <StatusBar barStyle={statusBarStyle} translucent />
+            <Stack.Navigator>
+              {!initialized ? (
+                <>
+                  <Stack.Screen name="Splash" component={SplashScreen} />
+                </>
+              ) : !authenticated ? (
+                <>
+                  <Stack.Screen
+                    name="GetStarted"
+                    component={GetStartedScreen}
+                  />
+                  <Stack.Screen name="OTP Verication" component={OTPScreen} />
+                </>
+              ) : (
+                <>
+                  <Stack.Screen name="Home" component={HomeScreen} />
 
-                    {/* Auction */}
-                    {/* <Stack.Screen name="Auction" component={AuctionScreen} />
+                  {/* Auction */}
+                  {/* <Stack.Screen name="Auction" component={AuctionScreen} />
                     <Stack.Screen
                       name="AuctionBids"
                       component={AuctionBidsScreen}
@@ -79,21 +84,28 @@ export default function App() {
                       component={AuctionOverviewScreen}
                     /> */}
 
-                    {/* Auction Creation */}
-                    {/* <Stack.Screen
+                  {/* Auction Creation */}
+                  {/* <Stack.Screen
                       name="CreateAuctionForm"
                       component={CreateAuctionFormScreen}
                     /> */}
 
-                    {/* <Stack.Screen name="Chats" component={ChatsScreen} />
+                  {/* <Stack.Screen name="Chats" component={ChatsScreen} />
                     <Stack.Screen name="Profile" component={ProfileScreen} /> */}
-                  </>
-                )}
-              </Stack.Navigator>
-            </KeyboardAvoidingView>
-          </NavigationContainer>
-        </GluestackUIProvider>
-      </SafeAreaProvider>
+                </>
+              )}
+            </Stack.Navigator>
+          </KeyboardAvoidingView>
+        </NavigationContainer>
+      </GluestackUIProvider>
+    </SafeAreaProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <Provider store={store}>
+      <AppContent />
     </Provider>
   );
 }

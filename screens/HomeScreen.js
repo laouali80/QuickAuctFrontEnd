@@ -16,7 +16,6 @@ import {
 } from "react-native";
 import { CurvedBottomBarExpo } from "react-native-curved-bottom-bar";
 import { Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
-import Svg from "react-native-svg-web";
 
 const HomeScreen = ({ navigation }) => {
   useLayoutEffect(() => {

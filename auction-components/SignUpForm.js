@@ -26,6 +26,8 @@ import SubmitButton from "./share-components/SubmitButton";
 import OrDivider from "./share-components/OrDivider";
 import SocialsButton from "./share-components/SocialsButton";
 import api from "@/core/api";
+import { useDispatch } from "react-redux";
+import { SignUpUser } from "@/state/reducers/userSlice";
 
 const SignUpForm = () => {
   const [formData, setFormData] = useState({
@@ -43,6 +45,8 @@ const SignUpForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showTermsConditions, setShowTermsConditions] = useState(false);
+
+  const dispatch = useDispatch(); // Get dispatch function
 
   const handleChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -71,166 +75,160 @@ const SignUpForm = () => {
     if (validateForm()) {
       console.log("Form submitted:", formData);
 
+      // Dispatch the action correctly
+      dispatch(
+        SignUpUser({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          username: formData.username,
+          email: formData.email,
+          phone_number: formData.phoneNumber,
+          password: formData.password,
+          aggrement: formData.termsAccepted,
+        })
+      );
+
       // Make a request
-      api({
-        method: "POST",
-        url: "api/users/auth/register/",
-        data: formData,
-      })
-        .then((response) => {})
-        .catch((error) => {
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            console.log(error.request);
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log("Error", error.message);
-          }
-          console.log(error.config);
-        });
     }
   };
 
-  return (
-    <Pressable onPress={Keyboard.dismiss}>
-      <VStack className="px-8 py-4">
-        <FormControl size="md" className="gap-y-4">
-          {[
-            { label: "First Name", name: "firstName" },
-            { label: "Last Name", name: "lastName" },
-            { label: "Username", name: "username" },
-            {
-              label: "Email",
-              name: "email",
-              props: { keyboardType: "email-address" },
-            },
-            {
-              label: "Phone Number",
-              name: "phoneNumber",
-              props: { keyboardType: "phone-pad" },
-            },
-          ].map(({ label, name, props }) => (
-            <VStack space="xs" key={name}>
-              <Text className="text-typography-500">{label}</Text>
-              <Input className="min-w-[250px]">
-                <InputField
-                  type="text"
-                  value={formData[name]}
-                  onChangeText={(text) => handleChange(name, text)}
-                  {...props}
-                />
-              </Input>
-              {errors[name] && (
-                <FormControlErrorText>{errors[name]}</FormControlErrorText>
-              )}
-            </VStack>
-          ))}
+  const renderView = (children) => {
+    // console.log(Platform.OS);
+    return Platform.OS !== "web" ? (
+      <Pressable onPress={Keyboard.dismiss}>{children}</Pressable>
+    ) : (
+      children
+    );
+  };
 
-          {/* Password Fields */}
-          {[
-            { label: "Password", name: "password", show: showPassword },
-            {
-              label: "Confirm Password",
-              name: "confirmPassword",
-              show: showConfirmPassword,
-            },
-          ].map(({ label, name, show }) => (
-            <VStack space="xs" key={name}>
-              <FormControlLabel>
-                <FormControlLabelText>{label}</FormControlLabelText>
-              </FormControlLabel>
-              <Input className="text-center">
-                <InputField
-                  type={show ? "text" : "password"}
-                  value={formData[name]}
-                  onChangeText={(text) => handleChange(name, text)}
-                  autoCapitalize="none"
-                  autoFocus={false}
-                />
-                <InputSlot
-                  className="pr-3"
-                  onPress={() => {
-                    if (name === "password") {
-                      setShowPassword((prev) => !prev);
-                    } else {
-                      setShowConfirmPassword((prev) => !prev);
-                    }
-                  }}
-                >
-                  <InputIcon as={show ? EyeIcon : EyeOffIcon} />
-                </InputSlot>
-              </Input>
-              {errors[name] && (
-                <FormControlErrorText>{errors[name]}</FormControlErrorText>
-              )}
-            </VStack>
-          ))}
-
-          {/* Terms Checkbox */}
-          <HStack space="xs">
-            <Checkbox
-              size="md"
-              isChecked={formData.termsAccepted}
-              onChange={() =>
-                handleChange("termsAccepted", !formData.termsAccepted)
-              }
-            >
-              <CheckboxIndicator>
-                <CheckboxIcon as={CheckIcon} />
-              </CheckboxIndicator>
-            </Checkbox>
-            <Pressable onPress={() => setShowTermsConditions(true)}>
-              <Text>
-                I agree to{" "}
-                <Text className="text-blue-600">terms and conditions</Text>
-              </Text>
-            </Pressable>
-            {errors.termsAccepted && (
-              <FormControlErrorText>
-                {errors.termsAccepted}
-              </FormControlErrorText>
+  return renderView(
+    <VStack className="px-8 py-4">
+      <FormControl size="md" className="gap-y-4">
+        {[
+          { label: "First Name", name: "firstName" },
+          { label: "Last Name", name: "lastName" },
+          { label: "Username", name: "username" },
+          {
+            label: "Email",
+            name: "email",
+            props: { keyboardType: "email-address" },
+          },
+          {
+            label: "Phone Number",
+            name: "phoneNumber",
+            props: { keyboardType: "phone-pad" },
+          },
+        ].map(({ label, name, props }) => (
+          <VStack space="xs" key={name}>
+            <Text className="text-typography-500">{label}</Text>
+            <Input className="min-w-[250px]">
+              <InputField
+                type="text"
+                value={formData[name]}
+                onChangeText={(text) => handleChange(name, text)}
+                {...props}
+              />
+            </Input>
+            {errors[name] && (
+              <FormControlErrorText>{errors[name]}</FormControlErrorText>
             )}
-          </HStack>
-        </FormControl>
+          </VStack>
+        ))}
 
-        {/* Submit Button */}
-        <SubmitButton
-          handleSubmit={handleSubmit}
-          text="Sign Up"
-          isDisabled={
-            !formData.firstName ||
-            !formData.lastName ||
-            !formData.username ||
-            !formData.email ||
-            !formData.phoneNumber ||
-            !formData.password ||
-            !formData.confirmPassword ||
-            !formData.termsAccepted
-          }
+        {/* Password Fields */}
+        {[
+          { label: "Password", name: "password", show: showPassword },
+          {
+            label: "Confirm Password",
+            name: "confirmPassword",
+            show: showConfirmPassword,
+          },
+        ].map(({ label, name, show }) => (
+          <VStack space="xs" key={name}>
+            <FormControlLabel>
+              <FormControlLabelText>{label}</FormControlLabelText>
+            </FormControlLabel>
+            <Input className="text-center">
+              <InputField
+                type={show ? "text" : "password"}
+                value={formData[name]}
+                onChangeText={(text) => handleChange(name, text)}
+                autoCapitalize="none"
+                autoFocus={false}
+              />
+              <InputSlot
+                className="pr-3"
+                onPress={() => {
+                  if (name === "password") {
+                    setShowPassword((prev) => !prev);
+                  } else {
+                    setShowConfirmPassword((prev) => !prev);
+                  }
+                }}
+              >
+                <InputIcon as={show ? EyeIcon : EyeOffIcon} />
+              </InputSlot>
+            </Input>
+            {errors[name] && (
+              <FormControlErrorText>{errors[name]}</FormControlErrorText>
+            )}
+          </VStack>
+        ))}
+
+        {/* Terms Checkbox */}
+        <HStack space="xs">
+          <Checkbox
+            size="md"
+            isChecked={formData.termsAccepted}
+            onChange={() =>
+              handleChange("termsAccepted", !formData.termsAccepted)
+            }
+          >
+            <CheckboxIndicator>
+              <CheckboxIcon as={CheckIcon} />
+            </CheckboxIndicator>
+          </Checkbox>
+          <Pressable onPress={() => setShowTermsConditions(true)}>
+            <Text>
+              I agree to{" "}
+              <Text className="text-blue-600">terms and conditions</Text>
+            </Text>
+          </Pressable>
+          {errors.termsAccepted && (
+            <FormControlErrorText>{errors.termsAccepted}</FormControlErrorText>
+          )}
+        </HStack>
+      </FormControl>
+
+      {/* Submit Button */}
+      <SubmitButton
+        handleSubmit={handleSubmit}
+        text="Sign Up"
+        isDisabled={
+          !formData.firstName ||
+          !formData.lastName ||
+          !formData.username ||
+          !formData.email ||
+          !formData.phoneNumber ||
+          !formData.password ||
+          !formData.confirmPassword ||
+          !formData.termsAccepted
+        }
+      />
+
+      {/* OR Divider */}
+      <OrDivider />
+
+      {/* Social Buttons */}
+      <SocialsButton />
+
+      {showTermsConditions && (
+        <TermsConditionsModal
+          show={showTermsConditions}
+          onClose={() => setShowTermsConditions(false)}
         />
-
-        {/* OR Divider */}
-        <OrDivider />
-
-        {/* Social Buttons */}
-        <SocialsButton />
-
-        {showTermsConditions && (
-          <TermsConditionsModal
-            show={showTermsConditions}
-            onClose={() => setShowTermsConditions(false)}
-          />
-        )}
-      </VStack>
-    </Pressable>
+      )}
+    </VStack>
   );
 };
 
