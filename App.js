@@ -22,20 +22,21 @@ import CreationScren from "./screens/Creation/CreationScren";
 import ProfileScreen from "./screens/Profile/ProfileScreen";
 import { useEffect, useState } from "react";
 import SplashScreen from "./screens/SplashScreen";
-import { Provider, useSelector } from "react-redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import AuctionOverviewScreen from "./screens/AuctionOverviewScreen";
 import CreateAuctionFormScreen from "./screens/CreateAuctionFormScreen";
 import AuctionBidsScreen from "./screens/AuctionBidsScreen";
 import AuctionScreen from "./screens/AuctionScreen";
-import store from "./state/store";
+import { store, persistor } from "./state/store";
 import { getAuthentication } from "./state/reducers/userSlice";
+import { PersistGate } from "redux-persist/integration/react";
 
 const Stack = createNativeStackNavigator();
 
 function AppContent() {
   const colorScheme = useColorScheme(); // Detects light or dark mode
+  const [initialized] = useState(true);
   const authenticated = useSelector(getAuthentication);
-  console.log(authenticated);
 
   const isDarkMode = colorScheme === "dark";
   const statusBarStyle = isDarkMode ? "light-content" : "dark-content";
@@ -44,7 +45,7 @@ function AppContent() {
     console.log("Authenticated:", authenticated);
   }, [authenticated]);
 
-  const [initialized] = useState(true);
+  // const [initialized] = useState(true);
 
   return (
     <SafeAreaProvider>
@@ -105,7 +106,10 @@ function AppContent() {
 export default function App() {
   return (
     <Provider store={store}>
-      <AppContent />
+      {/* PersistGate is to rehydrate the app when reloading again with the previous store state */}
+      <PersistGate loading={null} persistor={persistor}>
+        <AppContent />
+      </PersistGate>
     </Provider>
   );
 }
