@@ -6,6 +6,11 @@ import { logOutUser } from "@/state/reducers/userSlice";
 
 const ProfileLogout = () => {
   const dispatch = useDispatch(); // Get dispatch function
+  const handleLogout = async () => {
+    dispatch(logOutUser());
+    await persistor.purge(); // Clear Redux-persist storage
+  };
+
   return (
     <TouchableOpacity
       style={{
@@ -18,7 +23,7 @@ const ProfileLogout = () => {
         backgroundColor: "#202020",
         marginTop: 40,
       }}
-      onPress={() => dispatch(logOutUser)}
+      onPress={handleLogout}
     >
       <Text
         style={{
