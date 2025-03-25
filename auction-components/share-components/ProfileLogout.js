@@ -1,7 +1,11 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Entypo } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import { logOutUser } from "@/state/reducers/userSlice";
+
 const ProfileLogout = () => {
+  const dispatch = useDispatch(); // Get dispatch function
   return (
     <TouchableOpacity
       style={{
@@ -14,7 +18,7 @@ const ProfileLogout = () => {
         backgroundColor: "#202020",
         marginTop: 40,
       }}
-      onPress={() => {}}
+      onPress={() => dispatch(logOutUser)}
     >
       <Text
         style={{
