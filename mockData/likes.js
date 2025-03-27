@@ -2,7 +2,7 @@ export const likes = [
   {
     id: 1,
     title: "Xbox Series S",
-    image: require("../assets/shopImages/sweet.jpg"),
+    image: require("../assets/auctions/xbox.jpg"),
     current_bid: "N1500",
     bids: 4,
     endingTime: "1:07:26",
@@ -11,7 +11,7 @@ export const likes = [
   {
     id: 2,
     title: "Laptop",
-    image: require("../assets/shopImages/sweet.jpg"),
+    image: require("../assets/auctions/macbook.jpg"),
     current_bid: "N1500",
     bids: 4,
     endingTime: "0",
@@ -20,7 +20,7 @@ export const likes = [
   {
     id: 3,
     title: "Macbook Pro 16",
-    image: require("../assets/shopImages/sweet.jpg"),
+    image: require("../assets/auctions/macbook.jpg"),
     current_bid: "N10000",
     bids: 4,
     endingTime: "0",
@@ -29,7 +29,7 @@ export const likes = [
   {
     id: 4,
     title: "Boat Headphones",
-    image: require("../assets/shopImages/sweet.jpg"),
+    image: require("../assets/auctions/headphone.jpg"),
     current_bid: "N1500",
     bids: 4,
     endingTime: "1:07:26",
@@ -38,7 +38,7 @@ export const likes = [
   {
     id: 5,
     title: "Iphone 11 Pro",
-    image: require("../assets/shopImages/sweet.jpg"),
+    image: require("../assets/auctions/iphone.jpg"),
     current_bid: "N1500",
     bids: 4,
     endingTime: "0",
@@ -47,7 +47,7 @@ export const likes = [
   {
     id: 6,
     title: "Xbox Series S",
-    image: require("../assets/shopImages/sweet.jpg"),
+    image: require("../assets/auctions/xbox.jpg"),
     current_bid: "N1500",
     bids: 4,
     endingTime: "0",

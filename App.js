@@ -13,7 +13,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import GetStartedScreen from "./screens/GetStartedScreen";
 import { Text } from "./components/ui/text";
 import OTPScreen from "./screens/OTPScreen";
-import { NavigationContainer } from "@react-navigation/native";
+import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "./screens/HomeScreen";
 import InsightsScreen from "./screens/Insights/InsightsScreen";
@@ -33,6 +33,14 @@ import { PersistGate } from "redux-persist/integration/react";
 
 const Stack = createNativeStackNavigator();
 
+const LightTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: "white",
+  },
+};
+
 function AppContent() {
   const colorScheme = useColorScheme(); // Detects light or dark mode
   const [initialized] = useState(true);
@@ -51,7 +59,7 @@ function AppContent() {
   return (
     <SafeAreaProvider>
       <GluestackUIProvider mode={isDarkMode ? "dark" : "light"}>
-        <NavigationContainer>
+        <NavigationContainer theme={LightTheme}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={{ flex: 1 }}
@@ -73,7 +81,7 @@ function AppContent() {
                 </>
               ) : (
                 <>
-                  <Stack.Screen name="Home" component={HomeScreen} />
+                  {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
 
                   {/* Auction */}
                   {/* <Stack.Screen name="Auction" component={AuctionScreen} />
@@ -87,10 +95,10 @@ function AppContent() {
                     /> */}
 
                   {/* Auction Creation */}
-                  {/* <Stack.Screen
+                  <Stack.Screen
                     name="CreateAuctionForm"
                     component={CreateAuctionFormScreen}
-                  /> */}
+                  />
 
                   {/* <Stack.Screen name="Chats" component={ChatsScreen} />
                     <Stack.Screen name="Profile" component={ProfileScreen} /> */}

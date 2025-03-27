@@ -11,24 +11,27 @@ const AuctionCard = ({ auction }) => {
   const handleLike = () => {
     like === "heart-o" ? setLike("heart") : setLike("heart-o");
   };
+
   return (
     <View
       style={{
+        width: 175, // Fixed width for all cards
         flexDirection: "column",
-        backgroundColor: COLORS.secondary,
+        backgroundColor: COLORS.secondaryCard,
         alignItems: "center",
         paddingHorizontal: 20,
         paddingVertical: 26,
         marginVertical: 16,
+        borderRadius: 10, // Optional: Add rounded corners
       }}
       className="gap-y-2"
     >
+      {/* Image and Like Button */}
       <View>
         <Image
           source={auction.image}
           style={{ width: 120, height: 100, borderRadius: 10 }}
         />
-
         <Pressable
           style={{
             backgroundColor: "#fff",
@@ -49,43 +52,51 @@ const AuctionCard = ({ auction }) => {
         </Pressable>
       </View>
 
-      {/* title */}
-      <Text className="text-lg font-semibold">{auction.title}</Text>
-
-      {/* <HStack> */}
-      <View
-        style={{ alignItems: "center", justifyContent: "center" }}
-        className="bg-[#259e47] py-1 px-2"
+      {/* Title */}
+      <Text
+        className="text-lg font-semibold"
+        numberOfLines={1} // Prevent text overflow
+        ellipsizeMode="tail"
       >
+        {auction.title}
+      </Text>
+
+      {/* Bids */}
+      <View style={{ alignItems: "center" }} className="bg-[#259e47] py-1 px-2">
         <Text style={{ color: "white" }}>Bids: {auction.bids}</Text>
       </View>
 
+      {/* Ending Time (Fixed Width Container) */}
       <View
         style={{
-          alignItems: "center",
+          width: "100%", // Takes full width of the card
           backgroundColor: "white",
-          alignSelf: "center",
-          // flex: 1,
+          paddingVertical: 8,
+          alignItems: "center",
         }}
-        className="py-2 px-1 w-full"
       >
-        <Text style={{ color: COLORS.primary }}>
+        <Text
+          style={{ color: COLORS.primary }}
+          numberOfLines={1} // Prevent text overflow
+        >
           Ends in {auction.endingTime}
         </Text>
       </View>
-      {/* </HStack> */}
 
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-        <View style={{ flexDirection: "column", flex: 1, rowGap: 4 }}>
-          <Text>Current Bid</Text>
-          <Text
-            style={{ color: COLORS.primary, fontWeight: "bold" }}
-            className="text-lg"
-          >
+      {/* Current Bid and Auction Icon */}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          width: "100%", // Ensure full width
+        }}
+      >
+        <View style={{ flexDirection: "column", rowGap: 4 }}>
+          <Text style={{ color: COLORS.silverIcon }}>Current Bid</Text>
+          <Text style={{ color: COLORS.primary, fontWeight: "bold" }}>
             {auction.current_bid}
           </Text>
         </View>
-
         <Pressable
           style={{
             backgroundColor: "#fff",

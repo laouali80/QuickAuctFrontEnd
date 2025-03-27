@@ -1,7 +1,11 @@
 export const COLORS = {
   primary: "#259e47",
-  secondary: "#f7f7f7",
+  secondaryCard: "#f7f7f7",
   silverIcon: "#afafaf",
-  black: "#000e33",
-  gray: "#4a4a4a",
+  white: "#fff",
+  yellow: "#ffd336",
+  lightYellow: "#fffbeb",
+  lightPrimary: "#e8faed",
+  lightRed: "#ffebeb",
+  red: "#e05e5e",
 };

@@ -2,7 +2,7 @@ export const sales = [
   {
     id: 1,
     title: "Xbox Series S",
-    image: require("../assets/shopImages/sweet.jpg"),
+    image: require("../assets/auctions/xbox.jpg"),
     price: "N1500",
     status: "Sold",
     date_created: "24/05/2025",
@@ -10,7 +10,7 @@ export const sales = [
   {
     id: 2,
     title: "Laptop",
-    image: require("../assets/shopImages/sweet.jpg"),
+    image: require("../assets/auctions/macbook.jpg"),
     price: "N1500",
     status: "Incomplete",
     date_created: "24/05/2025",
@@ -18,7 +18,7 @@ export const sales = [
   {
     id: 3,
     title: "Macbook Pro 16",
-    image: require("../assets/shopImages/sweet.jpg"),
+    image: require("../assets/auctions/macbook.jpg"),
     price: "N10000",
     status: "Sold",
     date_created: "24/05/2025",
@@ -26,7 +26,7 @@ export const sales = [
   {
     id: 4,
     title: "Boat Headphones",
-    image: require("../assets/shopImages/sweet.jpg"),
+    image: require("../assets/auctions/headphone.jpg"),
     price: "N1500",
     status: "Sold",
     date_created: "24/05/2025",
@@ -34,7 +34,7 @@ export const sales = [
   {
     id: 5,
     title: "Iphone 11 Pro",
-    image: require("../assets/shopImages/sweet.jpg"),
+    image: require("../assets/auctions/iphone.jpg"),
     price: "N1500",
     status: "Incomplete",
     date_created: "24/05/2025",
@@ -42,7 +42,7 @@ export const sales = [
   {
     id: 6,
     title: "Xbox Series S",
-    image: require("../assets/shopImages/sweet.jpg"),
+    image: require("../assets/auctions/xbox.jpg"),
     price: "N1500",
     status: "Sold",
     date_created: "24/05/2025",
