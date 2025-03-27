@@ -24,6 +24,7 @@ const AuctionsScreen = () => {
         <View>
           <FlatList
             data={auctions}
+            keyExtractor={(item) => item.id}
             renderItem={(item) => <AuctionCard auction={item} />}
             numColumns={2}
             columnWrapperStyle={{
