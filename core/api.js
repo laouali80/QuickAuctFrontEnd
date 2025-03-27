@@ -6,10 +6,10 @@ import { Platform } from "react-native";
 // const BaseAddress =
 //   Platform.OS === "ios" ? "http://172.20.10.4:8000" : "http://10.0.2.2:8000";
 
-const BaseAddress = "http://localhost:8000";
+export const BaseAddress = "localhost:8000";
 
 const api = axios.create({
-  baseURL: `${BaseAddress}/api/`,
+  baseURL: `http://${BaseAddress}/api/`,
   headers: {
     "Content-Type": "application/json",
   },

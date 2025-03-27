@@ -1,5 +1,5 @@
 // import { StyleSheet, Text, View } from "react-native";
-import React, { useLayoutEffect } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import InsightsScreen from "./Insights/InsightsScreen";
 import AuctionsScreen from "./Auctions/AuctionsScreen";
@@ -16,13 +16,31 @@ import {
 } from "react-native";
 import { CurvedBottomBarExpo } from "react-native-curved-bottom-bar";
 import { Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { useDispatch, useSelector } from "react-redux";
+import { socketClose, websocketConnection } from "@/state/reducers/chatsSlice";
+import { getTokens, getUserInfo } from "@/state/reducers/userSlice";
+import utils from "@/core/utils";
 
 const HomeScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const tokens = useSelector(getTokens);
+  // const user = useSelector(getUserInfo);
+
+  // utils.log(user);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
-  }, []);
+  }, [navigation]);
+
+  useEffect(() => {
+    dispatch(websocketConnection(tokens)); //  Dispatch socketConnect action
+    utils.log(tokens);
+    return () => {
+      dispatch(socketClose()); //  Dispatch socketClose action
+    };
+  }, [dispatch]);
 
   const _renderIcon = (routeName, selectedTab) => {
     let icon = "";

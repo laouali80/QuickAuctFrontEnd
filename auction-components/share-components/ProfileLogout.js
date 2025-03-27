@@ -3,12 +3,15 @@ import React from "react";
 import { Entypo } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
 import { logOutUser } from "@/state/reducers/userSlice";
+import { persistor } from "@/state/store";
 
-const ProfileLogout = () => {
+const ProfileLogout = ({ navigation }) => {
   const dispatch = useDispatch(); // Get dispatch function
   const handleLogout = async () => {
     dispatch(logOutUser());
     await persistor.purge(); // Clear Redux-persist storage
+
+    // navigation.navigate("GetStarted");
   };
 
   return (
