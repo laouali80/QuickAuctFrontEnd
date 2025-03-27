@@ -1,11 +1,12 @@
 import {
+  Animated,
   StyleSheet,
   Text,
   TouchableOpacity,
   useColorScheme,
   View,
 } from "react-native";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import Bids from "./components/Bids";
@@ -23,74 +24,84 @@ const InsightsScreen = () => {
   const handleLikesPress = useCallback(() => setSelectedTab("Likes"), []);
 
   return (
-    <VStack className="flex-1">
+    <VStack className="flex-1 bg-white">
       {/* Tab Switcher */}
-      <HStack className=" mx-6 mt-6 items-center justify-between">
-        <HStack className=" w-full p-1.5 items-center ">
+      <View className="mx-6 mt-6 mb-4 bg-gray-100 rounded-xl p-1.5">
+        <HStack className="w-full ">
           <TouchableOpacity
-            className={`rounded-lg flex-1 justify-center items-center p-4 ${
-              selectedTab === "Bids"
-                ? `bg-[${COLORS.primary}]`
-                : "bg-background-100"
+            className={`flex-1 justify-center items-center py-4 mx-1 rounded-lg ${
+              selectedTab === "Bids" ? "shadow-xl" : ""
             }`}
+            style={{
+              backgroundColor:
+                selectedTab === "Bids" ? COLORS.primary : COLORS.gray100,
+            }}
             onPress={handleBidsPress}
+            activeOpacity={0.7}
           >
             <Text
-              size="sm"
-              className={`font-bold ${
-                selectedTab === "Bids" ? "text-[#fff]" : "text-gray-500"
-              }`}
+              className="font-semibold text-sm"
+              style={{
+                color:
+                  selectedTab === "Bids" ? COLORS.white : COLORS.silverIcon,
+              }}
             >
               Bids
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            className={`rounded-lg flex-1 justify-center items-center p-4  ${
-              selectedTab === "Sales"
-                ? `bg-[${COLORS.primary}]`
-                : "bg-background-100"
+            className={`flex-1 justify-center items-center py-3 mx-1 rounded-lg ${
+              selectedTab === "Sales" ? "shadow-xl" : ""
             }`}
+            style={{
+              backgroundColor:
+                selectedTab === "Sales" ? COLORS.primary : COLORS.gray100,
+            }}
             onPress={handleSalesPress}
+            activeOpacity={0.7}
           >
             <Text
-              size="sm"
-              className={`font-bold ${
-                selectedTab === "Sales" ? "text-white" : "text-gray-500"
-              }`}
+              className="font-semibold text-sm"
+              style={{
+                color:
+                  selectedTab === "Sales" ? COLORS.white : COLORS.silverIcon,
+              }}
             >
               Sales
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            className={`rounded-lg flex-1 justify-center items-center p-4  ${
-              selectedTab === "Likes"
-                ? `bg-[${COLORS.primary}]`
-                : "bg-background-100"
+            className={`flex-1 justify-center items-center py-3 mx-1 rounded-lg ${
+              selectedTab === "Likes" ? "shadow-xl" : ""
             }`}
+            style={{
+              backgroundColor:
+                selectedTab === "Likes" ? COLORS.primary : COLORS.gray100,
+            }}
             onPress={handleLikesPress}
+            activeOpacity={0.7}
           >
             <Text
-              size="sm"
-              className={`font-bold ${
-                selectedTab === "Likes" ? "text-white" : "text-gray-500"
-              }`}
+              className="font-semibold text-sm"
+              style={{
+                color:
+                  selectedTab === "Likes" ? COLORS.white : COLORS.silverIcon,
+              }}
             >
               Likes
             </Text>
           </TouchableOpacity>
         </HStack>
-      </HStack>
+      </View>
 
-      {/* Dynamic view */}
-      {selectedTab === "Bids" ? (
-        <Bids />
-      ) : selectedTab === "Sales" ? (
-        <Sales />
-      ) : (
-        <Likes />
-      )}
+      {/* Dynamic view with smooth transition */}
+      <Animated.View className="flex-1">
+        {selectedTab === "Bids" && <Bids />}
+        {selectedTab === "Sales" && <Sales />}
+        {selectedTab === "Likes" && <Likes />}
+      </Animated.View>
     </VStack>
   );
 };

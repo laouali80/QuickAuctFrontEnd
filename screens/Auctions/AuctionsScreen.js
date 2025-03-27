@@ -1,19 +1,19 @@
 import {
   Animated,
   FlatList,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import React, { useEffect, useLayoutEffect, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Header from "@/auction-components/Header";
 import { COLORS } from "@/constants/COLORS";
 import { auctions } from "@/mockData/auctions";
 import AuctionCard from "@/auction-components/AuctionCard";
 
 const CONTAINER_HEIGHT = 230;
-
 const AuctionsScreen = ({ navigation }) => {
   const scrollY = useRef(new Animated.Value(0)).current;
   const offsetAnim = useRef(new Animated.Value(0)).current;

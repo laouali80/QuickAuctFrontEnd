@@ -1,11 +1,11 @@
 export const auctions = [
   {
     id: 1,
-    title: "Xbox Series S",
+    title: "Xbox Series Sdggdfgfggdgdfgfgdgfgdf",
     image: require("../assets/auctions/xbox.jpg"),
     current_bid: "N1500",
     bids: 4,
-    endingTime: "1:07:20",
+    endingTime: "1",
     auctionType: "Used",
     deliveryType: "Pickup",
     category: "Electronics",

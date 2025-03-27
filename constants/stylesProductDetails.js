@@ -42,7 +42,7 @@ export default stylesProductDetails = StyleSheet.create({
     paddingHorizontal: 10,
   },
   priceWrapper: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.secondaryCard,
     borderRadius: SIZES.large,
     // alignItems: "center",
 
