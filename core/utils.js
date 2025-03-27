@@ -1,3 +1,5 @@
+import { Platform } from "react-native";
+
 function log() {
   // Much beter console.log function that formats/indents
   // objects for better readability
@@ -7,7 +9,7 @@ function log() {
     if (typeof arg === "object") {
       arg = JSON.stringify(arg, null, 2);
     }
-    console.log(arg);
+    console.log(`[${Platform.OS}]`, arg);
   }
 }
 

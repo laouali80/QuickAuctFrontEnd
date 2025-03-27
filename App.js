@@ -36,7 +36,8 @@ const Stack = createNativeStackNavigator();
 function AppContent() {
   const colorScheme = useColorScheme(); // Detects light or dark mode
   const [initialized] = useState(true);
-  const authenticated = useSelector(getAuthentication);
+  // const authenticated = useSelector(getAuthentication);
+  const authenticated = true;
 
   const isDarkMode = colorScheme === "dark";
   const statusBarStyle = isDarkMode ? "light-content" : "dark-content";
@@ -87,9 +88,9 @@ function AppContent() {
 
                   {/* Auction Creation */}
                   {/* <Stack.Screen
-                      name="CreateAuctionForm"
-                      component={CreateAuctionFormScreen}
-                    /> */}
+                    name="CreateAuctionForm"
+                    component={CreateAuctionFormScreen}
+                  /> */}
 
                   {/* <Stack.Screen name="Chats" component={ChatsScreen} />
                     <Stack.Screen name="Profile" component={ProfileScreen} /> */}
@@ -107,9 +108,9 @@ export default function App() {
   return (
     <Provider store={store}>
       {/* PersistGate is to rehydrate the app when reloading again with the previous store state */}
-      <PersistGate loading={null} persistor={persistor}>
-        <AppContent />
-      </PersistGate>
+      {/* <PersistGate loading={null} persistor={persistor}> */}
+      <AppContent />
+      {/* </PersistGate> */}
     </Provider>
   );
 }

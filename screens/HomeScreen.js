@@ -1,5 +1,5 @@
 // import { StyleSheet, Text, View } from "react-native";
-import React, { useLayoutEffect } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import InsightsScreen from "./Insights/InsightsScreen";
 import AuctionsScreen from "./Auctions/AuctionsScreen";
@@ -15,14 +15,38 @@ import {
   View,
 } from "react-native";
 import { CurvedBottomBarExpo } from "react-native-curved-bottom-bar";
-import { Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import {
+  Feather,
+  FontAwesome,
+  FontAwesome5,
+  Ionicons,
+} from "@expo/vector-icons";
+import { useDispatch, useSelector } from "react-redux";
+import { socketClose, websocketConnection } from "@/state/reducers/chatsSlice";
+import { getTokens, getUserInfo } from "@/state/reducers/userSlice";
+import utils from "@/core/utils";
+import { COLORS } from "@/constants/COLORS";
 
 const HomeScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const tokens = useSelector(getTokens);
+  // const user = useSelector(getUserInfo);
+
+  // utils.log(user);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
-  }, []);
+  }, [navigation]);
+
+  // useEffect(() => {
+  //   dispatch(websocketConnection(tokens)); //  Dispatch socketConnect action
+  //   utils.log(tokens);
+  //   return () => {
+  //     dispatch(socketClose()); //  Dispatch socketClose action
+  //   };
+  // }, [dispatch]);
 
   const _renderIcon = (routeName, selectedTab) => {
     let icon = "";
@@ -31,20 +55,50 @@ const HomeScreen = ({ navigation }) => {
       case "Auctions":
         icon = (
           <Ionicons
-            name={"home-outline"}
+            name={routeName === selectedTab ? "home-sharp" : "home-outline"}
             size={25}
-            color={routeName === selectedTab ? "black" : "gray"}
+            color={
+              routeName === selectedTab ? COLORS.primary : COLORS.silverIcon
+            }
           />
         );
         break;
       case "Insights":
-        icon = <Feather name="trending-up" size={25} color="black" />;
+        icon = (
+          <Feather
+            name="trending-up"
+            size={25}
+            color={
+              routeName === selectedTab ? COLORS.primary : COLORS.silverIcon
+            }
+          />
+        );
         break;
       case "Chats":
-        icon = <Ionicons name="chatbubbles-outline" size={25} color="black" />;
+        icon = (
+          <Ionicons
+            name={
+              routeName === selectedTab
+                ? "chatbubble-ellipses-sharp"
+                : "chatbubble-ellipses-outline"
+            }
+            size={24}
+            color={
+              routeName === selectedTab ? COLORS.primary : COLORS.silverIcon
+            }
+          />
+        );
         break;
       case "Profile":
-        icon = <FontAwesome5 name="user-circle" size={25} color="black" />;
+        icon = (
+          <FontAwesome
+            name={routeName === selectedTab ? "user-circle-o" : "user-circle"}
+            size={24}
+            color={
+              routeName === selectedTab ? COLORS.primary : COLORS.silverIcon
+            }
+          />
+        );
         break;
     }
 
@@ -84,6 +138,7 @@ const HomeScreen = ({ navigation }) => {
       tabBar={renderTabBar}
     >
       <CurvedBottomBarExpo.Screen
+        options={{ headerShown: false }}
         name="Auctions"
         position="LEFT"
         component={() => <AuctionsScreen />}

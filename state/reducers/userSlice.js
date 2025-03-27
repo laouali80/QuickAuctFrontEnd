@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import apiRequest from "@/core/api";
+import utils from "@/core/utils";
 
 const initialState = {
   user: {},
@@ -16,7 +17,7 @@ export const logInUser = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await apiRequest("users/auth/login/", data, "POST");
-      console.log("Login Response:", response);
+      utils.log("Login Response:", response.data);
 
       return response.data;
     } catch (err) {
@@ -61,7 +62,7 @@ const userSlice = createSlice({
       })
       .addCase(logInUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
-        state.tokens = action.payload.access_token;
+        state.tokens = action.payload.accessToken;
         state.authenticated = true;
         state.initialized = true;
         state.status = "fulfilled";
@@ -78,7 +79,7 @@ const userSlice = createSlice({
       })
       .addCase(signUpUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
-        state.tokens = action.payload.access_token;
+        state.tokens = action.payload.accessToken;
         state.authenticated = true;
         state.status = "fulfilled";
         state.error = null;
