@@ -1,18 +1,20 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
-import React from "react";
-
+import { SafeAreaView, StyleSheet, Text, TextInput, View } from "react-native";
+import React, { useState } from "react";
+import { FontAwesome } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
 import SearchFilter from "./SearchFilter";
 import CategoriesFilter from "./CategoriesFilter";
 
 const Header = () => {
+  const [h, setH] = useState(null);
+
   return (
-    <View>
+    <SafeAreaView>
       <View style={{ flexDirection: "row" }}>
         <Text style={{ flex: 1, fontSize: 15, fontWeight: "700" }}>
-          Yola, Adamawa
+          Yola, Adamawa {h}
         </Text>
-        <FontAwesome icon={"bell-o"} size={24} color={COLORS.primary} />
+        <FontAwesome name="bell-o" size={24} color={COLORS.primary} />
       </View>
 
       {/* Search filter */}
@@ -25,7 +27,7 @@ const Header = () => {
         <Text style={{ fontSize: 22, fontWeight: "bold" }}>Categories</Text>
         <CategoriesFilter />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

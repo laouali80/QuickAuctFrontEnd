@@ -4,6 +4,7 @@ import { Entypo } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
 import { logOutUser } from "@/state/reducers/userSlice";
 import { persistor } from "@/state/store";
+import { COLORS } from "@/constants/COLORS";
 
 const ProfileLogout = ({ navigation }) => {
   const dispatch = useDispatch(); // Get dispatch function
@@ -23,7 +24,7 @@ const ProfileLogout = ({ navigation }) => {
         alignItems: "center",
         justifyContent: "center",
         paddingHorizontal: 26,
-        backgroundColor: "#202020",
+        backgroundColor: COLORS.primary,
         marginTop: 40,
       }}
       onPress={handleLogout}
@@ -31,13 +32,13 @@ const ProfileLogout = ({ navigation }) => {
       <Text
         style={{
           fontWeight: "bold",
-          color: "#d0d0d0",
+          color: "#fff",
         }}
       >
         <Entypo
           name="log-out"
           size={20}
-          color="#d0d0d0"
+          color="#fff"
           style={{ marginRight: 12 }}
         />
         Logout
