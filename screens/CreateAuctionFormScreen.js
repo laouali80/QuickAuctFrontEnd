@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import React, { useLayoutEffect, useRef, useState } from "react";
@@ -14,6 +15,7 @@ import { COLORS } from "@/constants/COLORS";
 import { AntDesign } from "@expo/vector-icons";
 import SelectDrop from "@/auction-components/share-components/SelectDrop";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
+import PaymentMethod from "@/auction-components/share-components/PaymentMethod";
 
 const CreateAuctionFormScreen = ({ navigation }) => {
   useLayoutEffect(() => {
@@ -66,46 +68,22 @@ const CreateAuctionFormScreen = ({ navigation }) => {
   return (
     <ScrollView style={{ flex: 1, marginVertical: 20, marginHorizontal: 20 }}>
       <VStack space="md" className="flex-1">
-        {/* Auction Images */}
+        {/* Auction Images Section */}
         <VStack space="md">
           <Text className="text-xl font-semibold ">Add Images</Text>
           <HStack space="sm">
-            <View
-              className="bg-gray-800 rounded-lg"
-              style={{ width: 80, height: 80 }}
-            >
-              <Text>test</Text>
+            {/* Placeholder for uploaded images */}
+            <View style={styles.imagePlaceholder}>
+              <Text style={styles.placeholderText}>Image 1</Text>
             </View>
-            <View
-              className="bg-gray-800 rounded-lg"
-              style={{ width: 80, height: 80 }}
-            >
-              <Text>test</Text>
-            </View>
-            <View
-              className="bg-gray-800 rounded-lg"
-              style={{ width: 80, height: 80 }}
-            >
-              <Text>test</Text>
-            </View>
-            <View
-              className="bg-gray-800 rounded-lg"
-              style={{ width: 80, height: 80 }}
-            >
-              <Text>test</Text>
-            </View>
-            <View
-              className="bg-gray-800 rounded-lg"
-              style={{
-                width: 80,
-                height: 80,
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: COLORS.primary,
-              }}
+
+            {/* Add Image Button */}
+            <TouchableOpacity
+              style={styles.addImageButton}
+              onPress={() => console.log("Add image pressed")}
             >
               <AntDesign name="plus" size={35} color="white" />
-            </View>
+            </TouchableOpacity>
           </HStack>
         </VStack>
 
@@ -148,8 +126,8 @@ const CreateAuctionFormScreen = ({ navigation }) => {
         <View
           className="flex flex-col py-4  "
           style={{
-            borderWidth: 4,
-            borderColor: "blue",
+            // borderWidth: 4,
+            // borderColor: "blue",
             marginVertical: 9,
           }}
         >
@@ -250,76 +228,43 @@ const CreateAuctionFormScreen = ({ navigation }) => {
           />
         </View>
 
-        {/* Auction Methods of Payment */}
-        <View
-          className="flex flex-col py-4  "
-          style={{
-            borderWidth: 4,
-            borderColor: "red",
-            marginVertical: 9,
-          }}
-        >
-          <Text
-            style={{ alignItems: "center", alignSelf: "center" }}
-            className="text-xl font-semibold p-2"
-          >
+        {/* Payment Methods Section */}
+        <VStack space={3}>
+          <Text style={[styles.sectionTitle, { textAlign: "center" }]}>
             Payment Methods
           </Text>
 
-          <View
-            style={{
-              flexDirection: "row",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              gap: 10, // Use margin if gap isn't supported
-              width: "100%",
-            }}
-          >
-            {[
-              { icon: require("../assets/icons/nairaNote.svg"), label: "Cash" },
-              {
-                icon: require("../assets/icons/BankTransfer.svg"),
-                label: "Bank Trans",
-              },
-              { icon: require("../assets/icons/Paypal.svg"), label: "" },
-              {
-                icon: require("../assets/icons/DebitCard.svg"),
-                label: "Debit Card",
-              },
-              {
-                icon: require("../assets/icons/Apple.svg"),
-                label: "Apple Pay",
-              },
-              { icon: null, label: "Other" }, // No icon for "Other"
-            ].map((item, index) => (
-              <View
-                key={index}
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderWidth: 2,
-                  borderColor: "grey",
-                  padding: 15,
-                  width: 100,
-                  height: 60,
-                  margin: 5, // Add margin to space out items if gap isn't working
-                }}
-              >
-                <HStack space="sm">
-                  {item.icon && (
-                    <Image
-                      source={item.icon}
-                      style={{ width: 30, height: 30 }}
-                    />
-                  )}
-                  {item.label && (
-                    <Text className="self-center">{item.label}</Text>
-                  )}
-                </HStack>
-              </View>
-            ))}
+          <View style={styles.paymentMethods}>
+            {/* First Row */}
+            <HStack space={3} style={styles.paymentRow}>
+              <PaymentMethod
+                icon={require("../assets/icons/nairaNote.svg")}
+                label="Cash"
+              />
+              <PaymentMethod
+                icon={require("../assets/icons/BankTransfer.svg")}
+                label="Bank Transfer"
+              />
+              <PaymentMethod
+                icon={require("../assets/icons/Paypal.svg")}
+                label="PayPal"
+              />
+            </HStack>
+
+            {/* Second Row */}
+            <HStack space={3} style={styles.paymentRow}>
+              <PaymentMethod
+                icon={require("../assets/icons/DebitCard.svg")}
+                label="Debit Card"
+              />
+              <PaymentMethod
+                icon={require("../assets/icons/Apple.svg")}
+                label="Apple Pay"
+              />
+              <PaymentMethod label="Others" />
+            </HStack>
           </View>
-        </View>
+        </VStack>
 
         <SubmitButton text="Post Auction" isDisabled={true} handleSubmit={{}} />
       </VStack>
@@ -330,6 +275,25 @@ const CreateAuctionFormScreen = ({ navigation }) => {
 export default CreateAuctionFormScreen;
 
 const styles = StyleSheet.create({
+  imagePlaceholder: {
+    width: 80,
+    height: 80,
+    backgroundColor: "#e1e1e1",
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  placeholderText: {
+    color: "#888",
+  },
+  addImageButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: COLORS.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   input: {
     backgroundColor: "#E5E7EB",
     width: 55,
@@ -338,5 +302,17 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     marginTop: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#333",
+  },
+  paymentMethods: {
+    marginTop: 8,
+  },
+  paymentRow: {
+    marginBottom: 12,
   },
 });
