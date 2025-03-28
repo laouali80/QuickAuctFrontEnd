@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-import { FontAwesome } from "@expo/vector-icons";
+import { EvilIcons, FontAwesome } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
 import SearchFilter from "./SearchFilter";
 import CategoriesFilter from "./CategoriesFilter";
@@ -19,7 +19,11 @@ const Header = () => {
     <SafeAreaView style={styles.container}>
       {/* Location and Notification */}
       <View style={styles.topBar}>
-        <Text style={styles.locationText}>Yola, Adamawa</Text>
+        <View>
+          <EvilIcons name="location" size={20} color={COLORS.primary} />
+          <Text style={styles.locationText}>Yola, Adamawa</Text>
+        </View>
+
         <FontAwesome
           name="bell-o"
           size={24}

@@ -84,8 +84,8 @@ function AppContent() {
                   {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
 
                   {/* Auction */}
-                  {/* <Stack.Screen name="Auction" component={AuctionScreen} />
-                    <Stack.Screen
+                  <Stack.Screen name="Auction" component={AuctionScreen} />
+                  {/* <Stack.Screen
                       name="AuctionBids"
                       component={AuctionBidsScreen}
                     />
@@ -95,10 +95,10 @@ function AppContent() {
                     /> */}
 
                   {/* Auction Creation */}
-                  <Stack.Screen
+                  {/* <Stack.Screen
                     name="CreateAuctionForm"
                     component={CreateAuctionFormScreen}
-                  />
+                  /> */}
 
                   {/* <Stack.Screen name="Chats" component={ChatsScreen} />
                     <Stack.Screen name="Profile" component={ProfileScreen} /> */}
