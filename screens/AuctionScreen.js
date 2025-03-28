@@ -13,17 +13,44 @@ import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
 import { Divider } from "@/components/ui/divider";
 import { Colors } from "react-native/Libraries/NewAppScreen";
-import { EvilIcons, Feather, FontAwesome } from "@expo/vector-icons";
+import {
+  EvilIcons,
+  Feather,
+  FontAwesome,
+  Ionicons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import SubmitButton from "@/auction-components/share-components/SubmitButton";
 import { SIZES } from "@/constants/SIZES";
+import ReportModal from "@/auction-components/share-components/ReportModal";
 
 const AuctionScreen = ({ navigation }) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: "Auction",
       headerTitleAlign: "center",
+      headerLeft: () => (
+        <TouchableOpacity onPress={navigation.goBack}>
+          <Ionicons
+            name="chevron-back-circle"
+            size={30}
+            color={COLORS.primary}
+          />
+        </TouchableOpacity>
+      ),
+      headerRight: () => (
+        <TouchableOpacity onPress={() => setShowReportModal(true)}>
+          <MaterialIcons
+            name="report-gmailerrorred"
+            size={30}
+            color={COLORS.yellow}
+          />
+        </TouchableOpacity>
+      ),
     });
   }, [navigation]);
+
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const [selectedTab, setSelectedTab] = useState("Overview");
 
@@ -251,6 +278,12 @@ const AuctionScreen = ({ navigation }) => {
           </View>
         </View>
       </View>
+      {showReportModal && (
+        <ReportModal
+          show={showReportModal}
+          onClose={() => setShowReportModal(false)}
+        />
+      )}
     </ScrollView>
   );
 };
