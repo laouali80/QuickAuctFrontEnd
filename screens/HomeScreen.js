@@ -29,8 +29,8 @@ import { COLORS } from "@/constants/COLORS";
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const tokens = useSelector(getTokens);
-  // const user = useSelector(getUserInfo);
+  // const tokens = useSelector(getTokens);
+  const user = useSelector(getUserInfo);
 
   // utils.log(user);
 
@@ -40,13 +40,13 @@ const HomeScreen = ({ navigation }) => {
     });
   }, [navigation]);
 
-  // useEffect(() => {
-  //   dispatch(websocketConnection(tokens)); //  Dispatch socketConnect action
-  //   utils.log(tokens);
-  //   return () => {
-  //     dispatch(socketClose()); //  Dispatch socketClose action
-  //   };
-  // }, [dispatch]);
+  useEffect(() => {
+    dispatch(websocketConnection());
+
+    return () => {
+      dispatch(socketClose());
+    };
+  }, []);
 
   const _renderIcon = (routeName, selectedTab) => {
     let icon = "";
