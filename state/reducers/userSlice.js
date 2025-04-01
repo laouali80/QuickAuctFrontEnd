@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import apiRequest from "@/core/api";
 import utils from "@/core/utils";
+import secure from "@/core/secure";
 
 const initialState = {
   user: {},
@@ -52,6 +53,7 @@ const userSlice = createSlice({
       state.error = null;
       state.status = null;
       state.initialized = false;
+      secure.removeUserSession('tokens')
     },
   },
   extraReducers: (builder) => {
@@ -62,11 +64,12 @@ const userSlice = createSlice({
       })
       .addCase(logInUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
-        state.tokens = action.payload.accessToken;
+        state.tokens = action.payload.tokens;
         state.authenticated = true;
         state.initialized = true;
         state.status = "fulfilled";
         state.error = null;
+        secure.storeUserSession('tokens', action.payload.tokens)
       })
       .addCase(logInUser.rejected, (state, action) => {
         state.status = "rejected";
@@ -79,10 +82,12 @@ const userSlice = createSlice({
       })
       .addCase(signUpUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
-        state.tokens = action.payload.accessToken;
+        state.tokens = action.payload.tokens;
         state.authenticated = true;
         state.status = "fulfilled";
         state.error = null;
+        secure.storeUserSession('tokens', action.payload.tokens)
+
       })
       .addCase(signUpUser.rejected, (state, action) => {
         state.status = "rejected";
