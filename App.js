@@ -45,6 +45,7 @@ function AppContent() {
   const colorScheme = useColorScheme(); // Detects light or dark mode
   const [initialized] = useState(true);
   const authenticated = useSelector(getAuthentication);
+  console.log(authenticated)
   // const authenticated = true;
 
   const isDarkMode = colorScheme === "dark";

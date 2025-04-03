@@ -40,13 +40,7 @@ const HomeScreen = ({ navigation }) => {
     });
   }, [navigation]);
 
-  useEffect(() => {
-    dispatch(websocketConnection());
 
-    return () => {
-      dispatch(socketClose());
-    };
-  }, []);
 
   const _renderIcon = (routeName, selectedTab) => {
     let icon = "";
