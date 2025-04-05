@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { uploadThumbnail } from "@/state/reducers/chatsSlice";
 import utils from "@/core/utils";
 import Thumbnail from "./share-components/Thumbnail";
+import { getUserInfo } from "@/state/reducers/userSlice";
 
 const ProfileImage = () => {
   const dispatch = useDispatch(); // Get dispatch function
