@@ -3,8 +3,17 @@ import React from "react";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import { EvilIcons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
+import { useDispatch, useSelector } from "react-redux";
+import { uploadThumbnail } from "@/state/reducers/chatsSlice";
+import utils from "@/core/utils";
+import Thumbnail from "./share-components/Thumbnail";
 
 const ProfileImage = () => {
+  const dispatch = useDispatch(); // Get dispatch function
+  const user = useSelector(getUserInfo);
+
+  utils.log(user);
+
   return (
     <TouchableOpacity
       style={{ marginBottom: 20 }}
@@ -16,11 +25,14 @@ const ProfileImage = () => {
 
             if (response.didCancel) return;
             const file = response.assets[0];
+
+            // Dispatch the action correctly
+            dispatch(uploadThumbnail(file));
           })
         );
       }}
     >
-      <Image
+      {/* <Image
         source={require("../assets/profiles/default.png")}
         style={{
           width: 100,
@@ -28,8 +40,9 @@ const ProfileImage = () => {
           borderRadius: 90,
           backgroundColor: "#e0e0e0",
         }}
-      />
+      /> */}
 
+      <Thumbnail url={user.thumbnail} size={100} />
       <View
         style={{
           backgroundColor: COLORS.primary,
