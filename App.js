@@ -87,8 +87,8 @@ function AppContent() {
                   <Stack.Screen name="Search" component={SearchScreen} />
 
                   {/* Auction */}
-                  {/* <Stack.Screen name="Auction" component={AuctionScreen} />
-                    <Stack.Screen
+                  <Stack.Screen name="Auction" component={AuctionScreen} />
+                  {/* <Stack.Screen
                       name="AuctionBids"
                       component={AuctionBidsScreen}
                     />
