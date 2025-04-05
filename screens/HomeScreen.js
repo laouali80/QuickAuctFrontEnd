@@ -15,32 +15,15 @@ import {
   View,
 } from "react-native";
 import { CurvedBottomBarExpo } from "react-native-curved-bottom-bar";
-import {
-  Feather,
-  FontAwesome,
-  FontAwesome5,
-  Ionicons,
-} from "@expo/vector-icons";
-import { useDispatch, useSelector } from "react-redux";
-import { socketClose, websocketConnection } from "@/state/reducers/chatsSlice";
-import { getTokens, getUserInfo } from "@/state/reducers/userSlice";
-import utils from "@/core/utils";
+import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
 
 const HomeScreen = ({ navigation }) => {
-  const dispatch = useDispatch();
-  // const tokens = useSelector(getTokens);
-  const user = useSelector(getUserInfo);
-
-  // utils.log(user);
-
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
   }, [navigation]);
-
-
 
   const _renderIcon = (routeName, selectedTab) => {
     let icon = "";

@@ -1,11 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import apiRequest, { BaseAddress } from "@/core/api";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import utils from "@/core/utils";
-import { getTokens } from "./userSlice";
+import { getTokens, updateThumbnail } from "./userSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-
 
 const initialState = {
   isConnected: false,
@@ -14,6 +12,16 @@ const initialState = {
 
 // WebSocket instance (outside Redux)
 let socket = null;
+
+const dispatch = useDispatch(); // Get dispatch function
+
+// ----------------------------------
+//  Socket receive message handlers
+// ----------------------------------
+
+function responseThumbnail(data) {
+  dispatch(updateThumbnail(data));
+}
 
 // WebSocket Thunk
 export const websocketConnection = createAsyncThunk(
@@ -27,31 +35,49 @@ export const websocketConnection = createAsyncThunk(
         `ws://${BaseAddress}/ws/chat/?tokens=${tokens.access}`
       );
 
+      // socket.onopen = () => {
+      //   utils.log("WebSocket connected");
+      //   dispatch(setWebSocketConnected());
+      // };
+
+      // let socket = new WebSocket("ws://127.0.0.1:8000/ws/chat/");
+
       socket.onopen = () => {
-        utils.log("WebSocket connected");
-        dispatch(setWebSocketConnected());
+        console.log("WebSocket connected!");
+        // socket.send(JSON.stringify({ message: "Hello WebSocket!" }));
       };
 
       socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === "message") {
-          dispatch(receiveMessage({ chatId: data.chat_id, message: data }));
+        // Convert data to javascript object
+        const parsed = JSON.parse(event.data);
+
+        // log the data received
+        utils.log("Received from server:", event.data);
+
+        // this is an object/dict of key -> value of function to be called
+        const responses = {
+          thumbnail: responseThumbnail, // this 'thumbnail' key will call the responseThumbnail function
+        };
+
+        const resp = responses[parsed.source];
+
+        if (!resp) {
+          utils.log("parsed.source: " + parsed.source + " not found");
         }
       };
 
       socket.onerror = (error) => {
-        utils.log("WebSocket error:", error);
+        console.log(" WebSocket Error:", error);
       };
 
       socket.onclose = () => {
-        utils.log("WebSocket closed");
-        dispatch(setWebSocketDisconnected());
+        console.log("WebSocket Disconnected");
       };
 
-          // 🚀 Auto-reconnect after 5 seconds
-          // setTimeout(() => {
-          //   dispatch(websocketConnection(tokens));
-          // }, 5000);
+      // 🚀 Auto-reconnect after 5 seconds
+      // setTimeout(() => {
+      //   dispatch(websocketConnection(tokens));
+      // }, 5000);
 
       return true;
     } catch (err) {
@@ -65,7 +91,9 @@ export const messageList = createAsyncThunk(
   "chats/messageList",
   async (chatId, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${BaseAddress}/api/chats/${chatId}/messages/`);
+      const response = await fetch(
+        `${BaseAddress}/api/chats/${chatId}/messages/`
+      );
       const data = await response.json();
       return { chatId, messages: data };
     } catch (err) {
@@ -83,7 +111,12 @@ export const messageSend = createAsyncThunk(
 
       if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(messageData);
-        dispatch(receiveMessage({ chatId, message: { chat_id: chatId, content, sender: "me" } }));
+        dispatch(
+          receiveMessage({
+            chatId,
+            message: { chat_id: chatId, content, sender: "me" },
+          })
+        );
       } else {
         throw new Error("WebSocket is not connected");
       }
@@ -92,6 +125,18 @@ export const messageSend = createAsyncThunk(
     }
   }
 );
+
+export const uploadThumbnail = (file) => {
+  const socket = get().socket;
+
+  socket.send(
+    JSON.stringify({
+      source: "thumbnail",
+      base64: file.base64,
+      filename: file.fileName,
+    })
+  );
+};
 
 // Chats Slice
 const chatsSlice = createSlice({
@@ -113,90 +158,16 @@ const chatsSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder
-      .addCase(messageList.fulfilled, (state, action) => {
-        const { chatId, messages } = action.payload;
-        state.messages[chatId] = messages;
-      });
+    builder.addCase(messageList.fulfilled, (state, action) => {
+      const { chatId, messages } = action.payload;
+      state.messages[chatId] = messages;
+    });
   },
 });
 
-export const { setWebSocketConnected, setWebSocketDisconnected, receiveMessage } = chatsSlice.actions;
+export const {
+  setWebSocketConnected,
+  setWebSocketDisconnected,
+  receiveMessage,
+} = chatsSlice.actions;
 export default chatsSlice.reducer;
-
-
-// const initialState = {
-//   isConnected: false,
-// };
-
-// // WebSocket Thunk
-// export const websocketConnection = createAsyncThunk(
-//   "chats/connection",
-//   async (tokens, { dispatch, rejectWithValue }) => {
-//     try {
-    
-
-//       utils.log("Connecting WebSocket with token:", tokens);
-//       const socket = new WebSocket(
-//         `ws://${BaseAddress}/chat/?tokens=${tokens.access}`
-//       );
-
-//       socket.onopen = () => {
-//         utils.log("WebSocket connected");
-//         dispatch(setWebSocket(socket)); // Store in Redux
-//       };
-
-//       socket.onmessage = (event) => {
-//         utils.log("Received message:", event.data);
-//       };
-
-//       socket.onerror = (error) => {
-//         utils.log("WebSocket error:", error);
-//       };
-
-//       socket.onclose = () => {
-//         utils.log("WebSocket closed");
-//         dispatch(clearWebSocket()); // Remove socket from Redux
-//       };
-
-//       return socket;
-//     } catch (err) {
-//       return rejectWithValue(err.message);
-//     }
-//   }
-// );
-
-// // Chats Slice
-// const chatsClice = createSlice({
-//   name: "chats",
-//   initialState,
-//   reducers: {
-//     setWebSocket(state, action) {
-//       state.socket = action.payload;
-//       state.isConnected = true;
-//     },
-//     clearWebSocket(state) {
-//       if (state.socket) {
-//         state.socket.close();
-//       }
-//       state.socket = null;
-//       state.isConnected = false;
-//     },
-//   },
-//   extraReducers: (builder) => {
-//     builder.addCase(websocketConnection.fulfilled, (state, action) => {
-//       state.socket = action.payload;
-//       state.isConnected = true;
-//     });
-//   },
-// });
-
-// Selectors
-// export const getSocketConnection = (state) => state.user.authenticated;
-// export const getInitialized = (state) => state.user.initialized;
-// export const getUserInfo = (state) => state.user;
-// export const getTokens = (state) => state.user.tokens;
-
-// Export Actions & Reducer
-// export const { socketConnect, socketClose } = chatsClice.actions;
-// export default chatsClice.reducer;

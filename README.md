@@ -92,3 +92,8 @@ redis
 https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-linux/
 
 running on linux: sudo snap services redis
+
+refresh
+https://youtu.be/AcYF18oGn6Y
+
+https://www.youtube.com/watch?v=xjMP0hspNLE

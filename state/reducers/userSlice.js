@@ -46,6 +46,9 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    updateThumbnail(state, action) {
+      state.user = action.data;
+    },
     logOutUser(state) {
       state.user = {};
       state.tokens = "";
@@ -53,7 +56,7 @@ const userSlice = createSlice({
       state.error = null;
       state.status = null;
       state.initialized = false;
-      secure.removeUserSession('tokens')
+      secure.removeUserSession("tokens");
     },
   },
   extraReducers: (builder) => {
@@ -69,7 +72,7 @@ const userSlice = createSlice({
         state.initialized = true;
         state.status = "fulfilled";
         state.error = null;
-        secure.storeUserSession('tokens', action.payload.tokens)
+        secure.storeUserSession("tokens", action.payload.tokens);
       })
       .addCase(logInUser.rejected, (state, action) => {
         state.status = "rejected";
@@ -86,8 +89,7 @@ const userSlice = createSlice({
         state.authenticated = true;
         state.status = "fulfilled";
         state.error = null;
-        secure.storeUserSession('tokens', action.payload.tokens)
-
+        secure.storeUserSession("tokens", action.payload.tokens);
       })
       .addCase(signUpUser.rejected, (state, action) => {
         state.status = "rejected";
@@ -103,5 +105,5 @@ export const getUserInfo = (state) => state.user;
 export const getTokens = (state) => state.user.tokens;
 
 // Export Actions & Reducer
-export const { logOutUser } = userSlice.actions;
+export const { logOutUser, updateThumbnail } = userSlice.actions;
 export default userSlice.reducer;

@@ -1,4 +1,5 @@
 import { Platform } from "react-native";
+import { BaseAddress } from "./api";
 
 function log() {
   // Much beter console.log function that formats/indents
@@ -13,7 +14,15 @@ function log() {
   }
 }
 
-export default { log };
+function thumbnail(url) {
+  "Help to upload Imaged by urls.";
+
+  return {
+    uri: "http://" + BaseAddress + url,
+  };
+}
+
+export default { log, thumbnail };
 
 export const formatTime = (date) => {
   if (date == null) {
