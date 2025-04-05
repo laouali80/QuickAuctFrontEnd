@@ -1,36 +1,27 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { categories } from "@/mockData/categories";
 import { COLORS } from "@/constants/COLORS";
 
 const CategoriesFilter = () => {
   return (
-    <View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+    <View style={styles.categoriesContainer}>
+      <Text style={styles.categoriesTitle}>Categories</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoriesScroll}
+      >
         {categories.map((category, index) => (
           <View
             key={index}
-            style={{
-              backgroundColor: index === 0 ? COLORS.primary : "#fff",
-              marginRight: 16,
-              borderRadius: 25,
-              paddingHorizontal: 16,
-              paddingVertical: 10,
-              flexDirection: "row",
-              alignItems: "center",
-              borderColor: COLORS.silverIcon,
-              borderWidth: 1,
-              // shadowColor: "#000",
-              // shadowOffset: { width: 0, height: 4 },
-              // shadowOpacity: 0.4,
-              // shadowRadius: 7,
-            }}
+            style={[styles.categoryPill, index === 0 && styles.activeCategory]}
           >
             <Text
-              style={{
-                color: index === 0 ? "#fff" : COLORS.silverIcon,
-                fontSize: 18,
-              }}
+              style={[
+                styles.categoryText,
+                index === 0 && styles.activeCategoryText,
+              ]}
             >
               {category.category}
             </Text>
@@ -43,4 +34,48 @@ const CategoriesFilter = () => {
 
 export default CategoriesFilter;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  categoriesContainer: {
+    marginTop: 8,
+  },
+  categoriesTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: COLORS.darkText,
+    marginBottom: 12,
+  },
+  categoriesScroll: {
+    paddingBottom: 8, // Extra space for scroll
+  },
+  categoryPill: {
+    backgroundColor: "#fff",
+    marginRight: 12,
+    borderRadius: 25,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderColor: COLORS.silverIcon,
+    borderWidth: 1,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
+  },
+  activeCategory: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  categoryText: {
+    color: COLORS.silverIcon,
+    fontSize: 16,
+  },
+  activeCategoryText: {
+    color: "#fff",
+  },
+});

@@ -30,6 +30,7 @@ import AuctionScreen from "./screens/AuctionScreen";
 import { store, persistor } from "./state/store";
 import { getAuthentication } from "./state/reducers/userSlice";
 import { PersistGate } from "redux-persist/integration/react";
+import SearchScreen from "./screens/SearchScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -45,7 +46,7 @@ function AppContent() {
   const colorScheme = useColorScheme(); // Detects light or dark mode
   const [initialized] = useState(true);
   const authenticated = useSelector(getAuthentication);
-  console.log(authenticated)
+  console.log(authenticated);
   // const authenticated = true;
 
   const isDarkMode = colorScheme === "dark";
@@ -83,6 +84,7 @@ function AppContent() {
               ) : (
                 <>
                   <Stack.Screen name="Home" component={HomeScreen} />
+                  <Stack.Screen name="Search" component={SearchScreen} />
 
                   {/* Auction */}
                   <Stack.Screen name="Auction" component={AuctionScreen} />

@@ -101,7 +101,7 @@ const userSlice = createSlice({
 // Selectors
 export const getAuthentication = (state) => state.user.authenticated;
 export const getInitialized = (state) => state.user.initialized;
-export const getUserInfo = (state) => state.user;
+export const getUserInfo = (state) => state.user.user;
 export const getTokens = (state) => state.user.tokens;
 
 // Export Actions & Reducer

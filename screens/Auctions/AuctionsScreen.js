@@ -21,17 +21,15 @@ const CONTAINER_HEIGHT = 230;
 const AuctionsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const tokens = useSelector(getTokens);
-  
-  
+
   useEffect(() => {
-    utils.log('receive: ', tokens)
+    // utils.log('receive: ', tokens)
     dispatch(websocketConnection(tokens));
 
     return () => {
       dispatch(socketClose());
     };
   }, []);
-
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const offsetAnim = useRef(new Animated.Value(0)).current;

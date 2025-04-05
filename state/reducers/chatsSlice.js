@@ -13,13 +13,13 @@ const initialState = {
 // WebSocket instance (outside Redux)
 let socket = null;
 
-const dispatch = useDispatch(); // Get dispatch function
-
 // ----------------------------------
 //  Socket receive message handlers
 // ----------------------------------
 
 function responseThumbnail(data) {
+  const dispatch = useDispatch(); // Get dispatch function
+
   dispatch(updateThumbnail(data));
 }
 
@@ -85,6 +85,16 @@ export const websocketConnection = createAsyncThunk(
     }
   }
 );
+
+export const socketClose = () => {
+  const socket = get().socket;
+
+  if (socket) {
+    socket.close();
+  }
+
+  dispatch(setWebSocketDisconnected());
+};
 
 // Fetch messages for a chat
 export const messageList = createAsyncThunk(
