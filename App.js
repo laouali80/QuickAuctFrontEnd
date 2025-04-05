@@ -44,8 +44,9 @@ const LightTheme = {
 function AppContent() {
   const colorScheme = useColorScheme(); // Detects light or dark mode
   const [initialized] = useState(true);
-  // const authenticated = useSelector(getAuthentication);
-  const authenticated = true;
+  const authenticated = useSelector(getAuthentication);
+  console.log(authenticated)
+  // const authenticated = true;
 
   const isDarkMode = colorScheme === "dark";
   const statusBarStyle = isDarkMode ? "light-content" : "dark-content";
@@ -81,7 +82,7 @@ function AppContent() {
                 </>
               ) : (
                 <>
-                  {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
+                  <Stack.Screen name="Home" component={HomeScreen} />
 
                   {/* Auction */}
                   <Stack.Screen name="Auction" component={AuctionScreen} />
@@ -116,9 +117,9 @@ export default function App() {
   return (
     <Provider store={store}>
       {/* PersistGate is to rehydrate the app when reloading again with the previous store state */}
-      {/* <PersistGate loading={null} persistor={persistor}> */}
-      <AppContent />
-      {/* </PersistGate> */}
+      <PersistGate loading={null} persistor={persistor}>
+        <AppContent />
+      </PersistGate>
     </Provider>
   );
 }

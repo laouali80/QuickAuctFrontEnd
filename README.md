@@ -87,3 +87,13 @@ https://www.npmjs.com/package/react-native-curved-bottom-bar
 
 This package can be used as a drop-in replacement for react-native-svg when targeting the web,
 https://www.npmjs.com/package/react-native-svg-web
+
+redis
+https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-linux/
+
+running on linux: sudo snap services redis
+
+refresh
+https://youtu.be/AcYF18oGn6Y
+
+https://www.youtube.com/watch?v=xjMP0hspNLE
