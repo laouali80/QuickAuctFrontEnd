@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import Cell from "./share-components/Cell";
 import Thumbnail from "./share-components/Thumbnail";
-import { formatTime } from "@/core/utils";
+import { formatChatTime } from "@/core/utils";
 
 const ChatRow = ({ navigation, item }) => {
   return (
@@ -12,7 +12,12 @@ const ChatRow = ({ navigation, item }) => {
       }}
     >
       <Cell>
-        <Thumbnail url={item.friend.thumbnail} size={76} />
+        <Thumbnail
+          url={item.friend.thumbnail}
+          width={76}
+          height={76}
+          borderRadius={76 / 2}
+        />
         <View
           style={{
             flex: 1,
@@ -35,7 +40,7 @@ const ChatRow = ({ navigation, item }) => {
           >
             {item.preview}
             <Text style={{ color: "#909090", fontSize: 13 }}>
-              {formatTime(item.updated)}
+              {formatChatTime(item.updated)}
             </Text>
           </Text>
         </View>

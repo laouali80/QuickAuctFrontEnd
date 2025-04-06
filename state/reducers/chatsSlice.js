@@ -24,7 +24,7 @@ function responseThumbnail(data) {
 }
 
 // WebSocket Thunk
-export const websocketConnection = createAsyncThunk(
+export const initializeChatSocket = createAsyncThunk(
   "chats/connection",
   async (tokens, { dispatch, rejectWithValue }) => {
     try {
@@ -35,15 +35,8 @@ export const websocketConnection = createAsyncThunk(
         `ws://${BaseAddress}/ws/chat/?tokens=${tokens.access}`
       );
 
-      // socket.onopen = () => {
-      //   utils.log("WebSocket connected");
-      //   dispatch(setWebSocketConnected());
-      // };
-
-      // let socket = new WebSocket("ws://127.0.0.1:8000/ws/chat/");
-
       socket.onopen = () => {
-        console.log("WebSocket connected!");
+        console.log("Chat Socket connected!");
         // socket.send(JSON.stringify({ message: "Hello WebSocket!" }));
       };
 
@@ -76,7 +69,7 @@ export const websocketConnection = createAsyncThunk(
 
       // 🚀 Auto-reconnect after 5 seconds
       // setTimeout(() => {
-      //   dispatch(websocketConnection(tokens));
+      //   dispatch(initializeChatSocket(tokens));
       // }, 5000);
 
       return true;
@@ -86,16 +79,13 @@ export const websocketConnection = createAsyncThunk(
   }
 );
 
-export const socketClose = () => {
-  const socket = get().socket;
-
+export const ChatSocketClose = () => (dispatch) => {
   if (socket) {
     socket.close();
+    socket = null; // Clear the socket reference
+    dispatch(setWebSocketDisconnected());
   }
-
-  dispatch(setWebSocketDisconnected());
 };
-
 // Fetch messages for a chat
 export const messageList = createAsyncThunk(
   "chats/messageList",

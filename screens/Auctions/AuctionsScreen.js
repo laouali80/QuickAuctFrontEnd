@@ -12,10 +12,19 @@ import Header from "@/auction-components/Header";
 import { COLORS } from "@/constants/COLORS";
 import { auctions } from "@/mockData/auctions";
 import AuctionCard from "@/auction-components/AuctionCard";
-import { socketClose, websocketConnection } from "@/state/reducers/chatsSlice";
+import {
+  initializeChatSocket,
+  ChatSocketClose,
+} from "@/state/reducers/chatsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { getTokens } from "@/state/reducers/userSlice";
 import utils from "@/core/utils";
+import {
+  AuctionSocketClose,
+  initializeAuctionSocket,
+  setStore,
+} from "@/core/auctionSocketManager";
+import { store } from "@/state/store";
 
 const CONTAINER_HEIGHT = 230;
 const AuctionsScreen = ({ navigation }) => {
@@ -24,10 +33,14 @@ const AuctionsScreen = ({ navigation }) => {
 
   useEffect(() => {
     // utils.log('receive: ', tokens)
-    dispatch(websocketConnection(tokens));
+
+    setStore(store); // Initialize socket manager with store reference
+    dispatch(initializeChatSocket(tokens)); // initialize chat socket channel
+    dispatch(initializeAuctionSocket(tokens)); // initialize auction socket channel
 
     return () => {
-      dispatch(socketClose());
+      dispatch(ChatSocketClose());
+      dispatch(AuctionSocketClose());
     };
   }, []);
 

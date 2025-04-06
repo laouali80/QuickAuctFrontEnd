@@ -106,7 +106,7 @@ const HomeScreen = ({ navigation }) => {
         <Animated.View style={styles.btnCircleUp}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => Alert.alert("Click Action")}
+            onPress={() => navigate("CreateAuctionForm")}
           >
             <Ionicons name="add" size={25} color="white" />
           </TouchableOpacity>

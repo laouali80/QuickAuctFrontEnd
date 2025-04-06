@@ -1,26 +1,47 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React from "react";
 import { COLORS } from "@/constants/COLORS";
+import { useNavigation } from "@react-navigation/native";
+import Thumbnail from "./share-components/Thumbnail";
+import { formatAuctionTime } from "@/core/utils";
 
-import { AntDesign } from "@expo/vector-icons";
+const SearchRow = ({ auction }) => {
+  const navigation = useNavigation();
+  const _navigate = () => {
+    navigation.navigate("Auction");
+  };
 
-const LikeCard = ({ auction }) => {
   return (
-    <View
+    <TouchableOpacity
       style={{
         flexDirection: "row",
         borderWidth: 1,
         borderColor: COLORS.silverIcon,
         marginBottom: 10,
+        marginHorizontal: 10,
         borderRadius: 10,
         padding: 12,
         backgroundColor: "white",
         alignItems: "center",
       }}
+      onPress={_navigate}
     >
       {/* Image Container */}
       <View style={{ marginRight: 12 }}>
-        <Image
+        <Thumbnail
+          url={auction.image}
+          width={120}
+          height={100}
+          borderRadius={10}
+        />
+        {/* <Image
           source={auction.image}
           style={{
             width: 120,
@@ -28,7 +49,7 @@ const LikeCard = ({ auction }) => {
             borderRadius: 10,
             resizeMode: "cover",
           }}
-        />
+        /> */}
       </View>
 
       {/* Content Container */}
@@ -54,9 +75,6 @@ const LikeCard = ({ auction }) => {
           >
             {auction.title}
           </Text>
-          <Pressable>
-            <AntDesign name="delete" size={20} color={COLORS.silverIcon} />
-          </Pressable>
         </View>
 
         {/* Bids and Time Container */}
@@ -76,7 +94,7 @@ const LikeCard = ({ auction }) => {
             }}
           >
             <Text style={{ color: "white", fontSize: 12 }}>
-              Bids: {auction.bids}
+              Bids: 4{/* {auction.bids} */}
             </Text>
           </View>
           <View
@@ -90,7 +108,7 @@ const LikeCard = ({ auction }) => {
             }}
           >
             <Text style={{ color: COLORS.primary, fontSize: 12 }}>
-              Ends in {auction.endingTime}
+              Ends in {formatAuctionTime(auction.expiration_date)}
             </Text>
           </View>
         </View>
@@ -120,7 +138,7 @@ const LikeCard = ({ auction }) => {
                 fontSize: 16,
               }}
             >
-              {auction.current_bid}
+              {auction.current_price}
             </Text>
           </View>
 
@@ -142,10 +160,10 @@ const LikeCard = ({ auction }) => {
           </Pressable>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
-export default LikeCard;
+export default SearchRow;
 
 const styles = StyleSheet.create({});
