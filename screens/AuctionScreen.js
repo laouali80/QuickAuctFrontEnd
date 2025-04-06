@@ -12,7 +12,6 @@ import { COLORS } from "@/constants/COLORS";
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
 import { Divider } from "@/components/ui/divider";
-import { Colors } from "react-native/Libraries/NewAppScreen";
 import {
   EvilIcons,
   Feather,

@@ -13,7 +13,7 @@ const ProfileImage = () => {
   const dispatch = useDispatch(); // Get dispatch function
   const user = useSelector(getUserInfo);
 
-  utils.log(user);
+  // utils.log(user);
 
   return (
     <TouchableOpacity
@@ -43,7 +43,12 @@ const ProfileImage = () => {
         }}
       /> */}
 
-      <Thumbnail url={user.thumbnail} size={100} />
+      <Thumbnail
+        url={user.thumbnail}
+        width={100}
+        height={100}
+        borderRadius={90}
+      />
       <View
         style={{
           backgroundColor: COLORS.primary,

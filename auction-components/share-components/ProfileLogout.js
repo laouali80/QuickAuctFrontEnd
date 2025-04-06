@@ -5,12 +5,16 @@ import { useDispatch } from "react-redux";
 import { logOutUser } from "@/state/reducers/userSlice";
 import { persistor } from "@/state/store";
 import { COLORS } from "@/constants/COLORS";
+import { useNavigation } from "@react-navigation/native";
 
-const ProfileLogout = ({ navigation }) => {
+const ProfileLogout = () => {
+  const navigation = useNavigation();
+
   const dispatch = useDispatch(); // Get dispatch function
   const handleLogout = async () => {
     dispatch(logOutUser());
     await persistor.purge(); // Clear Redux-persist storage
+    navigation.navigate("GetStarted");
 
     // navigation.navigate("GetStarted");
   };

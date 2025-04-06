@@ -1,5 +1,6 @@
 import { Platform } from "react-native";
 import { BaseAddress } from "./api";
+import errorPic from "../assets/errors/error.jpg";
 
 function log() {
   // Much beter console.log function that formats/indents
@@ -17,6 +18,10 @@ function log() {
 function thumbnail(url) {
   "Help to upload Imaged by urls.";
 
+  if (!url) {
+    return errorPic;
+  }
+
   return {
     uri: "http://" + BaseAddress + url,
   };
@@ -24,7 +29,7 @@ function thumbnail(url) {
 
 export default { log, thumbnail };
 
-export const formatTime = (date) => {
+export const formatChatTime = (date) => {
   if (date == null) {
     return "-";
   }
@@ -62,4 +67,33 @@ export const formatTime = (date) => {
   // Years
   const y = Math.floor(s / (60 * 60 * 24 * 365));
   return `${y}y ago`;
+};
+
+export const formatAuctionTime = (dateString) => {
+  // Parse the input date string
+  const eventDate = new Date(dateString);
+  const now = new Date();
+
+  // Calculate total difference in milliseconds
+  const diff = eventDate - now;
+
+  // Return null if the date is in the past
+  if (diff <= 0) return null;
+
+  // Calculate time components
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+  // Format based on remaining time
+  if (days > 0) {
+    return `${days}:${hours}:${minutes}:${seconds}s`;
+  } else if (hours > 0) {
+    return `${hours}:${minutes}:${seconds}s`;
+  } else if (minutes > 0) {
+    return `${minutes}:${seconds}s`;
+  } else {
+    return `${minutes}:${seconds}s`;
+  }
 };

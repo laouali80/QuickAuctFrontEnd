@@ -11,7 +11,12 @@ const MessageBubbleFriend = ({ text, friend }) => {
         paddingLeft: 16,
       }}
     >
-      <Thumbnail url={friend.Thumbnail} size={42} />
+      <Thumbnail
+        url={friend.Thumbnail}
+        width={42}
+        height={42}
+        borderRadius={42 / 2}
+      />
       <View
         style={{
           backgroundColor: "#d0d2db",
