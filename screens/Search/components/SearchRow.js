@@ -1,44 +1,66 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React from "react";
-import { HStack } from "@/components/ui/hstack";
-import { VStack } from "@/components/ui/vstack";
 import { COLORS } from "@/constants/COLORS";
+import { useNavigation } from "@react-navigation/native";
+import Thumbnail from "../../../common_components/Thumbnail";
+import { formatAuctionTime } from "@/core/utils";
 
-const BidCard = ({ auction }) => {
+const SearchRow = ({ auction }) => {
+  const navigation = useNavigation();
+  const _navigate = () => {
+    navigation.navigate("Auction");
+  };
+
   return (
-    <View
+    <TouchableOpacity
       style={{
         flexDirection: "row",
         borderWidth: 1,
         borderColor: COLORS.silverIcon,
         marginBottom: 10,
+        marginHorizontal: 10,
         borderRadius: 10,
         padding: 12,
         backgroundColor: "white",
-        alignItems: "center", // Ensures vertical alignment of all items
+        alignItems: "center",
       }}
+      onPress={_navigate}
     >
       {/* Image Container */}
       <View style={{ marginRight: 12 }}>
-        <Image
+        <Thumbnail
+          url={auction.image}
+          width={120}
+          height={100}
+          borderRadius={10}
+        />
+        {/* <Image
           source={auction.image}
           style={{
             width: 120,
             height: 100,
             borderRadius: 10,
-            resizeMode: "cover", // Ensures consistent image aspect ratio
+            resizeMode: "cover",
           }}
-        />
+        /> */}
       </View>
 
       {/* Content Container */}
       <View style={{ flex: 1 }}>
-        {/* Title and Date Row */}
+        {/* Title and Delete Button */}
         <View
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
             marginBottom: 8,
+            alignItems: "center",
           }}
         >
           <Text
@@ -52,15 +74,6 @@ const BidCard = ({ auction }) => {
             ellipsizeMode="tail"
           >
             {auction.title}
-          </Text>
-          <Text
-            style={{
-              color: COLORS.silverIcon,
-              fontSize: 12,
-              alignSelf: "flex-end",
-            }}
-          >
-            {auction.date_created}
           </Text>
         </View>
 
@@ -81,7 +94,7 @@ const BidCard = ({ auction }) => {
             }}
           >
             <Text style={{ color: "white", fontSize: 12 }}>
-              Bids: {auction.bids}
+              Bids: 4{/* {auction.bids} */}
             </Text>
           </View>
           <View
@@ -95,12 +108,12 @@ const BidCard = ({ auction }) => {
             }}
           >
             <Text style={{ color: COLORS.primary, fontSize: 12 }}>
-              Ends in {auction.endingTime}
+              Ends in {formatAuctionTime(auction.expiration_date)}
             </Text>
           </View>
         </View>
 
-        {/* Bid and Status Row */}
+        {/* Bid and Auction Icon */}
         <View
           style={{
             flexDirection: "row",
@@ -125,61 +138,32 @@ const BidCard = ({ auction }) => {
                 fontSize: 16,
               }}
             >
-              {auction.current_bid}
+              {auction.current_price}
             </Text>
           </View>
 
-          <View
+          <Pressable
             style={{
-              alignItems: "center", // Changed from 'flex-end' to 'center'
+              backgroundColor: COLORS.lightPrimary,
+              borderRadius: 20,
+              padding: 8,
+              width: 40,
+              height: 40,
               justifyContent: "center",
+              alignItems: "center",
             }}
           >
-            {auction.status === "Won" && (
-              <Image
-                source={require("../assets/icons/win.png")}
-                style={{
-                  width: 30,
-                  height: 30,
-                  marginBottom: 4,
-                }}
-              />
-            )}
-            <View
-              style={{
-                paddingVertical: 4,
-                paddingHorizontal: 12,
-                borderRadius: 12,
-                backgroundColor:
-                  auction.status === "Won"
-                    ? COLORS.lightYellow
-                    : auction.status === "Bid Lost"
-                    ? COLORS.lightRed
-                    : COLORS.lightPrimary,
-              }}
-            >
-              <Text
-                style={{
-                  fontWeight: "600",
-                  fontSize: 12,
-                  color:
-                    auction.status === "Won"
-                      ? COLORS.yellow
-                      : auction.status === "Bid Lost"
-                      ? COLORS.red
-                      : COLORS.primary,
-                }}
-              >
-                {auction.status}
-              </Text>
-            </View>
-          </View>
+            <Image
+              source={require("../assets/icons/auction1.png")}
+              style={{ width: 24, height: 24 }}
+            />
+          </Pressable>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
-export default BidCard;
+export default SearchRow;
 
 const styles = StyleSheet.create({});

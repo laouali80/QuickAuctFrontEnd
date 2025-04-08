@@ -1,12 +1,16 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
-import { HStack } from "@/components/ui/hstack";
-import { VStack } from "@/components/ui/vstack";
 import { COLORS } from "@/constants/COLORS";
+import { useNavigation } from "@react-navigation/native";
 
 const SaleCard = ({ auction }) => {
+  const navigation = useNavigation();
+  const _navigate = () => {
+    navigation.navigate("Auction");
+  };
   return (
-    <View
+    <TouchableOpacity
+      onPress={_navigate}
       style={{
         flexDirection: "row",
         borderWidth: 1,
@@ -100,7 +104,7 @@ const SaleCard = ({ auction }) => {
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

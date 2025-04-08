@@ -10,9 +10,9 @@ import {
 import React, { useEffect, useState } from "react";
 import { COLORS } from "@/constants/COLORS";
 import { FontAwesome, FontAwesome6 } from "@expo/vector-icons";
-import Empty from "@/auction-components/share-components/Empty";
+import Empty from "@/common_components/Empty";
 import { likes } from "@/mockData/likes";
-import SearchRow from "@/auction-components/SearchRow";
+import SearchRow from "@/screens/Search/components/SearchRow";
 import { useDispatch, useSelector } from "react-redux";
 import { getSearchList, searchAuctions } from "@/state/reducers/auctionsSlice";
 import { getUserInfo } from "@/state/reducers/userSlice";

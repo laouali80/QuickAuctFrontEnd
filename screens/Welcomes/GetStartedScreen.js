@@ -10,7 +10,7 @@ import {
   Platform,
 } from "react-native";
 
-import GetStartedTabs from "@/auction-components/GetStartedTabs";
+import GetStartedTabs from "@/screens/Welcomes/components/GetStartedTabs";
 
 const GetStartedScreen = ({ navigation }) => {
   useLayoutEffect(() => {

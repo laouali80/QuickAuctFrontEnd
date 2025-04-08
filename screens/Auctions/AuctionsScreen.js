@@ -8,10 +8,10 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import Header from "@/auction-components/Header";
+import Header from "@/screens/Auctions/components/Header";
 import { COLORS } from "@/constants/COLORS";
 import { auctions } from "@/mockData/auctions";
-import AuctionCard from "@/auction-components/AuctionCard";
+import AuctionCard from "@/screens/Auctions/components/AuctionCard";
 import {
   initializeChatSocket,
   ChatSocketClose,

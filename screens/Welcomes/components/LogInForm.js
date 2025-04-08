@@ -11,7 +11,7 @@ import {
 import { VStack } from "@/components/ui/vstack";
 import { AlertCircleIcon, EyeIcon, EyeOffIcon } from "@/components/ui/icon";
 // import {  EyeIcon, EyeOffIcon } from "@/components/ui/icon";
-import React, { Children, useState } from "react";
+import React, { useState } from "react";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import {
@@ -21,9 +21,9 @@ import {
   Pressable,
   ScrollView,
 } from "react-native";
-import SubmitButton from "./share-components/SubmitButton";
-import OrDivider from "./share-components/OrDivider";
-import SocialsButton from "./share-components/SocialsButton";
+import SubmitButton from "../../../common_components/SubmitButton";
+import OrDivider from "../../../common_components/OrDivider";
+import SocialsButton from "./SocialsButton";
 import api, { apiRequest, login } from "@/core/api";
 import utils from "@/core/utils";
 import { useDispatch } from "react-redux";

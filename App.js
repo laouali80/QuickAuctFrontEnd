@@ -1,36 +1,29 @@
 import { StatusBar } from "expo-status-bar";
 import "@/global.css";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  // Text,
-  useColorScheme,
-  View,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import GetStartedScreen from "./screens/Welcomes/GetStartedScreen";
 
-import GetStartedScreen from "./screens/GetStartedScreen";
-import { Text } from "./components/ui/text";
-import OTPScreen from "./screens/OTPScreen";
+import OTPScreen from "./screens/Welcomes/OTPScreen";
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import HomeScreen from "./screens/HomeScreen";
+import HomeScreen from "./screens/Welcomes/HomeScreen";
 import InsightsScreen from "./screens/Insights/InsightsScreen";
 import ChatsScreen from "./screens/Chats/ChatsScreen";
 import CreationScren from "./screens/Creation/CreationScren";
 import ProfileScreen from "./screens/Profile/ProfileScreen";
 import { useEffect, useState } from "react";
-import SplashScreen from "./screens/SplashScreen";
+import SplashScreen from "./screens/Welcomes/SplashScreen";
 import { Provider, useDispatch, useSelector } from "react-redux";
-import AuctionOverviewScreen from "./screens/AuctionOverviewScreen";
-import CreateAuctionFormScreen from "./screens/CreateAuctionFormScreen";
-import AuctionBidsScreen from "./screens/AuctionBidsScreen";
-import AuctionScreen from "./screens/AuctionScreen";
+import AuctionOverviewScreen from "./screens/Auctions/AuctionOverviewScreen";
+import CreateAuctionFormScreen from "./screens/Auctions/CreateAuctionFormScreen";
+import AuctionBidsScreen from "./screens/Auctions/AuctionBidsScreen";
+import AuctionScreen from "./screens/Auctions/AuctionScreen";
 import { store, persistor } from "./state/store";
 import { getAuthentication } from "./state/reducers/userSlice";
 import { PersistGate } from "redux-persist/integration/react";
-import SearchScreen from "./screens/SearchScreen";
+import SearchScreen from "./screens/Search/SearchScreen";
 
 const Stack = createNativeStackNavigator();
 

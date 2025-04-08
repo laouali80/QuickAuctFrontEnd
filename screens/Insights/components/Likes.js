@@ -1,7 +1,7 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import React from "react";
 import { likes } from "@/mockData/likes";
-import LikeCard from "@/auction-components/LikeCard";
+import LikeCard from "@/screens/Insights/components/LikeCard";
 
 const Likes = () => {
   return (

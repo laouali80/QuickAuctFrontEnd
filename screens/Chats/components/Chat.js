@@ -6,12 +6,11 @@ import {
   Pressable,
   SafeAreaView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
 import React, { useLayoutEffect, useState } from "react";
 import ChatHeader from "@/auction-components/ChatHeader";
-import ChatInput from "@/auction-components/ChatInput";
+import ChatInput from "@/screens/Chats/components/ChatInput";
 
 const Chat = ({ navigation, route }) => {
   const [message, setMessage] = useState("");

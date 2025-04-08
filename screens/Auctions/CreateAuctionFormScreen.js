@@ -10,12 +10,12 @@ import {
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
-import SubmitButton from "@/auction-components/share-components/SubmitButton";
+import SubmitButton from "@/common_components/SubmitButton";
 import { COLORS } from "@/constants/COLORS";
 import { AntDesign } from "@expo/vector-icons";
-import SelectDrop from "@/auction-components/share-components/SelectDrop";
+import SelectDrop from "@/common_components/SelectDrop";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
-import PaymentMethod from "@/auction-components/share-components/PaymentMethod";
+import PaymentMethod from "@/screens/Auctions/components/PaymentMethod";
 
 const CreateAuctionFormScreen = ({ navigation }) => {
   useLayoutEffect(() => {

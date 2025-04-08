@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
-import Cell from "./share-components/Cell";
-import Thumbnail from "./share-components/Thumbnail";
+import Cell from "../../../common_components/Cell";
+import Thumbnail from "../../../common_components/Thumbnail";
 import { formatChatTime } from "@/core/utils";
 
 const ChatRow = ({ navigation, item }) => {

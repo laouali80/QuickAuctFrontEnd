@@ -4,15 +4,13 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React from "react";
 import { EvilIcons, FontAwesome } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
-import SearchFilter from "./SearchFilter";
+import SearchFilter from "../../Search/components/SearchFilter";
 import CategoriesFilter from "./CategoriesFilter";
-import { categories } from "@/mockData/categories";
 
 const Header = () => {
   return (

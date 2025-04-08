@@ -1,13 +1,7 @@
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
 import React from "react";
-import Empty from "@/auction-components/share-components/Empty";
-import ChatRow from "@/auction-components/ChatRow";
+import Empty from "@/common_components/Empty";
+import ChatRow from "@/screens/Chats/components/ChatRow";
 
 const Chats = () => {
   const chatsList = [];
