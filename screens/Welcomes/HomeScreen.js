@@ -1,11 +1,11 @@
 // import { StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useLayoutEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import InsightsScreen from "./Insights/InsightsScreen";
-import AuctionsScreen from "./Auctions/AuctionsScreen";
-import CreationScren from "./Creation/CreationScren";
-import ChatsScreen from "./Chats/ChatsScreen";
-import ProfileScreen from "./Profile/ProfileScreen";
+import InsightsScreen from "../Insights/InsightsScreen";
+import AuctionsScreen from "../Auctions/AuctionsScreen";
+import CreationScren from "../Creation/CreationScren";
+import ChatsScreen from "../Chats/ChatsScreen";
+import ProfileScreen from "../Profile/ProfileScreen";
 
 import {
   Alert,

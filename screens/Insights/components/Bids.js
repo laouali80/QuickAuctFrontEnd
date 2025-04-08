@@ -1,7 +1,7 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import React from "react";
 import { bids } from "@/mockData/bids";
-import BidCard from "@/auction-components/BidCard";
+import BidCard from "@/screens/Insights/components/BidCard";
 
 const Bids = () => {
   return (

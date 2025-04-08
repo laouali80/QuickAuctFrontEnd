@@ -1,12 +1,16 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { COLORS } from "@/constants/COLORS";
+import { useNavigation } from "@react-navigation/native";
 
-import { AntDesign } from "@expo/vector-icons";
-
-const LikeCard = ({ auction }) => {
+const BidCard = ({ auction }) => {
+  const navigation = useNavigation();
+  const _navigate = () => {
+    navigation.navigate("Auction");
+  };
   return (
-    <View
+    <TouchableOpacity
+      onPress={_navigate}
       style={{
         flexDirection: "row",
         borderWidth: 1,
@@ -15,7 +19,7 @@ const LikeCard = ({ auction }) => {
         borderRadius: 10,
         padding: 12,
         backgroundColor: "white",
-        alignItems: "center",
+        alignItems: "center", // Ensures vertical alignment of all items
       }}
     >
       {/* Image Container */}
@@ -26,20 +30,19 @@ const LikeCard = ({ auction }) => {
             width: 120,
             height: 100,
             borderRadius: 10,
-            resizeMode: "cover",
+            resizeMode: "cover", // Ensures consistent image aspect ratio
           }}
         />
       </View>
 
       {/* Content Container */}
       <View style={{ flex: 1 }}>
-        {/* Title and Delete Button */}
+        {/* Title and Date Row */}
         <View
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
             marginBottom: 8,
-            alignItems: "center",
           }}
         >
           <Text
@@ -54,9 +57,15 @@ const LikeCard = ({ auction }) => {
           >
             {auction.title}
           </Text>
-          <Pressable>
-            <AntDesign name="delete" size={20} color={COLORS.silverIcon} />
-          </Pressable>
+          <Text
+            style={{
+              color: COLORS.silverIcon,
+              fontSize: 12,
+              alignSelf: "flex-end",
+            }}
+          >
+            {auction.date_created}
+          </Text>
         </View>
 
         {/* Bids and Time Container */}
@@ -95,7 +104,7 @@ const LikeCard = ({ auction }) => {
           </View>
         </View>
 
-        {/* Bid and Auction Icon */}
+        {/* Bid and Status Row */}
         <View
           style={{
             flexDirection: "row",
@@ -124,28 +133,57 @@ const LikeCard = ({ auction }) => {
             </Text>
           </View>
 
-          <Pressable
+          <View
             style={{
-              backgroundColor: COLORS.lightPrimary,
-              borderRadius: 20,
-              padding: 8,
-              width: 40,
-              height: 40,
+              alignItems: "center", // Changed from 'flex-end' to 'center'
               justifyContent: "center",
-              alignItems: "center",
             }}
           >
-            <Image
-              source={require("../assets/icons/auction1.png")}
-              style={{ width: 24, height: 24 }}
-            />
-          </Pressable>
+            {auction.status === "Won" && (
+              <Image
+                source={require("../assets/icons/win.png")}
+                style={{
+                  width: 30,
+                  height: 30,
+                  marginBottom: 4,
+                }}
+              />
+            )}
+            <View
+              style={{
+                paddingVertical: 4,
+                paddingHorizontal: 12,
+                borderRadius: 12,
+                backgroundColor:
+                  auction.status === "Won"
+                    ? COLORS.lightYellow
+                    : auction.status === "Bid Lost"
+                    ? COLORS.lightRed
+                    : COLORS.lightPrimary,
+              }}
+            >
+              <Text
+                style={{
+                  fontWeight: "600",
+                  fontSize: 12,
+                  color:
+                    auction.status === "Won"
+                      ? COLORS.yellow
+                      : auction.status === "Bid Lost"
+                      ? COLORS.red
+                      : COLORS.primary,
+                }}
+              >
+                {auction.status}
+              </Text>
+            </View>
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
-export default LikeCard;
+export default BidCard;
 
 const styles = StyleSheet.create({});

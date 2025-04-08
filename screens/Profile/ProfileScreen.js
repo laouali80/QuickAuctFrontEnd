@@ -1,6 +1,6 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 import React from "react";
-import ProfileLogout from "@/auction-components/share-components/ProfileLogout";
+import ProfileLogout from "@/screens/Profile/components/ProfileLogout";
 import ProfileImage from "@/auction-components/ProfileImage";
 
 const ProfileScreen = () => {

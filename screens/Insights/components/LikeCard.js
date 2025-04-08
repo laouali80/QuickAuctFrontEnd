@@ -8,40 +8,32 @@ import {
 } from "react-native";
 import React from "react";
 import { COLORS } from "@/constants/COLORS";
-import { useNavigation } from "@react-navigation/native";
-import Thumbnail from "./share-components/Thumbnail";
-import { formatAuctionTime } from "@/core/utils";
 
-const SearchRow = ({ auction }) => {
+import { AntDesign } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+
+const LikeCard = ({ auction }) => {
   const navigation = useNavigation();
   const _navigate = () => {
     navigation.navigate("Auction");
   };
-
   return (
     <TouchableOpacity
+      onPress={_navigate}
       style={{
         flexDirection: "row",
         borderWidth: 1,
         borderColor: COLORS.silverIcon,
         marginBottom: 10,
-        marginHorizontal: 10,
         borderRadius: 10,
         padding: 12,
         backgroundColor: "white",
         alignItems: "center",
       }}
-      onPress={_navigate}
     >
       {/* Image Container */}
       <View style={{ marginRight: 12 }}>
-        <Thumbnail
-          url={auction.image}
-          width={120}
-          height={100}
-          borderRadius={10}
-        />
-        {/* <Image
+        <Image
           source={auction.image}
           style={{
             width: 120,
@@ -49,7 +41,7 @@ const SearchRow = ({ auction }) => {
             borderRadius: 10,
             resizeMode: "cover",
           }}
-        /> */}
+        />
       </View>
 
       {/* Content Container */}
@@ -75,6 +67,9 @@ const SearchRow = ({ auction }) => {
           >
             {auction.title}
           </Text>
+          <Pressable>
+            <AntDesign name="delete" size={20} color={COLORS.silverIcon} />
+          </Pressable>
         </View>
 
         {/* Bids and Time Container */}
@@ -94,7 +89,7 @@ const SearchRow = ({ auction }) => {
             }}
           >
             <Text style={{ color: "white", fontSize: 12 }}>
-              Bids: 4{/* {auction.bids} */}
+              Bids: {auction.bids}
             </Text>
           </View>
           <View
@@ -108,7 +103,7 @@ const SearchRow = ({ auction }) => {
             }}
           >
             <Text style={{ color: COLORS.primary, fontSize: 12 }}>
-              Ends in {formatAuctionTime(auction.expiration_date)}
+              Ends in {auction.endingTime}
             </Text>
           </View>
         </View>
@@ -138,7 +133,7 @@ const SearchRow = ({ auction }) => {
                 fontSize: 16,
               }}
             >
-              {auction.current_price}
+              {auction.current_bid}
             </Text>
           </View>
 
@@ -164,6 +159,6 @@ const SearchRow = ({ auction }) => {
   );
 };
 
-export default SearchRow;
+export default LikeCard;
 
 const styles = StyleSheet.create({});

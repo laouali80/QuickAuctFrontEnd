@@ -1,7 +1,7 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import React from "react";
 import { sales } from "@/mockData/sales";
-import SaleCard from "@/auction-components/SaleCard";
+import SaleCard from "@/screens/Insights/components/SaleCard";
 
 const Sales = () => {
   return (

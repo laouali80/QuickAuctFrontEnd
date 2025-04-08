@@ -1,9 +1,15 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React, { useState } from "react";
-import { VStack } from "@/components/ui/vstack";
-import { HStack } from "@/components/ui/hstack";
 import { COLORS } from "@/constants/COLORS";
-import { Feather, FontAwesome } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 const AuctionCard = ({ auction }) => {
   const [like, setLike] = useState("heart-o");
@@ -12,8 +18,13 @@ const AuctionCard = ({ auction }) => {
     like === "heart-o" ? setLike("heart") : setLike("heart-o");
   };
 
+  const navigation = useNavigation();
+  const _navigate = () => {
+    navigation.navigate("Auction");
+  };
   return (
-    <View
+    <TouchableOpacity
+      onPress={_navigate}
       style={{
         width: 175, // Fixed width for all cards
         flexDirection: "column",
@@ -110,7 +121,7 @@ const AuctionCard = ({ auction }) => {
           />
         </Pressable>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
