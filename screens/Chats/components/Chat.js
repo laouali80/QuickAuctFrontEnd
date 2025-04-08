@@ -9,8 +9,9 @@ import {
   View,
 } from "react-native";
 import React, { useLayoutEffect, useState } from "react";
-import ChatHeader from "@/auction-components/ChatHeader";
-import ChatInput from "@/screens/Chats/components/ChatInput";
+import MessageBubble from "./MessageBubble";
+import ChatInput from "./ChatInput";
+import ChatHeader from "./ChatHeader";
 
 const Chat = ({ navigation, route }) => {
   const [message, setMessage] = useState("");

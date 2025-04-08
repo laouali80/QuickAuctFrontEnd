@@ -38,7 +38,7 @@ const OTPScreen = () => {
     <View className="flex-1 justify-between px-5">
       <View className="justify-center items-center flex-1">
         <Image
-          source={require("../assets/icons/OTPImag.png")}
+          source={require("../../assets/icons/OTPImag.png")}
           style={styles.image}
         />
         <Text className="text-3xl font-bold my-5">OTP Verification</Text>

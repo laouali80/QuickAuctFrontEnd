@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import MessageBubbleMe from "./share-components/MessageBubbleMe";
+import MessageBubbleMe from "./MessageBubbleMe";
+import MessageBubbleFriend from "./MessageBubbleFriend";
 
 const MessageBubble = ({ index, message, friend }) => {
   return message.is_me ? (

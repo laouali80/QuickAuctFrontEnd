@@ -69,7 +69,7 @@ const AuctionScreen = ({ navigation }) => {
       <View style={[styles.imageSection, { height: SIZES.height / 2 }]}>
         <View style={styles.imageContainer}>
           <Image
-            source={require("../assets/auctions/macbook.jpg")}
+            source={require("../../assets/auctions/macbook.jpg")}
             style={styles.productImage}
             resizeMode="contain"
           />
@@ -115,7 +115,7 @@ const AuctionScreen = ({ navigation }) => {
             <Text style={styles.sectionLabel}>Owner</Text>
             <View style={styles.ownerInfo}>
               <Image
-                source={require("../assets/profiles/default.png")}
+                source={require("../../assets/profiles/default.png")}
                 style={styles.ownerImage}
               />
 
@@ -251,7 +251,7 @@ const AuctionScreen = ({ navigation }) => {
                 <VStack>
                   <HStack>
                     <Image
-                      source={require("../assets/profiles/default.png")}
+                      source={require("../../assets/profiles/default.png")}
                       style={{
                         width: 50,
                         height: 50,

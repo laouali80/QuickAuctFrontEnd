@@ -116,7 +116,7 @@ const AuctionCard = ({ auction }) => {
           }}
         >
           <Image
-            source={require("../assets/icons/auction1.png")}
+            source={require("../../../assets/icons/auction1.png")}
             style={{ width: 30, height: 30 }}
           />
         </Pressable>
