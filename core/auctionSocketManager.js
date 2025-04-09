@@ -52,7 +52,9 @@ export const initializeAuctionSocket = createAsyncThunk(
       };
 
       socket.onclose = () => {
-        storeRef?.dispatch({ type: "auctions/setSocketDisconnected" });
+        console.log("WebSocket Disconnected");
+
+        // storeRef?.dispatch({ type: "auctions/setSocketDisconnected" });
       };
       return true;
     } catch (err) {
@@ -61,10 +63,12 @@ export const initializeAuctionSocket = createAsyncThunk(
   }
 );
 
-export const AuctionSocketClose = () => {
+export const AuctionSocketClose = () => (dispatch) => {
   if (socket) {
     socket.close();
     socket = null;
+    storeRef?.dispatch({ type: "auctions/setSocketDisconnected" });
+    // dispatch(setSocketDisconnected)
   }
 };
 

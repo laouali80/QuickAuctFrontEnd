@@ -12,6 +12,7 @@ import React, { useLayoutEffect, useState } from "react";
 import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
 import ChatHeader from "./ChatHeader";
+import { EvilIcons, FontAwesome } from "@expo/vector-icons";
 
 const Chat = ({ navigation, route }) => {
   const [message, setMessage] = useState("");

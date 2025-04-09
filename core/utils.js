@@ -30,42 +30,37 @@ function thumbnail(url) {
 export default { log, thumbnail };
 
 export const formatChatTime = (date) => {
-  if (date == null) {
-    return "-";
-  }
+  if (!date) return "-";
 
   const now = new Date();
-  const s = Math.abs(now - new Date(Date)) / 100;
+  const target = new Date(date);
+  const s = Math.abs(now - target) / 1000;
 
-  // seconds
   if (s < 60) {
     return "now";
   }
-  //  Minutes
-  if (s < 60 * 60) {
+
+  if (s < 3600) {
     const m = Math.floor(s / 60);
     return `${m}m ago`;
   }
-  // Hours
-  if (s < 60 * 60 * 24) {
-    const h = Math.floor(s / (60 * 60));
+
+  if (s < 86400) {
+    const h = Math.floor(s / 3600);
     return `${h}h ago`;
   }
 
-  // Days
-  if (s < 60 * 60 * 24 * 7) {
-    const d = Math.floor(s / (60 * 60 * 24));
-    return `${h}d ago`;
+  if (s < 86400 * 7) {
+    const d = Math.floor(s / 86400);
+    return `${d}d ago`;
   }
 
-  // Weeks
-  if (s < 60 * 60 * 24 * 7 * 4) {
-    const w = Math.floor(s / (60 * 60 * 24 * 7));
+  if (s < 86400 * 30) {
+    const w = Math.floor(s / (86400 * 7));
     return `${w}w ago`;
   }
 
-  // Years
-  const y = Math.floor(s / (60 * 60 * 24 * 365));
+  const y = Math.floor(s / (86400 * 365));
   return `${y}y ago`;
 };
 

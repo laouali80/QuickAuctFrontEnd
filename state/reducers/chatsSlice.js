@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const initialState = {
   isConnected: false,
   messages: {}, // Store messages per conversation
+  chatsList: [],
 };
 
 // WebSocket instance (outside Redux)
@@ -17,10 +18,13 @@ let socket = null;
 //  Socket receive message handlers
 // ----------------------------------
 
-function responseThumbnail(data) {
-  const dispatch = useDispatch(); // Get dispatch function
+function responseChatsList(message, dispatch) {
+  // console.log("✅ Received chatsList:", message.data);
+  dispatch(chatsList(message.data));
+}
 
-  dispatch(updateThumbnail(data));
+function responseThumbnail(message, dispatch) {
+  dispatch(updateThumbnail(message));
 }
 
 // WebSocket Thunk
@@ -37,7 +41,7 @@ export const initializeChatSocket = createAsyncThunk(
 
       socket.onopen = () => {
         console.log("Chat Socket connected!");
-        // socket.send(JSON.stringify({ message: "Hello WebSocket!" }));
+        socket.send(JSON.stringify({ source: "FetchChatsList" }));
       };
 
       socket.onmessage = (event) => {
@@ -50,12 +54,15 @@ export const initializeChatSocket = createAsyncThunk(
         // this is an object/dict of key -> value of function to be called
         const responses = {
           thumbnail: responseThumbnail, // this 'thumbnail' key will call the responseThumbnail function
+          chatsList: responseChatsList,
         };
 
         const resp = responses[parsed.source];
 
         if (!resp) {
           utils.log("parsed.source: " + parsed.source + " not found");
+        } else {
+          resp(parsed, dispatch); // ✅ Pass dispatch manually
         }
       };
 
@@ -126,6 +133,7 @@ export const messageSend = createAsyncThunk(
   }
 );
 
+// export const chatsList =
 export const uploadThumbnail = (file) => {
   const socket = get().socket;
 
@@ -149,6 +157,10 @@ const chatsSlice = createSlice({
     setWebSocketDisconnected(state) {
       state.isConnected = false;
     },
+    chatsList(state, action) {
+      // console.log("✅ chatsList reducer triggered with:", action.payload);
+      state.chatsList = action.payload;
+    },
     receiveMessage(state, action) {
       const { chatId, message } = action.payload;
       if (!state.messages[chatId]) {
@@ -168,6 +180,10 @@ const chatsSlice = createSlice({
 export const {
   setWebSocketConnected,
   setWebSocketDisconnected,
+  chatsList,
   receiveMessage,
 } = chatsSlice.actions;
+
+export const getChatsList = (state) => state.chats.chatsList;
+
 export default chatsSlice.reducer;

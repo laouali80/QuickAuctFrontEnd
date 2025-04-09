@@ -3,8 +3,10 @@ import React from "react";
 import Cell from "../../../common_components/Cell";
 import Thumbnail from "../../../common_components/Thumbnail";
 import { formatChatTime } from "@/core/utils";
+import { useNavigation } from "@react-navigation/native";
 
-const ChatRow = ({ navigation, item }) => {
+const ChatRow = ({ item }) => {
+  const navigation = useNavigation();
   return (
     <TouchableOpacity
       onPress={() => {
@@ -31,7 +33,7 @@ const ChatRow = ({ navigation, item }) => {
               marginBottom: 4,
             }}
           >
-            {item.friend.name}
+            {item.friend.username}
           </Text>
           <Text
             style={{

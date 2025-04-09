@@ -1,5 +1,6 @@
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import React from "react";
+import { Entypo, EvilIcons, FontAwesome } from "@expo/vector-icons";
 
 const ChatInput = ({ message, setMessage, onSend }) => {
   return (
@@ -30,7 +31,7 @@ const ChatInput = ({ message, setMessage, onSend }) => {
       <TouchableOpacity onPress={onSend}>
         {/* paper-plane icon */}
         <Entypo
-          name="log-out"
+          name="paper-plane"
           size={22}
           color="#303040"
           style={{
