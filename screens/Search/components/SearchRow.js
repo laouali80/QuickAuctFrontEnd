@@ -154,7 +154,7 @@ const SearchRow = ({ auction }) => {
             }}
           >
             <Image
-              source={require("../assets/icons/auction1.png")}
+              source={require("../../../assets/icons/auction1.png")}
               style={{ width: 24, height: 24 }}
             />
           </Pressable>

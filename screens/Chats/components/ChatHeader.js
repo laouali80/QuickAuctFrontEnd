@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import Thumbnail from "../common_components/Thumbnail";
+import Thumbnail from "@/common_components/Thumbnail";
 
 const ChatHeader = ({ friend }) => {
   return (

@@ -11,6 +11,7 @@ import {
 } from "react-native";
 
 import GetStartedTabs from "@/screens/Welcomes/components/GetStartedTabs";
+import { COLORS } from "@/constants/COLORS";
 
 const GetStartedScreen = ({ navigation }) => {
   useLayoutEffect(() => {
@@ -31,7 +32,10 @@ const GetStartedScreen = ({ navigation }) => {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ flexGrow: 1 }}
         >
-          <View className="h-[30%] bg-[#259e47] py-4 px-6">
+          <View
+            className="h-[30%] bg-[#259e47] py-4 px-6"
+            style={{ backgroundColor: COLORS.primary }}
+          >
             <Text
               style={styles.title}
               className="text-white text-xl font-semibold "

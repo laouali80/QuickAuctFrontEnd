@@ -238,15 +238,15 @@ const CreateAuctionFormScreen = ({ navigation }) => {
             {/* First Row */}
             <HStack space={3} style={styles.paymentRow}>
               <PaymentMethod
-                icon={require("../assets/icons/nairaNote.svg")}
+                icon={require("../../assets/icons/nairaNote.svg")}
                 label="Cash"
               />
               <PaymentMethod
-                icon={require("../assets/icons/BankTransfer.svg")}
+                icon={require("../../assets/icons/BankTransfer.svg")}
                 label="Bank Transfer"
               />
               <PaymentMethod
-                icon={require("../assets/icons/Paypal.svg")}
+                icon={require("../../assets/icons/Paypal.svg")}
                 label="PayPal"
               />
             </HStack>
@@ -254,11 +254,11 @@ const CreateAuctionFormScreen = ({ navigation }) => {
             {/* Second Row */}
             <HStack space={3} style={styles.paymentRow}>
               <PaymentMethod
-                icon={require("../assets/icons/DebitCard.svg")}
+                icon={require("../../assets/icons/DebitCard.svg")}
                 label="Debit Card"
               />
               <PaymentMethod
-                icon={require("../assets/icons/Apple.svg")}
+                icon={require("../../assets/icons/Apple.svg")}
                 label="Apple Pay"
               />
               <PaymentMethod label="Others" />

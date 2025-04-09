@@ -141,7 +141,7 @@ const BidCard = ({ auction }) => {
           >
             {auction.status === "Won" && (
               <Image
-                source={require("../assets/icons/win.png")}
+                source={require("../../../assets/icons/win.png")}
                 style={{
                   width: 30,
                   height: 30,

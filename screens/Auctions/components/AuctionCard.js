@@ -12,13 +12,13 @@ import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 const AuctionCard = ({ auction }) => {
+  const navigation = useNavigation();
   const [like, setLike] = useState("heart-o");
 
   const handleLike = () => {
     like === "heart-o" ? setLike("heart") : setLike("heart-o");
   };
 
-  const navigation = useNavigation();
   const _navigate = () => {
     navigation.navigate("Auction");
   };
@@ -116,7 +116,7 @@ const AuctionCard = ({ auction }) => {
           }}
         >
           <Image
-            source={require("../assets/icons/auction1.png")}
+            source={require("../../../assets/icons/auction1.png")}
             style={{ width: 30, height: 30 }}
           />
         </Pressable>
