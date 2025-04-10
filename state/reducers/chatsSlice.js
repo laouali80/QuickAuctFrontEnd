@@ -9,6 +9,7 @@ const initialState = {
   isConnected: false,
   messages: {}, // Store messages per conversation
   chatsList: [],
+  messagesList: [],
 };
 
 // WebSocket instance (outside Redux)
@@ -25,6 +26,24 @@ function responseChatsList(message, dispatch) {
 
 function responseThumbnail(message, dispatch) {
   dispatch(updateThumbnail(message));
+}
+
+function responseMessagesList(message, dispatch) {
+  dispatch(
+    chatsSlice.actions.setMessagesList({
+      messages: message.data.messages,
+      overwrite: false,
+    })
+  );
+}
+
+function responseMessageSend(message, dispatch) {
+  dispatch(
+    chatsSlice.actions.pushMessage({
+      message: message.data.message,
+      overwrite: false,
+    })
+  );
 }
 
 // WebSocket Thunk
@@ -55,6 +74,8 @@ export const initializeChatSocket = createAsyncThunk(
         const responses = {
           thumbnail: responseThumbnail, // this 'thumbnail' key will call the responseThumbnail function
           chatsList: responseChatsList,
+          messagesList: responseMessagesList,
+          message_send: responseMessageSend,
         };
 
         const resp = responses[parsed.source];
@@ -94,48 +115,50 @@ export const ChatSocketClose = () => (dispatch) => {
   }
 };
 // Fetch messages for a chat
-export const messageList = createAsyncThunk(
-  "chats/messageList",
-  async (chatId, { rejectWithValue }) => {
-    try {
-      const response = await fetch(
-        `${BaseAddress}/api/chats/${chatId}/messages/`
+export const messagesList =
+  (connectionId, page = 0) =>
+  (dispatch) => {
+    console.log("reach.....");
+    if (page === 0) {
+      dispatch(
+        chatsSlice.actions.setMessagesList({ messages: [], overwrite: true })
       );
-      const data = await response.json();
-      return { chatId, messages: data };
-    } catch (err) {
-      return rejectWithValue(err.message);
     }
-  }
-);
+    socket.send(
+      JSON.stringify({
+        connectionId,
+        page,
+        source: "fetchMessagesList",
+      })
+    );
+  };
 
 // Send message
-export const messageSend = createAsyncThunk(
-  "chats/messageSend",
-  async ({ chatId, content }, { dispatch, rejectWithValue }) => {
-    try {
-      const messageData = JSON.stringify({ chat_id: chatId, content });
+export const messageSend = ({ connectionId, content }) => {
+  // console.log("message Send: ", { connectionId, content });
 
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(messageData);
-        dispatch(
-          receiveMessage({
-            chatId,
-            message: { chat_id: chatId, content, sender: "me" },
-          })
-        );
-      } else {
-        throw new Error("WebSocket is not connected");
-      }
-    } catch (err) {
-      return rejectWithValue(err.message);
-    }
+  const messageData = JSON.stringify({
+    connectionId,
+    content,
+    source: "message_send",
+  });
+
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(messageData);
+    //   // dispatch(
+    //   //   receiveMessage({
+    //   //     connectionId,
+    //   //     message: { chat_id: connectionId, content, sender: "me" },
+    //   //   })
+    //   // );
+  } else {
+    throw new Error("WebSocket is not connected");
   }
-);
+};
 
 // export const chatsList =
 export const uploadThumbnail = (file) => {
-  const socket = get().socket;
+  // const socket = get().socket;
 
   socket.send(
     JSON.stringify({
@@ -161,6 +184,19 @@ const chatsSlice = createSlice({
       // console.log("✅ chatsList reducer triggered with:", action.payload);
       state.chatsList = action.payload;
     },
+    setMessagesList(state, action) {
+      const { messages, overwrite } = action.payload;
+
+      if (overwrite) {
+        state.messagesList = messages;
+      } else {
+        state.messagesList = [...messages, ...(state.messagesList || [])];
+      }
+    },
+    pushMessage(state, action) {
+      const { message } = action.payload;
+      state.messagesList = [message, ...(state.messagesList || [])];
+    },
     receiveMessage(state, action) {
       const { chatId, message } = action.payload;
       if (!state.messages[chatId]) {
@@ -169,12 +205,12 @@ const chatsSlice = createSlice({
       state.messages[chatId].push(message);
     },
   },
-  extraReducers: (builder) => {
-    builder.addCase(messageList.fulfilled, (state, action) => {
-      const { chatId, messages } = action.payload;
-      state.messages[chatId] = messages;
-    });
-  },
+  // extraReducers: (builder) => {
+  //   builder.addCase(messageList.fulfilled, (state, action) => {
+  //     const { chatId, messages } = action.payload;
+  //     state.messages[chatId] = messages;
+  //   });
+  // },
 });
 
 export const {
@@ -185,5 +221,6 @@ export const {
 } = chatsSlice.actions;
 
 export const getChatsList = (state) => state.chats.chatsList;
+export const getMessages = (state) => state.chats.messagesList;
 
 export default chatsSlice.reducer;

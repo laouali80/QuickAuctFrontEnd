@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import Thumbnail from "@/common_components/Thumbnail";
 
-const MessageBubbleFriend = ({ text, friend }) => {
+const MessageBubbleFriend = ({ content, friend }) => {
   return (
     <View
       style={{
@@ -36,7 +36,7 @@ const MessageBubbleFriend = ({ text, friend }) => {
             lineHeight: 18,
           }}
         >
-          {text}
+          {content}
         </Text>
       </View>
       <View style={{ flex: 1 }} />
