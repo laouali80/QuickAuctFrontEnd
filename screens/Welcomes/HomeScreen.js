@@ -129,7 +129,7 @@ const HomeScreen = ({ navigation }) => {
         name="Chats"
         component={() => <ChatsScreen />}
         position="RIGHT"
-        options={{ headerShown: false }}
+        // options={{ headerShown: false }}
       />
       <CurvedBottomBarExpo.Screen
         name="Profile"

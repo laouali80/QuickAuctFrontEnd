@@ -29,7 +29,6 @@ const ChatInput = ({ message, setMessage, onSend }) => {
         }}
       />
       <TouchableOpacity onPress={onSend}>
-        {/* paper-plane icon */}
         <Entypo
           name="paper-plane"
           size={22}

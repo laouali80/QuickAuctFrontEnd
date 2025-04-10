@@ -2,8 +2,11 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import ProfileImage from "./components/ProfileImage";
 import ProfileLogout from "./components/ProfileLogout";
+import { useSelector } from "react-redux";
+import { getUserInfo } from "@/state/reducers/userSlice";
 
 const ProfileScreen = () => {
+  const user = useSelector(getUserInfo);
   return (
     <View
       style={{
@@ -23,7 +26,7 @@ const ProfileScreen = () => {
           marginTop: 6,
         }}
       >
-        Test User
+        {user.first_name} {user.last_name}
       </Text>
       <Text
         style={{
@@ -32,7 +35,7 @@ const ProfileScreen = () => {
           fontSize: 14,
         }}
       >
-        @testmic
+        {user.username}
       </Text>
 
       <ProfileLogout />

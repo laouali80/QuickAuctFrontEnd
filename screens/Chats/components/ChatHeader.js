@@ -25,7 +25,7 @@ const ChatHeader = ({ friend }) => {
           fontWeight: "bold",
         }}
       >
-        {friend.name}
+        {friend.username}
       </Text>
     </View>
   );

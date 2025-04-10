@@ -24,6 +24,7 @@ import { store, persistor } from "./state/store";
 import { getAuthentication } from "./state/reducers/userSlice";
 import { PersistGate } from "redux-persist/integration/react";
 import SearchScreen from "./screens/Search/SearchScreen";
+import ChatScreen from "./screens/Chats/ChatScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -95,6 +96,8 @@ function AppContent() {
                     name="CreateAuctionForm"
                     component={CreateAuctionFormScreen}
                   />
+
+                  <Stack.Screen name="Chat" component={ChatScreen} />
 
                   {/* <Stack.Screen name="Chats" component={ChatsScreen} />
                     <Stack.Screen name="Profile" component={ProfileScreen} /> */}

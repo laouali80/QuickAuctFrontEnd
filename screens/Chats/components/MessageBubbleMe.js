@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 
-const MessageBubbleMe = ({ text }) => {
+const MessageBubbleMe = ({ content }) => {
   return (
     <View
       style={{
@@ -30,7 +30,7 @@ const MessageBubbleMe = ({ text }) => {
             lineHeight: 18,
           }}
         >
-          {text}
+          {content}
         </Text>
       </View>
     </View>

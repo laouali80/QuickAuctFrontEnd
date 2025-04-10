@@ -8,20 +8,29 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import React, { useLayoutEffect, useState } from "react";
-import MessageBubble from "./MessageBubble";
-import ChatInput from "./ChatInput";
-import ChatHeader from "./ChatHeader";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import MessageBubble from "./components/MessageBubble";
+import ChatInput from "./components/ChatInput";
+import ChatHeader from "./components/ChatHeader";
 import { EvilIcons, FontAwesome } from "@expo/vector-icons";
+import {
+  getMessages,
+  messageSend,
+  messagesList,
+} from "@/state/reducers/chatsSlice";
+import { useDispatch, useSelector } from "react-redux";
 
-const Chat = ({ navigation, route }) => {
+const ChatScreen = ({ navigation, route }) => {
+  const dispatch = useDispatch();
   const [message, setMessage] = useState("");
 
   // fetch from redux
-  const messagesList = [];
+  // const messagesList = [];
+  const messages = useSelector(getMessages);
+  console.log("messages: ", messages);
 
   // WebSocket
-  // const connectionId = route.params.id
+  const connectionId = route.params.id;
   const friend = route.params.friend;
 
   useLayoutEffect(() => {
@@ -30,6 +39,10 @@ const Chat = ({ navigation, route }) => {
     });
   }, [navigation]);
 
+  useEffect(() => {
+    dispatch(messagesList(connectionId));
+  }, []);
+
   const onSend = () => {
     const cleaned = message.replace(/\s+/g, " ").trim();
     // console.log("onSend: ", cleaned);
@@ -37,13 +50,13 @@ const Chat = ({ navigation, route }) => {
     if (cleaned.length == 0) return;
 
     // WebSocket
-    // messageSend(connectionId, cleaned)
+    messageSend({ connectionId, content: cleaned });
     setMessage("");
   };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Pressable onPress={Keyboard.dismiss}>
+      <Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
         <View
           style={{
             flex: 1,
@@ -55,12 +68,13 @@ const Chat = ({ navigation, route }) => {
             contentContainerStyle={{
               paddingTop: 30,
             }}
-            data={messagesList}
+            data={messages}
             inverted={true}
             keyExtractor={(item) => item.id}
-            renderItem={({ item, index }) => {
-              <MessageBubble index={index} message={item} friend={friend} />;
-            }}
+            renderItem={({ item, index }) => (
+              // console.log()
+              <MessageBubble index={index} message={item} friend={friend} />
+            )}
           />
         </View>
       </Pressable>
@@ -80,6 +94,6 @@ const Chat = ({ navigation, route }) => {
   );
 };
 
-export default Chat;
+export default ChatScreen;
 
 const styles = StyleSheet.create({});
