@@ -40,7 +40,7 @@ const ChatRow = ({ item }) => {
               color: "#606060",
             }}
           >
-            {item.preview}
+            {item.preview}{" "}
             <Text style={{ color: "#909090", fontSize: 13 }}>
               {formatChatTime(item.updated)}
             </Text>

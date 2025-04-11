@@ -17,6 +17,8 @@ import {
   getMessages,
   messageSend,
   messagesList,
+  messageTyping,
+  setActiveChat,
 } from "@/state/reducers/chatsSlice";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -27,7 +29,8 @@ const ChatScreen = ({ navigation, route }) => {
   // fetch from redux
   // const messagesList = [];
   const messages = useSelector(getMessages);
-  console.log("messages: ", messages);
+  // const messageType = dispatch(me)
+  // console.log("messages: ", messages);
 
   // WebSocket
   const connectionId = route.params.id;
@@ -41,7 +44,11 @@ const ChatScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     dispatch(messagesList(connectionId));
-  }, []);
+    dispatch(setActiveChat(friend.username));
+    return () => {
+      dispatch(setActiveChat(null));
+    };
+  }, [friend.username, dispatch]);
 
   const onSend = () => {
     const cleaned = message.replace(/\s+/g, " ").trim();
@@ -52,6 +59,11 @@ const ChatScreen = ({ navigation, route }) => {
     // WebSocket
     messageSend({ connectionId, content: cleaned });
     setMessage("");
+  };
+
+  const onTyping = (value) => {
+    setMessage(value);
+    messageTyping(friend.username);
   };
 
   return (
@@ -68,7 +80,7 @@ const ChatScreen = ({ navigation, route }) => {
             contentContainerStyle={{
               paddingTop: 30,
             }}
-            data={messages}
+            data={[{ id: -1 }, ...messages]}
             inverted={true}
             keyExtractor={(item) => item.id}
             renderItem={({ item, index }) => (
@@ -81,14 +93,10 @@ const ChatScreen = ({ navigation, route }) => {
 
       {Platform.OS === "ios" ? (
         <InputAccessoryView>
-          <ChatInput
-            message={message}
-            setMessage={setMessage}
-            onSend={onSend}
-          />
+          <ChatInput message={message} setMessage={onTyping} onSend={onSend} />
         </InputAccessoryView>
       ) : (
-        <ChatInput message={message} setMessage={setMessage} onSend={onSend} />
+        <ChatInput message={message} setMessage={onTyping} onSend={onSend} />
       )}
     </SafeAreaView>
   );

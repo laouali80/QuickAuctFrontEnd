@@ -1,7 +1,7 @@
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useRef } from "react";
 
-const TypingAnimation = ({ offset }) => {
+const MessageTypingAnimation = ({ offset }) => {
   const y = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -52,6 +52,6 @@ const TypingAnimation = ({ offset }) => {
   );
 };
 
-export default TypingAnimation;
+export default MessageTypingAnimation;
 
 const styles = StyleSheet.create({});

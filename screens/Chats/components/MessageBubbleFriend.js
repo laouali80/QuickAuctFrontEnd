@@ -1,8 +1,9 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import Thumbnail from "@/common_components/Thumbnail";
+import MessageTypingAnimation from "./MessageTypingAnimation";
 
-const MessageBubbleFriend = ({ content, friend }) => {
+const MessageBubbleFriend = ({ content = "", friend, typing = false }) => {
   return (
     <View
       style={{
@@ -29,15 +30,23 @@ const MessageBubbleFriend = ({ content, friend }) => {
           minHeight: 42,
         }}
       >
-        <Text
-          style={{
-            color: "#202020",
-            fontSize: 16,
-            lineHeight: 18,
-          }}
-        >
-          {content}
-        </Text>
+        {typing ? (
+          <View style={{ flexDirection: "row" }}>
+            <MessageTypingAnimation offset={0} />
+            <MessageTypingAnimation offset={1} />
+            <MessageTypingAnimation offset={2} />
+          </View>
+        ) : content.length > 0 ? (
+          <Text
+            style={{
+              color: "#202020",
+              fontSize: 16,
+              lineHeight: 18,
+            }}
+          >
+            {content}
+          </Text>
+        ) : null}
       </View>
       <View style={{ flex: 1 }} />
     </View>

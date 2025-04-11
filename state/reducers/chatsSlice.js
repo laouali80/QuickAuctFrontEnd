@@ -7,9 +7,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const initialState = {
   isConnected: false,
-  messages: {}, // Store messages per conversation
+  // messages: {}, // Store messages per conversation
   chatsList: [],
-  messagesList: [],
+  messagesList: [], // Store messages per conversation btw 2 users
+  activeChatUsername: null, // Track which chat is currently open
+  messageTyping: null,
 };
 
 // WebSocket instance (outside Redux)
@@ -37,11 +39,38 @@ function responseMessagesList(message, dispatch) {
   );
 }
 
-function responseMessageSend(message, dispatch) {
+function responseMessageSend(message, dispatch, getState) {
+  const username = message.data.friend.username;
+  const currentState = getState();
+
+  // Update chat preview and move to top
   dispatch(
-    chatsSlice.actions.pushMessage({
-      message: message.data.message,
-      overwrite: false,
+    chatsSlice.actions.updateChatPreview({
+      username,
+      preview: message.data.message.content,
+      timestamp: message.data.message.created,
+    })
+  );
+
+  // console.log("curent state: ", currentState);
+
+  // Only add to messagesList if it's the active chat
+  if (username === currentState.chats.activeChatUsername) {
+    dispatch(
+      chatsSlice.actions.pushMessage({
+        message: message.data.message,
+        overwrite: false,
+      })
+    );
+  }
+}
+
+function responseMessageTyping(message, dispatch) {
+  // if (message.username !== )
+  console.log(message);
+  dispatch(
+    chatsSlice.actions.setMessageTyping({
+      username: message.data.username,
     })
   );
 }
@@ -49,7 +78,7 @@ function responseMessageSend(message, dispatch) {
 // WebSocket Thunk
 export const initializeChatSocket = createAsyncThunk(
   "chats/connection",
-  async (tokens, { dispatch, rejectWithValue }) => {
+  async (tokens, { dispatch, getState, rejectWithValue }) => {
     try {
       utils.log("Connecting WebSocket with token:", tokens);
 
@@ -75,7 +104,9 @@ export const initializeChatSocket = createAsyncThunk(
           thumbnail: responseThumbnail, // this 'thumbnail' key will call the responseThumbnail function
           chatsList: responseChatsList,
           messagesList: responseMessagesList,
-          message_send: responseMessageSend,
+          message_typing: responseMessageTyping,
+          message_send: (message) =>
+            responseMessageSend(message, dispatch, getState),
         };
 
         const resp = responses[parsed.source];
@@ -118,10 +149,14 @@ export const ChatSocketClose = () => (dispatch) => {
 export const messagesList =
   (connectionId, page = 0) =>
   (dispatch) => {
-    console.log("reach.....");
+    // console.log("reach.....");
     if (page === 0) {
       dispatch(
-        chatsSlice.actions.setMessagesList({ messages: [], overwrite: true })
+        chatsSlice.actions.setMessagesList({
+          messages: [],
+          // messagesUsername: null,
+          overwrite: true,
+        })
       );
     }
     socket.send(
@@ -145,12 +180,22 @@ export const messageSend = ({ connectionId, content }) => {
 
   if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(messageData);
-    //   // dispatch(
-    //   //   receiveMessage({
-    //   //     connectionId,
-    //   //     message: { chat_id: connectionId, content, sender: "me" },
-    //   //   })
-    //   // );
+  } else {
+    throw new Error("WebSocket is not connected");
+  }
+};
+
+// typing a message
+export const messageTyping = (username) => {
+  const messageData = JSON.stringify({
+    username,
+    source: "message_typing",
+  });
+  // console.log("typing: ", username);
+
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    // console.log("typing: ", username);
+    socket.send(messageData);
   } else {
     throw new Error("WebSocket is not connected");
   }
@@ -189,6 +234,7 @@ const chatsSlice = createSlice({
 
       if (overwrite) {
         state.messagesList = messages;
+        state.messageTyping = null;
       } else {
         state.messagesList = [...messages, ...(state.messagesList || [])];
       }
@@ -196,31 +242,63 @@ const chatsSlice = createSlice({
     pushMessage(state, action) {
       const { message } = action.payload;
       state.messagesList = [message, ...(state.messagesList || [])];
+      // state.messagesUsername = messagesUsername;
     },
-    receiveMessage(state, action) {
-      const { chatId, message } = action.payload;
-      if (!state.messages[chatId]) {
-        state.messages[chatId] = [];
+    setActiveChat(state, action) {
+      state.activeChatUsername = action.payload;
+    },
+    updateChatPreview(state, action) {
+      const { username, preview, timestamp } = action.payload;
+
+      // Find and update the chat in chatsList
+      const updatedChatsList = state.chatsList.map((chat) => {
+        if (chat.friend.username === username) {
+          return {
+            ...chat,
+            preview,
+            updated: timestamp,
+          };
+        }
+        return chat;
+      });
+
+      // Move the updated chat to the top
+      const chatIndex = updatedChatsList.findIndex(
+        (chat) => chat.friend.username === username
+      );
+
+      if (chatIndex >= 0) {
+        const chat = updatedChatsList[chatIndex];
+        updatedChatsList.splice(chatIndex, 1);
+        updatedChatsList.unshift(chat);
       }
-      state.messages[chatId].push(message);
+
+      state.chatsList = updatedChatsList;
+    },
+    setMessageTyping(state, action) {
+      const username = action.payload.username;
+      // console.log(action.payload);
+
+      if (username !== state.activeChatUsername) return;
+      // state.messageTyping = new Date();
+      state.messageTyping = new Date().toString();
     },
   },
-  // extraReducers: (builder) => {
-  //   builder.addCase(messageList.fulfilled, (state, action) => {
-  //     const { chatId, messages } = action.payload;
-  //     state.messages[chatId] = messages;
-  //   });
-  // },
 });
 
 export const {
   setWebSocketConnected,
   setWebSocketDisconnected,
   chatsList,
-  receiveMessage,
+  setMessagesList,
+  pushMessage,
+  setActiveChat,
+  updateChatPreview,
+  setMessageTyping,
 } = chatsSlice.actions;
 
 export const getChatsList = (state) => state.chats.chatsList;
 export const getMessages = (state) => state.chats.messagesList;
+export const checkMessageTyping = (state) => state.chats.messageTyping;
 
 export default chatsSlice.reducer;
