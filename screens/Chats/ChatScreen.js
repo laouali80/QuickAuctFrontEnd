@@ -17,6 +17,7 @@ import {
   getMessages,
   messageSend,
   messagesList,
+  messageTyping,
   setActiveChat,
 } from "@/state/reducers/chatsSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,6 +29,7 @@ const ChatScreen = ({ navigation, route }) => {
   // fetch from redux
   // const messagesList = [];
   const messages = useSelector(getMessages);
+  // const messageType = dispatch(me)
   // console.log("messages: ", messages);
 
   // WebSocket
@@ -59,6 +61,11 @@ const ChatScreen = ({ navigation, route }) => {
     setMessage("");
   };
 
+  const onTyping = (value) => {
+    setMessage(value);
+    messageTyping(friend.username);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
@@ -73,7 +80,7 @@ const ChatScreen = ({ navigation, route }) => {
             contentContainerStyle={{
               paddingTop: 30,
             }}
-            data={messages}
+            data={[{ id: -1 }, ...messages]}
             inverted={true}
             keyExtractor={(item) => item.id}
             renderItem={({ item, index }) => (
@@ -86,14 +93,10 @@ const ChatScreen = ({ navigation, route }) => {
 
       {Platform.OS === "ios" ? (
         <InputAccessoryView>
-          <ChatInput
-            message={message}
-            setMessage={setMessage}
-            onSend={onSend}
-          />
+          <ChatInput message={message} setMessage={onTyping} onSend={onSend} />
         </InputAccessoryView>
       ) : (
-        <ChatInput message={message} setMessage={setMessage} onSend={onSend} />
+        <ChatInput message={message} setMessage={onTyping} onSend={onSend} />
       )}
     </SafeAreaView>
   );
