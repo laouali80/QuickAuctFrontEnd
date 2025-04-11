@@ -5,7 +5,7 @@ import MessageBubbleFriend from "./MessageBubbleFriend";
 import utils from "@/core/utils";
 
 const MessageBubble = ({ index, message, friend }) => {
-  utils.log("MessageBubble: ", message);
+  // utils.log("MessageBubble: ", message);
   return message.is_me ? (
     <MessageBubbleMe content={message.content} />
   ) : (

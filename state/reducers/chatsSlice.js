@@ -7,9 +7,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const initialState = {
   isConnected: false,
-  messages: {}, // Store messages per conversation
+  // messages: {}, // Store messages per conversation
   chatsList: [],
-  messagesList: [],
+  messagesList: [], // Store messages per conversation btw 2 users
+  activeChatUsername: null, // Track which chat is currently open
 };
 
 // WebSocket instance (outside Redux)
@@ -33,23 +34,40 @@ function responseMessagesList(message, dispatch) {
     chatsSlice.actions.setMessagesList({
       messages: message.data.messages,
       overwrite: false,
+      // messagesUsername: message.data.username,
     })
   );
 }
 
-function responseMessageSend(message, dispatch) {
+function responseMessageSend(message, dispatch, getState) {
+  const username = message.data.friend.username;
+  const currentState = getState();
+
+  // Update chat preview and move to top
   dispatch(
-    chatsSlice.actions.pushMessage({
-      message: message.data.message,
-      overwrite: false,
+    chatsSlice.actions.updateChatPreview({
+      username,
+      preview: message.data.message.content,
+      timestamp: message.data.message.created,
     })
   );
+
+  // console.log("curent state: ", currentState);
+  // Only add to messagesList if it's the active chat
+  if (username === currentState.chats.activeChatUsername) {
+    dispatch(
+      chatsSlice.actions.pushMessage({
+        message: message.data.message,
+        overwrite: false,
+      })
+    );
+  }
 }
 
 // WebSocket Thunk
 export const initializeChatSocket = createAsyncThunk(
   "chats/connection",
-  async (tokens, { dispatch, rejectWithValue }) => {
+  async (tokens, { dispatch, getState, rejectWithValue }) => {
     try {
       utils.log("Connecting WebSocket with token:", tokens);
 
@@ -75,7 +93,9 @@ export const initializeChatSocket = createAsyncThunk(
           thumbnail: responseThumbnail, // this 'thumbnail' key will call the responseThumbnail function
           chatsList: responseChatsList,
           messagesList: responseMessagesList,
-          message_send: responseMessageSend,
+          // message_send: responseMessageSend,
+          message_send: (message) =>
+            responseMessageSend(message, dispatch, getState),
         };
 
         const resp = responses[parsed.source];
@@ -121,7 +141,11 @@ export const messagesList =
     console.log("reach.....");
     if (page === 0) {
       dispatch(
-        chatsSlice.actions.setMessagesList({ messages: [], overwrite: true })
+        chatsSlice.actions.setMessagesList({
+          messages: [],
+          // messagesUsername: null,
+          overwrite: true,
+        })
       );
     }
     socket.send(
@@ -186,7 +210,7 @@ const chatsSlice = createSlice({
     },
     setMessagesList(state, action) {
       const { messages, overwrite } = action.payload;
-
+      // state.messagesUsername = messagesUsername;
       if (overwrite) {
         state.messagesList = messages;
       } else {
@@ -196,6 +220,38 @@ const chatsSlice = createSlice({
     pushMessage(state, action) {
       const { message } = action.payload;
       state.messagesList = [message, ...(state.messagesList || [])];
+      // state.messagesUsername = messagesUsername;
+    },
+    setActiveChat(state, action) {
+      state.activeChatUsername = action.payload;
+    },
+    updateChatPreview(state, action) {
+      const { username, preview, timestamp } = action.payload;
+
+      // Find and update the chat in chatsList
+      const updatedChatsList = state.chatsList.map((chat) => {
+        if (chat.friend.username === username) {
+          return {
+            ...chat,
+            preview,
+            updated: timestamp,
+          };
+        }
+        return chat;
+      });
+
+      // Move the updated chat to the top
+      const chatIndex = updatedChatsList.findIndex(
+        (chat) => chat.friend.username === username
+      );
+
+      if (chatIndex >= 0) {
+        const chat = updatedChatsList[chatIndex];
+        updatedChatsList.splice(chatIndex, 1);
+        updatedChatsList.unshift(chat);
+      }
+
+      state.chatsList = updatedChatsList;
     },
     receiveMessage(state, action) {
       const { chatId, message } = action.payload;
@@ -205,18 +261,16 @@ const chatsSlice = createSlice({
       state.messages[chatId].push(message);
     },
   },
-  // extraReducers: (builder) => {
-  //   builder.addCase(messageList.fulfilled, (state, action) => {
-  //     const { chatId, messages } = action.payload;
-  //     state.messages[chatId] = messages;
-  //   });
-  // },
 });
 
 export const {
   setWebSocketConnected,
   setWebSocketDisconnected,
   chatsList,
+  setMessagesList,
+  pushMessage,
+  setActiveChat,
+  updateChatPreview,
   receiveMessage,
 } = chatsSlice.actions;
 

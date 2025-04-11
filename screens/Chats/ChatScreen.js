@@ -17,6 +17,7 @@ import {
   getMessages,
   messageSend,
   messagesList,
+  setActiveChat,
 } from "@/state/reducers/chatsSlice";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -27,7 +28,7 @@ const ChatScreen = ({ navigation, route }) => {
   // fetch from redux
   // const messagesList = [];
   const messages = useSelector(getMessages);
-  console.log("messages: ", messages);
+  // console.log("messages: ", messages);
 
   // WebSocket
   const connectionId = route.params.id;
@@ -41,7 +42,11 @@ const ChatScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     dispatch(messagesList(connectionId));
-  }, []);
+    dispatch(setActiveChat(friend.username));
+    return () => {
+      dispatch(setActiveChat(null));
+    };
+  }, [friend.username, dispatch]);
 
   const onSend = () => {
     const cleaned = message.replace(/\s+/g, " ").trim();
