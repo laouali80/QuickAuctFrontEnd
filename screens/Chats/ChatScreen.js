@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   FlatList,
   InputAccessoryView,
   Keyboard,
@@ -8,13 +9,20 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import MessageBubble from "./components/MessageBubble";
 import ChatInput from "./components/ChatInput";
 import ChatHeader from "./components/ChatHeader";
 import { EvilIcons, FontAwesome } from "@expo/vector-icons";
 import {
   getMessages,
+  getNextPage,
   messageSend,
   messagesList,
   messageTyping,
@@ -25,17 +33,18 @@ import { useDispatch, useSelector } from "react-redux";
 const ChatScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const flatListRef = useRef(null);
 
-  // fetch from redux
-  // const messagesList = [];
+  // Redux state
   const messages = useSelector(getMessages);
-  // const messageType = dispatch(me)
-  // console.log("messages: ", messages);
-
-  // WebSocket
+  const messagesNext = useSelector(getNextPage);
   const connectionId = route.params.id;
   const friend = route.params.friend;
 
+  console.log("render page: ", messagesNext);
+
+  // WebSocket and navigation setup
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => <ChatHeader friend={friend} />,
@@ -43,53 +52,80 @@ const ChatScreen = ({ navigation, route }) => {
   }, [navigation]);
 
   useEffect(() => {
+    // Initial load
     dispatch(messagesList(connectionId));
     dispatch(setActiveChat(friend.username));
+
     return () => {
       dispatch(setActiveChat(null));
     };
   }, [friend.username, dispatch]);
 
+  // Improved send message handler
   const onSend = () => {
     const cleaned = message.replace(/\s+/g, " ").trim();
-    // console.log("onSend: ", cleaned);
+    if (cleaned.length === 0) return;
 
-    if (cleaned.length == 0) return;
-
-    // WebSocket
     messageSend({ connectionId, content: cleaned });
     setMessage("");
+
+    // Scroll to bottom after sending
+    setTimeout(() => {
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+    }, 100);
   };
 
+  const delay = null;
+
+  // Improved typing handler with proper debouncing
+  const typingTimeoutRef = useRef(null);
   const onTyping = (value) => {
     setMessage(value);
-    messageTyping(friend.username);
+
+    // Clear previous timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Only send typing indicator if there's content
+    if (value.trim().length > 0) {
+      typingTimeoutRef.current = setTimeout(() => {
+        messageTyping(friend.username);
+      }, 500);
+    }
   };
+
+  // Improved pagination handler
+  const handleLoadMore = useCallback(() => {
+    if (!isLoading && messagesNext) {
+      setIsLoading(true);
+      dispatch(messagesList(connectionId, messagesNext));
+      // .then(() => setIsLoading(false))
+      // .catch(() => setIsLoading(false));
+    }
+  }, [messagesNext, isLoading, dispatch]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
-        <View
-          style={{
-            flex: 1,
-            marginBottom: Platform.OS === "ios" ? 60 : 0,
+      <View style={{ flex: 1, marginBottom: Platform.OS === "ios" ? 60 : 0 }}>
+        <FlatList
+          ref={flatListRef}
+          automaticallyAdjustKeyboardInsets={true}
+          contentContainerStyle={{ paddingTop: 30 }}
+          data={[{ id: -1 }, ...messages]}
+          inverted={true}
+          keyExtractor={(item) => item.id.toString()}
+          onEndReachedThreshold={0.5}
+          onEndReached={handleLoadMore}
+          onScroll={({ nativeEvent }) => {
+            // Track scroll position if needed
           }}
-        >
-          <FlatList
-            automaticallyAdjustKeyboardInsets={true}
-            contentContainerStyle={{
-              paddingTop: 30,
-            }}
-            data={[{ id: -1 }, ...messages]}
-            inverted={true}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item, index }) => (
-              // console.log()
-              <MessageBubble index={index} message={item} friend={friend} />
-            )}
-          />
-        </View>
-      </Pressable>
+          renderItem={({ item, index }) => (
+            <MessageBubble index={index} message={item} friend={friend} />
+          )}
+          ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
+        />
+      </View>
 
       {Platform.OS === "ios" ? (
         <InputAccessoryView>
