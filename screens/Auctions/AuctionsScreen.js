@@ -25,11 +25,13 @@ import {
   setStore,
 } from "@/core/auctionSocketManager";
 import { store } from "@/state/store";
+import { getAuctionsList } from "@/state/reducers/auctionsSlice";
 
 const CONTAINER_HEIGHT = 230;
 const AuctionsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const tokens = useSelector(getTokens);
+  const auctionsList = useSelector(getAuctionsList);
 
   useEffect(() => {
     // utils.log('receive: ', tokens)
@@ -134,7 +136,7 @@ const AuctionsScreen = ({ navigation }) => {
               [{ nativeEvent: { contentOffset: { y: scrollY } } }],
               { useNativeDriver: true }
             )}
-            data={auctions}
+            data={auctionsList}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => <AuctionCard auction={item} />}
             numColumns={2}

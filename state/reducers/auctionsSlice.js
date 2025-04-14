@@ -23,6 +23,10 @@ const auctionsSlice = createSlice({
       // utils.log("setSearchList payload: ", action.payload);
       state.searchList = action.payload;
     },
+    setAuctionsList(state, action) {
+      // console.log("payload: ", action.payload);
+      state.auctions = action.payload;
+    },
   },
 });
 
@@ -40,6 +44,7 @@ export const searchAuctions = (query) => (dispatch, getState) => {
 
 // Selectors
 export const getSearchList = (state) => state.auctions.searchList;
+export const getAuctionsList = (state) => state.auctions.auctions;
 export const { setSocketConnected, setSocketDisconnected, setSearchList } =
   auctionsSlice.actions;
 

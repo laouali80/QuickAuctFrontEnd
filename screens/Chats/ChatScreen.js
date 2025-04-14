@@ -39,8 +39,8 @@ const ChatScreen = ({ navigation, route }) => {
   // Redux state
   const messages = useSelector(getMessages);
   const messagesNext = useSelector(getNextPage);
-  const connectionId = route.params.id;
-  const friend = route.params.friend;
+  const connectionId = route.params.id || null;
+  const friend = route.params.friend || route.params.username;
 
   console.log("render page: ", messagesNext);
 
@@ -53,9 +53,10 @@ const ChatScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     // Initial load
-    dispatch(messagesList(connectionId));
-    dispatch(setActiveChat(friend.username));
-
+    if (connectionId && friend) {
+      dispatch(messagesList(connectionId));
+      dispatch(setActiveChat(friend.username));
+    }
     return () => {
       dispatch(setActiveChat(null));
     };

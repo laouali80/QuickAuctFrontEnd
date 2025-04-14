@@ -90,7 +90,7 @@ const SearchScreen = () => {
       ) : (
         <FlatList
           data={searchList}
-          keyExtractor={(item) => item.auctId.toString()}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => <SearchRow auction={item} />}
           showsVerticalScrollIndicator={false}
         />
