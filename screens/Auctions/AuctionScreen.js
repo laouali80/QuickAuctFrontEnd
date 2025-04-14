@@ -22,8 +22,13 @@ import {
 import SubmitButton from "@/common_components/SubmitButton";
 import { SIZES } from "@/constants/SIZES";
 import ReportModal from "@/screens/Auctions/components/ReportModal";
+import { formatAuctionTime } from "@/core/utils";
+import Thumbnail from "@/common_components/Thumbnail";
 
-const AuctionScreen = ({ navigation }) => {
+const AuctionScreen = ({ navigation, route }) => {
+  const auction = route.params;
+
+  console.log("auction receive: ", auction);
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: "Auction",
@@ -62,30 +67,44 @@ const AuctionScreen = ({ navigation }) => {
   const handleOverviewPress = useCallback(() => setSelectedTab("Overview"), []);
   const handleBidsPress = useCallback(() => setSelectedTab("Bids"), []);
 
+  const _navigateToChat = (userId) => {
+    console.log(userId);
+    navigation.navigate("Chat", auction.seller);
+  };
+
   return (
     // <ScrollView>
     <ScrollView style={styles.container}>
       {/* Auction Image Section (50% of screen) */}
       <View style={[styles.imageSection, { height: SIZES.height / 2 }]}>
         <View style={styles.imageContainer}>
-          <Image
+          {/* <Image
             source={require("../../assets/auctions/macbook.jpg")}
             style={styles.productImage}
             resizeMode="contain"
+          /> */}
+
+          <Thumbnail
+            url={auction.images[0]}
+            width={300}
+            height={300}
+            borderRadius={10}
           />
 
           {/* Bid Info Overlay */}
           <View style={styles.bidInfoContainer}>
             <View style={styles.bidInfo}>
               <View style={styles.bidInfoItem}>
-                <Text style={styles.bidPrice}>N100</Text>
+                <Text style={styles.bidPrice}>N{auction.current_price}</Text>
                 <Text style={styles.bidLabel}>Current Bid</Text>
               </View>
 
               <Divider orientation="vertical" style={styles.divider} />
 
               <View style={styles.bidInfoItem}>
-                <Text style={styles.timer}>28:43:12</Text>
+                <Text style={styles.timer}>
+                  {formatAuctionTime(auction.end_time)}
+                </Text>
                 <Text style={styles.bidLabel}>Ends in</Text>
               </View>
             </View>
@@ -99,9 +118,9 @@ const AuctionScreen = ({ navigation }) => {
           {/* Product Title and Like Button */}
           <View style={styles.titleRow}>
             <View style={styles.titleContainer}>
-              <Text style={styles.productTitle}>Macbook Pro</Text>
+              <Text style={styles.productTitle}>{auction.title}</Text>
               <View style={styles.categoryTag}>
-                <Text style={styles.categoryText}>ELECTRONICS</Text>
+                <Text style={styles.categoryText}>{auction.category.name}</Text>
               </View>
             </View>
 
@@ -114,13 +133,21 @@ const AuctionScreen = ({ navigation }) => {
           <View style={styles.ownerCard}>
             <Text style={styles.sectionLabel}>Owner</Text>
             <View style={styles.ownerInfo}>
-              <Image
+              {/* <Image
                 source={require("../../assets/profiles/default.png")}
                 style={styles.ownerImage}
+              /> */}
+
+              <Thumbnail
+                url={auction.seller.thumbnail}
+                width={50}
+                height={50}
+                borderRadius={25}
+                // marginRight: 12,
               />
 
               <View style={styles.ownerDetails}>
-                <Text style={styles.ownerName}>Angela Yu</Text>
+                <Text style={styles.ownerName}>{auction.seller.username}</Text>
                 <View style={styles.locationRow}>
                   <EvilIcons name="location" size={24} color={COLORS.primary} />
                   <Text style={styles.locationText}>Yola, Adamawa</Text>
@@ -128,8 +155,8 @@ const AuctionScreen = ({ navigation }) => {
               </View>
 
               <View style={styles.productMeta}>
-                <Text style={styles.condition}>Used</Text>
-                <Text style={styles.delivery}>Pickup</Text>
+                <Text style={styles.condition}>{auction.item_condition}</Text>
+                <Text style={styles.delivery}>{auction.shipping_details}</Text>
               </View>
             </View>
           </View>
@@ -141,13 +168,14 @@ const AuctionScreen = ({ navigation }) => {
             <View className="flex items-center">
               <TouchableOpacity
                 style={{
-                  backgroundColor: COLORS.lightRed,
+                  backgroundColor: COLORS.lightPrimary,
                   width: 50,
                   height: 50,
                   borderRadius: 50 / 2,
                   justifyContent: "center",
                   alignItems: "center",
                 }}
+                onPress={() => _navigateToChat(auction.seller.userId)}
               >
                 <Ionicons
                   name="chatbox-outline"
@@ -240,8 +268,7 @@ const AuctionScreen = ({ navigation }) => {
                 <Text>Description</Text>
                 <Text>
                   Descriptionduibuibcbjcjkzcb
-                  sfjssdbskdjbsjdbjsbdjkbcsdjkbcjsdbkd fklfnlksdnfkf
-                  kfkfskfsknkn sd....Read More
+                  {auction.description}....Read More
                 </Text>
               </VStack>
             )}
@@ -250,14 +277,12 @@ const AuctionScreen = ({ navigation }) => {
                 <Text>Bids</Text>
                 <VStack>
                   <HStack>
-                    <Image
-                      source={require("../../assets/profiles/default.png")}
-                      style={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: 25,
-                        // backgroundColor: "#e0e0e0",
-                      }}
+                    <Thumbnail
+                      url={auction.seller.thumbnail}
+                      width={50}
+                      height={50}
+                      borderRadius={25}
+                      // marginRight: 12,
                     />
                     <VStack style={{ flex: 1 }}>
                       <Text

@@ -41,15 +41,6 @@ const SearchRow = ({ auction }) => {
           height={100}
           borderRadius={10}
         />
-        {/* <Image
-          source={auction.image}
-          style={{
-            width: 120,
-            height: 100,
-            borderRadius: 10,
-            resizeMode: "cover",
-          }}
-        /> */}
       </View>
 
       {/* Content Container */}

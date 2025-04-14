@@ -108,7 +108,7 @@ export const initializeChatSocket = createAsyncThunk(
         const parsed = JSON.parse(event.data);
 
         // log the data received
-        utils.log("Received from server:", event.data);
+        // utils.log("Received from server:", event.data);
 
         // this is an object/dict of key -> value of function to be called
         const responses = {

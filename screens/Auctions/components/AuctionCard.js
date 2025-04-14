@@ -10,6 +10,8 @@ import React, { useState } from "react";
 import { COLORS } from "@/constants/COLORS";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import Thumbnail from "@/common_components/Thumbnail";
+import { formatAuctionTime } from "@/core/utils";
 
 const AuctionCard = ({ auction }) => {
   const navigation = useNavigation();
@@ -20,7 +22,7 @@ const AuctionCard = ({ auction }) => {
   };
 
   const _navigate = () => {
-    navigation.navigate("Auction");
+    navigation.navigate("Auction", auction);
   };
   return (
     <TouchableOpacity
@@ -39,10 +41,13 @@ const AuctionCard = ({ auction }) => {
     >
       {/* Image and Like Button */}
       <View>
-        <Image
-          source={auction.image}
-          style={{ width: 120, height: 100, borderRadius: 10 }}
+        <Thumbnail
+          url={auction.images[0]}
+          width={120}
+          height={100}
+          borderRadius={10}
         />
+
         <Pressable
           style={{
             backgroundColor: "#fff",
@@ -73,8 +78,11 @@ const AuctionCard = ({ auction }) => {
       </Text>
 
       {/* Bids */}
-      <View style={{ alignItems: "center" }} className="bg-[#259e47] py-1 px-2">
-        <Text style={{ color: "white" }}>Bids: {auction.bids}</Text>
+      <View
+        style={{ alignItems: "center", backgroundColor: COLORS.primary }}
+        className=" py-1 px-2"
+      >
+        <Text style={{ color: "white" }}>Bids: {auction.bids.length}</Text>
       </View>
 
       {/* Ending Time (Fixed Width Container) */}
@@ -90,7 +98,7 @@ const AuctionCard = ({ auction }) => {
           style={{ color: COLORS.primary }}
           numberOfLines={1} // Prevent text overflow
         >
-          Ends in {auction.endingTime}
+          Ends in {formatAuctionTime(auction.end_time)}
         </Text>
       </View>
 
@@ -105,7 +113,7 @@ const AuctionCard = ({ auction }) => {
         <View style={{ flexDirection: "column", rowGap: 4 }}>
           <Text style={{ color: COLORS.silverIcon }}>Current Bid</Text>
           <Text style={{ color: COLORS.primary, fontWeight: "bold" }}>
-            {auction.current_bid}
+            {auction.current_price}
           </Text>
         </View>
         <Pressable

@@ -11,6 +11,18 @@ export const setStore = (store) => {
   storeRef = store;
 };
 
+// ----------------------------------
+//  Socket receive message handlers
+// ----------------------------------
+
+function responseAuctionsList(data) {
+  // console.log("✅ Received chatsList:", message.data);
+  storeRef?.dispatch({
+    type: "auctions/setAuctionsList",
+    payload: data,
+  });
+}
+
 export const initializeAuctionSocket = createAsyncThunk(
   "auctions/connection",
   async (tokens, { dispatch, rejectWithValue }) => {
@@ -25,19 +37,20 @@ export const initializeAuctionSocket = createAsyncThunk(
 
       socket.onopen = () => {
         console.log("Auction Socket connected!");
-
+        socket.send(JSON.stringify({ source: "FetchAuctionsList" }));
         // storeRef?.dispatch({ type: "auctions/setSocketConnected" });
       };
 
       socket.onmessage = (event) => {
         const parsed = JSON.parse(event.data);
-        // utils.log("received from server: ", parsed);
+        utils.log("received from server: ", parsed);
         const handlers = {
           search: (data) =>
             storeRef?.dispatch({
               type: "auctions/setSearchList",
               payload: data,
             }),
+          auctionsList: responseAuctionsList,
         };
 
         if (handlers[parsed.source]) {
