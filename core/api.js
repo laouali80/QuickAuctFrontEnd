@@ -31,8 +31,10 @@ export const apiRequest = async (
         ...api.defaults.headers, // Preserve default headers
         ...headers, // Merge with custom headers
       },
+      withCredentials: true, // 👈 necessary for Django session cookies
     });
-    console.log(url);
+
+    // console.log(url);
     return response.data;
   } catch (error) {
     if (error.response) {

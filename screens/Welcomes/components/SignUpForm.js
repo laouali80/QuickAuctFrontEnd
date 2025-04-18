@@ -27,9 +27,12 @@ import OrDivider from "@/common_components/OrDivider";
 import SocialsButton from "./SocialsButton";
 import api from "@/core/api";
 import { useDispatch } from "react-redux";
-import { SignUpUser } from "@/state/reducers/userSlice";
+import { EmailVerification, SignUpUser } from "@/state/reducers/userSlice";
+import { useNavigation } from "@react-navigation/native";
 
 const SignUpForm = () => {
+  const navigation = useNavigation();
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -73,18 +76,13 @@ const SignUpForm = () => {
 
   const handleSubmit = () => {
     if (validateForm()) {
-      console.log("Form submitted:", formData);
+      // console.log("Form submitted:", formData);
+      navigation.navigate("OTP", formData);
 
-      // Dispatch the action correctly
       dispatch(
-        SignUpUser({
+        EmailVerification({
+          email: formData.email.toLowerCase(),
           first_name: formData.firstName,
-          last_name: formData.lastName,
-          username: formData.username,
-          email: formData.email,
-          phone_number: formData.phoneNumber,
-          password: formData.password,
-          aggrement: formData.termsAccepted,
         })
       );
 

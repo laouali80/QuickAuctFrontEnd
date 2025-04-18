@@ -84,7 +84,7 @@ const LogInForm = () => {
       console.log("Login attempt with:", { email, password });
 
       // Dispatch the action correctly
-      dispatch(logInUser({ email, password }));
+      dispatch(logInUser({ email: email.toLowerCase(), password }));
 
       // login(email, password);
       // Handle login API call here
