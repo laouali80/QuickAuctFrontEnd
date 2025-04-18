@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import apiRequest from "@/core/api";
 import utils from "@/core/utils";
-import secure from "@/core/secure";
+// import secure from "@/core/secure";
 
 const initialState = {
   user: {},
@@ -33,8 +33,47 @@ export const signUpUser = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await apiRequest("users/auth/register/", data, "POST");
+      utils.log("Sign Up Response:", response);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
 
+// Async Thunk: Email verification
+export const EmailVerification = createAsyncThunk(
+  "user/EmailVerification",
+  async (data, { rejectWithValue }) => {
+    try {
+      console.log("email verification: ", data);
+      const response = await apiRequest(
+        "users/auth/verification/",
+        data,
+        "POST"
+      );
+      // console.log(response);
       return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// Async Thunk: OTP Validation User
+export const OTPValidation = createAsyncThunk(
+  "user/OTPValidation",
+  async (data, { rejectWithValue }) => {
+    try {
+      console.log("otp validation: ", data);
+      const response = await apiRequest(
+        "users/auth/otpValidation/",
+        data,
+        "POST"
+      );
+      console.log(response);
+
+      return response;
     } catch (err) {
       return rejectWithValue(err.message);
     }
@@ -56,7 +95,7 @@ const userSlice = createSlice({
       state.error = null;
       state.status = null;
       state.initialized = false;
-      secure.removeUserSession("tokens");
+      // secure.removeUserSession("tokens");
     },
   },
   extraReducers: (builder) => {
@@ -72,7 +111,7 @@ const userSlice = createSlice({
         state.initialized = true;
         state.status = "fulfilled";
         state.error = null;
-        secure.storeUserSession("tokens", action.payload.tokens);
+        // secure.storeUserSession("tokens", action.payload.tokens);
       })
       .addCase(logInUser.rejected, (state, action) => {
         state.status = "rejected";
@@ -89,7 +128,7 @@ const userSlice = createSlice({
         state.authenticated = true;
         state.status = "fulfilled";
         state.error = null;
-        secure.storeUserSession("tokens", action.payload.tokens);
+        // secure.storeUserSession("tokens", action.payload.tokens);
       })
       .addCase(signUpUser.rejected, (state, action) => {
         state.status = "rejected";

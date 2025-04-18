@@ -11,12 +11,20 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { EditIcon, Icon, RefreshCwIcon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
+import { useNavigation } from "@react-navigation/native";
+import SubmitButton from "@/common_components/SubmitButton";
+import { useDispatch } from "react-redux";
+import { OTPValidation, signUpUser } from "@/state/reducers/userSlice";
 
-const OTPScreen = () => {
+const OTPScreen = ({ route }) => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [isPlaying, setIsPlaying] = useState(true);
   const [key, setKey] = useState(0); // For resetting the timer
   const inputRefs = useRef([]);
+  const navigation = useNavigation();
+  const dispatch = useDispatch(); // Get dispatch function
+
+  const formData = route.params;
 
   const handleChange = (text, index) => {
     if (text.length > 1) return;
@@ -28,10 +36,37 @@ const OTPScreen = () => {
     }
   };
 
+  console.log("Form submitted:", formData);
+
   const resetTimer = () => {
     setKey((prevKey) => prevKey + 1);
     setIsPlaying(false);
     setTimeout(() => setIsPlaying(true), 100); // Restart animation
+  };
+
+  const verifyOTP = () => {
+    const fullOtp = otp.toString().replace(/,/g, "");
+    // console.log("formData: ", formData);
+    dispatch(OTPValidation({ otp: fullOtp }))
+      .unwrap()
+      .then(() => {
+        // OTP verified, proceed to register user
+        dispatch(
+          signUpUser({
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            username: formData.username,
+            email: formData.email.toLowerCase(),
+            phone_number: formData.phoneNumber,
+            password: formData.password,
+            aggrement: formData.termsAccepted,
+          })
+        );
+      })
+      .catch((err) => {
+        console.log("OTP validation failed:", err);
+        // Show error to user
+      });
   };
 
   return (
@@ -53,7 +88,12 @@ const OTPScreen = () => {
           className="w-1/2 bg-white border border-indigo-600 self-center mt-6 rounded-full"
         >
           <Icon as={EditIcon} size="md" />
-          <ButtonText className="text-gray-700">Modify Email</ButtonText>
+          <ButtonText
+            className="text-gray-700"
+            onPress={() => navigation.goBack()}
+          >
+            Modify Email
+          </ButtonText>
         </Button>
 
         {/* OTP Inputs */}
@@ -74,12 +114,18 @@ const OTPScreen = () => {
           ))}
         </HStack>
 
+        <SubmitButton
+          handleSubmit={verifyOTP}
+          text="Log In"
+          // isDisabled={!email || !password}
+        />
+
         {/* Countdown Timer & Resend Button */}
         <View className="items-center mt-6">
           <CountdownCircleTimer
             key={key}
             isPlaying={isPlaying}
-            duration={30} // 30 seconds
+            duration={900} // 30 seconds
             colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
             colorsTime={[20, 10, 5, 0]}
             onComplete={() => ({ shouldRepeat: false })}

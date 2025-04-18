@@ -4,7 +4,7 @@ import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { KeyboardAvoidingView, Platform, useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import GetStartedScreen from "./screens/Welcomes/GetStartedScreen";
-
+import { config } from "@gluestack-ui/config"; // <-- import this
 import OTPScreen from "./screens/Welcomes/OTPScreen";
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -25,6 +25,15 @@ import { getAuthentication } from "./state/reducers/userSlice";
 import { PersistGate } from "redux-persist/integration/react";
 import SearchScreen from "./screens/Search/SearchScreen";
 import ChatScreen from "./screens/Chats/ChatScreen";
+// import { Text } from "@/components/ui/text";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  TouchableOpacity,
+} from "react-native";
 
 const Stack = createNativeStackNavigator();
 
@@ -38,7 +47,7 @@ const LightTheme = {
 
 function AppContent() {
   const colorScheme = useColorScheme(); // Detects light or dark mode
-  const [initialized] = useState(true);
+  const [initialized, setInitialized] = useState(false);
   const authenticated = useSelector(getAuthentication);
   console.log(authenticated);
   // const authenticated = true;
@@ -46,15 +55,22 @@ function AppContent() {
   const isDarkMode = colorScheme === "dark";
   const statusBarStyle = isDarkMode ? "light-content" : "dark-content";
 
+  // useEffect(() => {
+  //   console.log("Authenticated:", authenticated);
+  // }, [authenticated]);
+
   useEffect(() => {
+    // Simulate initial loading (like fonts, themes, etc.)
+    setTimeout(() => {
+      setInitialized(true);
+    }, 500); // delay to mimic async init (you can adjust/remove)
     console.log("Authenticated:", authenticated);
   }, [authenticated]);
-
   // const [initialized] = useState(true);
 
   return (
     <SafeAreaProvider>
-      <GluestackUIProvider mode={isDarkMode ? "dark" : "light"}>
+      <GluestackUIProvider config={config} mode={isDarkMode ? "dark" : "light"}>
         <NavigationContainer theme={LightTheme}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -62,6 +78,10 @@ function AppContent() {
             keyboardVerticalOffset={Platform.OS === "ios" ? -64 : 0}
           >
             <StatusBar barStyle={statusBarStyle} translucent />
+            {/* <View className="bg-blue-600">
+              <Text className="text-2xl text-blue-600">test</Text>
+            </View> */}
+
             <Stack.Navigator>
               {!initialized ? (
                 <>
@@ -73,7 +93,7 @@ function AppContent() {
                     name="GetStarted"
                     component={GetStartedScreen}
                   />
-                  <Stack.Screen name="OTP Verication" component={OTPScreen} />
+                  <Stack.Screen name="OTP" component={OTPScreen} />
                 </>
               ) : (
                 <>
@@ -99,8 +119,8 @@ function AppContent() {
 
                   <Stack.Screen name="Chat" component={ChatScreen} />
 
-                  {/* <Stack.Screen name="Chats" component={ChatsScreen} />
-                    <Stack.Screen name="Profile" component={ProfileScreen} /> */}
+                  <Stack.Screen name="Chats" component={ChatsScreen} />
+                  <Stack.Screen name="Profile" component={ProfileScreen} />
                 </>
               )}
             </Stack.Navigator>
