@@ -20,9 +20,9 @@ const ReportModal = ({ show, onClose }) => {
   const [showModal, setShowModal] = useState(show);
   return (
     <Center className="h-[300px]">
-      <Button onPress={() => setShowModal(true)}>
+      {/* <Button onPress={() => setShowModal(true)}>
         <ButtonText>Show Modal</ButtonText>
-      </Button>
+      </Button> */}
       <Modal
         isOpen={showModal}
         onClose={() => {

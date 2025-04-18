@@ -86,7 +86,8 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     updateThumbnail(state, action) {
-      state.user = action.data;
+      console.log("reach");
+      state.user = action.payload;
     },
     logOutUser(state) {
       state.user = {};

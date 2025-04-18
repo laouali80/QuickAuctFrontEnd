@@ -1,5 +1,7 @@
 import {
   Image,
+  Linking,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -27,8 +29,11 @@ import Thumbnail from "@/common_components/Thumbnail";
 
 const AuctionScreen = ({ navigation, route }) => {
   const auction = route.params;
+  const [selectedTab, setSelectedTab] = useState("Overview");
+  const [like, setLike] = useState("heart-o");
+  const [showReportModal, setShowReportModal] = useState(false);
 
-  console.log("auction receive: ", auction);
+  // console.log("auction receive: ", auction);
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: "Auction",
@@ -54,12 +59,6 @@ const AuctionScreen = ({ navigation, route }) => {
     });
   }, [navigation]);
 
-  const [showReportModal, setShowReportModal] = useState(false);
-
-  const [selectedTab, setSelectedTab] = useState("Overview");
-
-  const [like, setLike] = useState("heart-o");
-
   const handleLike = () => {
     like === "heart-o" ? setLike("heart") : setLike("heart-o");
   };
@@ -70,6 +69,18 @@ const AuctionScreen = ({ navigation, route }) => {
   const _navigateToChat = (userId) => {
     console.log(userId);
     navigation.navigate("Chat", auction.seller);
+  };
+
+  const makeCall = () => {
+    let phoneNumber = "";
+
+    if (Platform.OS === "android") {
+      phoneNumber = "tel:${12344576557}";
+    } else {
+      phoneNumber = "telprompt:${12344576557}";
+    }
+
+    Linking.openURL(phoneNumber);
   };
 
   return (
@@ -195,6 +206,7 @@ const AuctionScreen = ({ navigation, route }) => {
                   justifyContent: "center",
                   alignItems: "center",
                 }}
+                onPress={makeCall}
               >
                 <Feather name="phone-call" size={24} color={COLORS.red} />
               </TouchableOpacity>

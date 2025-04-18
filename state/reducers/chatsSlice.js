@@ -27,7 +27,9 @@ function responseChatsList(message, dispatch) {
 }
 
 function responseThumbnail(message, dispatch) {
-  dispatch(updateThumbnail(message));
+  console.log("responseThumbnail: ", message);
+
+  dispatch(updateThumbnail(message.data));
 }
 
 function responseMessagesList(message, dispatch) {
@@ -221,15 +223,18 @@ export const messageTyping = (username) => {
 
 // export const chatsList =
 export const uploadThumbnail = (file) => {
-  // const socket = get().socket;
-
-  socket.send(
-    JSON.stringify({
-      source: "thumbnail",
-      base64: file.base64,
-      filename: file.fileName,
-    })
-  );
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    console.log(file);
+    socket.send(
+      JSON.stringify({
+        source: "thumbnail",
+        base64: file.uri,
+        filename: file.fileName,
+      })
+    );
+  } else {
+    throw new Error("WebSocket is not connected");
+  }
 };
 
 // Chats Slice

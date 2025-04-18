@@ -7,6 +7,7 @@ import { getUserInfo } from "@/state/reducers/userSlice";
 
 const ProfileScreen = () => {
   const user = useSelector(getUserInfo);
+  console.log(user);
   return (
     <View
       style={{
