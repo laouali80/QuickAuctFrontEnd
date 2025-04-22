@@ -16,6 +16,7 @@ const styles = StyleSheet.create({
   paymentMethod: {
     flex: 1,
     height: 60,
+    // width: 60,
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 6,
