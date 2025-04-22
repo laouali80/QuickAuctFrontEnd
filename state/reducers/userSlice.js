@@ -33,6 +33,7 @@ export const signUpUser = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await apiRequest("users/auth/register/", data, "POST");
+      // const response = await apiRequest("users/");
       utils.log("Sign Up Response:", response);
       return response;
     } catch (err) {

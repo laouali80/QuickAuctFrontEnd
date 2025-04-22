@@ -6,10 +6,14 @@ import { Platform } from "react-native";
 // const BaseAddress =
 //   Platform.OS === "ios" ? "http://172.20.10.4:8000" : "http://10.0.2.2:8000";
 
-export const BaseAddress = "localhost:8000";
+// https://quick-auct-backend.vercel.app/api/users/
 
+export const BaseAddress = "localhost:8000";
+export const HostBaseAddress = "quick-auct-backend.vercel.app";
+export const Protocol = HostBaseAddress ? "https" : "http";
+// console.log(Protocol);
 const api = axios.create({
-  baseURL: `http://${BaseAddress}/api/`,
+  baseURL: `${Protocol}://${HostBaseAddress}/api/`,
   headers: {
     "Content-Type": "application/json",
   },
