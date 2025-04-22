@@ -97,3 +97,6 @@ refresh
 https://youtu.be/AcYF18oGn6Y
 
 https://www.youtube.com/watch?v=xjMP0hspNLE
+
+method of payment
+https://youtu.be/JWXKv6D3SxM?si=gsLD723hFf4NsjUB

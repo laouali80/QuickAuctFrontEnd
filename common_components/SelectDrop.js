@@ -13,6 +13,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { ChevronDownIcon } from "@/components/ui/icon";
+import { COLORS } from "@/constants/COLORS";
 
 const SelectDrop = ({ placeholder, selectItems = [], handleSelect }) => {
   const handleValueChange = (value) => {
@@ -24,10 +25,20 @@ const SelectDrop = ({ placeholder, selectItems = [], handleSelect }) => {
 
   return (
     <Select onValueChange={handleValueChange}>
-      <SelectTrigger variant="outline" size="md">
+      <SelectTrigger
+        variant="outline"
+        size="md"
+        style={{
+          borderColor: COLORS.silverIcon,
+          borderWidth: 1,
+        }}
+      >
         <SelectInput
+          style={{
+            color: COLORS.primary,
+          }}
           placeholder={placeholder}
-          className="text-[#259e47] text-xl font-semibold"
+          className="text-xl font-semibold"
         />
         <SelectIcon className="mr-3" as={ChevronDownIcon} />
       </SelectTrigger>

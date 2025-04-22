@@ -16,15 +16,11 @@ import { AntDesign } from "@expo/vector-icons";
 import SelectDrop from "@/common_components/SelectDrop";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
 import PaymentMethod from "@/screens/Auctions/components/PaymentMethod";
+import UploadPictModel from "./components/UploadPictModel";
+import * as ImagePicker from "expo-image-picker";
 
 const CreateAuctionFormScreen = ({ navigation }) => {
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: "Create an Auction",
-      headerTitleAlign: "center",
-    });
-  }, [navigation]);
-
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [duration, setDuration] = useState([
     {
@@ -46,6 +42,13 @@ const CreateAuctionFormScreen = ({ navigation }) => {
 
   const inputRefs = useRef([]);
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: "Create an Auction",
+      headerTitleAlign: "center",
+    });
+  }, [navigation]);
+
   const handleSelect = (value) => {
     setSelectedDuration(value);
   };
@@ -65,6 +68,40 @@ const CreateAuctionFormScreen = ({ navigation }) => {
     );
   };
 
+  const uploadImage = async (mode) => {
+    let result = {};
+    try {
+      if (mode === "gallery") {
+        await ImagePicker.requestCameraPermissionsAsync();
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 1,
+        });
+      } else {
+        // take picture
+        await ImagePicker.requestCameraPermissionsAsync();
+        result = await ImagePicker.launchCameraAsync({
+          cameraType: ImagePicker.CameraType.front,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 1,
+        });
+      }
+
+      if (!result.canceled) {
+        // console.log(result.assets[0].uri);
+        const file = result.assets[0];
+        // Dispatch the action correctly
+        // dispatch(uploadThumbnail(file));
+      }
+      // setShowUploadModal(false);
+    } catch (error) {
+      console.log("Error uploading image: " + error.message);
+    }
+  };
+
   return (
     <ScrollView style={{ flex: 1, marginVertical: 20, marginHorizontal: 20 }}>
       <VStack space="md" className="flex-1">
@@ -80,7 +117,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
             {/* Add Image Button */}
             <TouchableOpacity
               style={styles.addImageButton}
-              onPress={() => console.log("Add image pressed")}
+              onPress={() => setShowUploadModal(true)}
             >
               <AntDesign name="plus" size={35} color="white" />
             </TouchableOpacity>
@@ -93,12 +130,14 @@ const CreateAuctionFormScreen = ({ navigation }) => {
           <TextInput
             placeholder="Product Title"
             style={{
-              borderColor: "black",
+              borderColor: COLORS.silverIcon,
               color: COLORS.primary,
               borderWidth: 1,
               fontWeight: "bold",
               borderRadius: 4,
               height: 35,
+              paddingLeft: 10,
+              width: "100%",
             }}
           />
           {/* Description */}
@@ -107,9 +146,16 @@ const CreateAuctionFormScreen = ({ navigation }) => {
             isReadOnly={false}
             isInvalid={false}
             isDisabled={false}
-            className="w-64"
+            className="w-full"
+            style={{
+              borderColor: COLORS.silverIcon,
+              borderWidth: 1,
+            }}
           >
-            <TextareaInput placeholder="Your text goes here..." />
+            <TextareaInput
+              style={{ color: "black" }}
+              placeholder="Your text goes here..."
+            />
           </Textarea>
 
           {/* Category */}
@@ -124,7 +170,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
 
         {/* Auction Price, Jump Bid, Length, Type, Delivery Type */}
         <View
-          className="flex flex-col py-4  "
+          className="flex flex-col py-4 gap-y-5"
           style={{
             // borderWidth: 4,
             // borderColor: "blue",
@@ -132,100 +178,116 @@ const CreateAuctionFormScreen = ({ navigation }) => {
           }}
         >
           {/* Starting Price */}
-          <Text className="text-xl font-semibold ">Starting Price</Text>
-          <TextInput
-            placeholder="Starting Price"
-            keyboardType="numeric"
-            style={{
-              borderColor: "black",
-              color: COLORS.primary,
-              borderWidth: 1,
-              fontWeight: "bold",
-              borderRadius: 4,
-              height: 35,
-            }}
-          />
+          <View className="gap-y-2">
+            <Text className="text-xl font-semibold ">Starting Price</Text>
+            <TextInput
+              placeholder="Starting Price"
+              keyboardType="numeric"
+              style={{
+                borderColor: COLORS.silverIcon,
+                color: "black",
+                borderWidth: 1,
+                // fontWeight: "bold",
+                borderRadius: 4,
+                height: 35,
+                paddingLeft: 10,
+              }}
+            />
+          </View>
 
           {/* Increase Bid */}
-          <Text className="text-xl font-semibold ">
-            Increase Amount {"("}Optional{")"}
-          </Text>
-          <SelectDrop
-            placeholder={"Type"}
-            selectItems={[
-              { key: "100", value: "100" },
-              { key: "500", value: "500" },
-              { key: "1k", value: "1000" },
-              { key: "5k", value: "5000" },
-              { key: "10k", value: "10000" },
-            ]}
-          />
+          <View className="gap-y-2">
+            <Text className="text-xl font-semibold ">
+              Increase Amount {"("}Optional{")"}
+            </Text>
+            <SelectDrop
+              placeholder={"Type"}
+              selectItems={[
+                { key: "100", value: "100" },
+                { key: "500", value: "500" },
+                { key: "1k", value: "1000" },
+                { key: "5k", value: "5000" },
+                { key: "10k", value: "10000" },
+              ]}
+            />
+          </View>
 
           {/* Auction Length */}
-          <Text className="text-xl font-semibold ">Auction Length</Text>
-          <SelectDrop
-            placeholder={"Duration"}
-            selectItems={[
-              { key: "Days", value: "days" },
-              { key: "Hours", value: "hours" },
-              { key: "Minutes", value: "minutes" },
-            ]}
-            handleSelect={handleSelect}
-          />
-          {selectedDuration && (
-            <HStack space="xl" className="mt-8 py-6">
-              {duration
-                .find((item) => item.type === selectedDuration)
-                ?.values.map((digit, index) => (
-                  <View key={index} style={{ alignItems: "center" }}>
-                    <Text className="mb-2">
-                      {
-                        duration.find((item) => item.type === selectedDuration)
-                          ?.fields[index]
-                      }
-                    </Text>
+          <View className="gap-y-2">
+            <Text className="text-xl font-semibold ">Auction Length</Text>
+            <SelectDrop
+              placeholder={"Duration"}
+              selectItems={[
+                { key: "Days", value: "days" },
+                { key: "Hours", value: "hours" },
+                { key: "Minutes", value: "minutes" },
+              ]}
+              handleSelect={handleSelect}
+            />
+            {selectedDuration && (
+              <HStack space="xl" className="mt-2 py-4 justify-center">
+                {duration
+                  .find((item) => item.type === selectedDuration)
+                  ?.values.map((digit, index) => (
+                    <View
+                      key={index}
+                      style={{ alignItems: "center", justifyContent: "center" }}
+                    >
+                      <Text className="mb-2">
+                        {
+                          duration.find(
+                            (item) => item.type === selectedDuration
+                          )?.fields[index]
+                        }
+                      </Text>
 
-                    <TextInput
-                      ref={(ref) => (inputRefs.current[index] = ref)}
-                      className="rounded-lg font-semibold text-center"
-                      style={{
-                        borderWidth: 1,
-                        borderColor: "gray",
-                        borderRadius: 5,
-                        width: 50,
-                        height: 40,
-                        textAlign: "center",
-                      }}
-                      keyboardType="numeric"
-                      maxLength={2}
-                      value={digit}
-                      onChangeText={(text) => handleChange(text, index)}
-                      autoFocus={index === 0}
-                    />
-                  </View>
-                ))}
-            </HStack>
-          )}
+                      <TextInput
+                        ref={(ref) => (inputRefs.current[index] = ref)}
+                        className="rounded-lg font-semibold text-center"
+                        style={{
+                          borderWidth: 1,
+                          borderColor: COLORS.silverIcon,
+                          color: "black",
+                          borderRadius: 5,
+                          width: 50,
+                          height: 40,
+                          textAlign: "center",
+                        }}
+                        keyboardType="numeric"
+                        maxLength={2}
+                        value={digit}
+                        onChangeText={(text) => handleChange(text, index)}
+                        autoFocus={index === 0}
+                      />
+                    </View>
+                  ))}
+              </HStack>
+            )}
+          </View>
 
           {/* Auction Type */}
-          <Text className="text-xl font-semibold ">Product Type</Text>
-          <SelectDrop
-            placeholder={"Type"}
-            selectItems={[
-              { key: "Used", value: "used" },
-              { key: "New", value: "new" },
-            ]}
-          />
+          <View className="gap-y-2">
+            <Text className="text-xl font-semibold ">Product Type</Text>
+            <SelectDrop
+              placeholder={"Type"}
+              selectItems={[
+                { key: "Used", value: "used" },
+                { key: "New", value: "new" },
+              ]}
+            />
+          </View>
 
           {/* Delivery Type */}
-          <Text className="text-xl font-semibold">Delivery Type</Text>
-          <SelectDrop
-            placeholder={"Delivery"}
-            selectItems={[
-              { key: "Pickup", value: "pickup" },
-              { key: "Delivery", value: "delivery" },
-            ]}
-          />
+          <View className="gap-y-2">
+            <Text className="text-xl font-semibold">Delivery Type</Text>
+            <SelectDrop
+              placeholder={"Delivery"}
+              selectItems={[
+                { key: "Pickup", value: "pickup" },
+                { key: "Delivery", value: "delivery" },
+              ]}
+            />
+          </View>
         </View>
 
         {/* Payment Methods Section */}
@@ -236,7 +298,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
 
           <View style={styles.paymentMethods}>
             {/* First Row */}
-            <HStack space={3} style={styles.paymentRow}>
+            <View style={styles.paymentRow}>
               <PaymentMethod
                 icon={require("../../assets/icons/nairaNote.svg")}
                 label="Cash"
@@ -249,10 +311,10 @@ const CreateAuctionFormScreen = ({ navigation }) => {
                 icon={require("../../assets/icons/Paypal.svg")}
                 label="PayPal"
               />
-            </HStack>
+            </View>
 
             {/* Second Row */}
-            <HStack space={3} style={styles.paymentRow}>
+            {/* <HStack space={3} style={styles.paymentRow}>
               <PaymentMethod
                 icon={require("../../assets/icons/DebitCard.svg")}
                 label="Debit Card"
@@ -262,12 +324,20 @@ const CreateAuctionFormScreen = ({ navigation }) => {
                 label="Apple Pay"
               />
               <PaymentMethod label="Others" />
-            </HStack>
+            </HStack> */}
           </View>
         </VStack>
 
         <SubmitButton text="Post Auction" isDisabled={true} handleSubmit={{}} />
       </VStack>
+      {showUploadModal && (
+        <UploadPictModel
+          show={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onCameraPress={() => uploadImage()}
+          onGalleryPress={() => uploadImage("gallery")}
+        />
+      )}
     </ScrollView>
   );
 };
@@ -314,5 +384,7 @@ const styles = StyleSheet.create({
   },
   paymentRow: {
     marginBottom: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
