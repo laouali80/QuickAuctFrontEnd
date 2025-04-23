@@ -5,75 +5,130 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useRef } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from "react";
 import { Ionicons } from "@expo/vector-icons";
 import RBSheet from "react-native-raw-bottom-sheet";
 import SubmitButton from "@/common_components/SubmitButton";
 import { COLORS } from "@/constants/COLORS";
 
-const UploadPictModel = ({ show, onClose, onCameraPress, onGalleryPress }) => {
-  const sheet = useRef();
+const UploadPictModel = forwardRef(({ onCameraPress, onGalleryPress }, ref) => {
+  const sheetRef = useRef();
 
-  useEffect(() => {
-    sheet.current.open();
-  }, []);
+  // Expose open and close to parent
+  useImperativeHandle(ref, () => ({
+    open: () => sheetRef.current?.open(),
+    close: () => sheetRef.current?.close(),
+  }));
+  const handleCameraPress = () => {
+    onCameraPress();
+  };
+
+  const handleGalleryPress = () => {
+    onGalleryPress();
+  };
+
   return (
-    // <SafeAreaView style={{ flex: 1 }}>
     <RBSheet
-      customStyles={{ container: styles.sheet }}
-      // height={360}
-      openDuration={250}
+      ref={sheetRef}
+      height={300}
+      // openDuration={250}
       closeOnPressMask={true}
       closeOnPressBack={true}
-      ref={sheet}
+      // onClose={onClose}
+      customStyles={{
+        container: styles.sheetContainer,
+        wrapper: styles.sheetWrapper,
+      }}
     >
       <View style={styles.sheetContent}>
-        <View className="flex flex-row justify-evenly">
-          <TouchableOpacity
-            className="items-center"
-            onPress={() => {
-              onCameraPress();
-              onClose(); // Ensure parent state is updated
-            }}
-          >
-            <Ionicons
-              name="cloud-upload-sharp"
-              size={40}
-              color={COLORS.primary}
-            />
+        <Text style={styles.title}>Upload Photo</Text>
 
-            <Text>Upload Photo</Text>
+        <View style={styles.optionsContainer}>
+          <TouchableOpacity
+            style={styles.optionButton}
+            onPress={handleGalleryPress}
+          >
+            <View style={styles.optionIconContainer}>
+              <Ionicons
+                name="cloud-upload-sharp"
+                size={40}
+                color={COLORS.primary}
+              />
+            </View>
+            <Text style={styles.optionText}>Upload Photo</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="items-center"
-            onPress={() => {
-              onGalleryPress();
-              onClose(); // Ensure parent state is updated
-            }}
+            style={styles.optionButton}
+            onPress={handleCameraPress}
           >
-            <Ionicons name="camera-sharp" size={40} color={COLORS.primary} />
-
-            <Text>Take Photo</Text>
+            <View style={styles.optionIconContainer}>
+              <Ionicons name="camera-sharp" size={40} color={COLORS.primary} />
+            </View>
+            <Text style={styles.optionText}>Take Photo</Text>
           </TouchableOpacity>
         </View>
 
-        <SubmitButton text="Next" />
+        <SubmitButton
+          text="Next"
+          // onPress={onNextPress}
+          // style={styles.nextButton}
+        />
       </View>
     </RBSheet>
-    // </SafeAreaView>
   );
-};
-
-export default UploadPictModel;
+});
 
 const styles = StyleSheet.create({
-  sheet: {
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
+  sheetContainer: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 30,
+  },
+  sheetWrapper: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   sheetContent: {
-    padding: 24,
-    alignItems: "stretch",
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: 15,
+  },
+  optionsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginVertical: 20,
+  },
+  optionButton: {
+    alignItems: "center",
+    width: "40%",
+  },
+  optionIconContainer: {
+    backgroundColor: "#f0f0f0",
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  optionText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  nextButton: {
+    marginTop: 20,
   },
 });
+
+export default UploadPictModel;
