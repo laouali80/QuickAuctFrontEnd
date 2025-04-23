@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import SubmitButton from "@/common_components/SubmitButton";
@@ -15,13 +15,28 @@ import { COLORS } from "@/constants/COLORS";
 import { AntDesign } from "@expo/vector-icons";
 import SelectDrop from "@/common_components/SelectDrop";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
-import PaymentMethod from "@/screens/Auctions/components/PaymentMethod";
+// import PaymentMethod from "@/screens/Auctions/components/PaymentMethod";
 import UploadPictModel from "./components/UploadPictModel";
 import * as ImagePicker from "expo-image-picker";
+import PaymentMethodSelector from "@/screens/Auctions/components/PaymentMethod";
 
 const CreateAuctionFormScreen = ({ navigation }) => {
-  const [showUploadModal, setShowUploadModal] = useState(false);
+  const uploadSheetRef = useRef();
+  const [state, setState] = useState({
+    image: null,
+    title: "",
+    description: "",
+    category: "",
+    price: "",
+    increase_amount: "",
+    duration: "",
+    type: "",
+    delivery: "",
+    payment: "",
+  });
   const [selectedDuration, setSelectedDuration] = useState(null);
+  const [imageUri, setImageUri] = useState(null);
+  const [isFormValid, setIsFormValid] = useState(false);
   const [duration, setDuration] = useState([
     {
       type: "days",
@@ -49,11 +64,33 @@ const CreateAuctionFormScreen = ({ navigation }) => {
     });
   }, [navigation]);
 
-  const handleSelect = (value) => {
+  useEffect(() => {
+    console.log("states: ", state);
+    validateForm();
+  }, [state]); // Run validation whenever state changes
+
+  const handleSelectDuration = (value) => {
     setSelectedDuration(value);
   };
 
+  const handleSelectCategory = (category) => {
+    setState((prevState) => ({ ...prevState, category })); // Merge updates
+  };
+
+  const handleSelectType = (type) => {
+    setState((prevState) => ({ ...prevState, type })); // Merge updates
+  };
+
+  const handleSelectDelivery = (delivery) => {
+    setState((prevState) => ({ ...prevState, delivery })); // Merge updates
+  };
+
+  const handleSelectIncreaseAmount = (increase_amount) => {
+    setState((prevState) => ({ ...prevState, increase_amount })); // Merge updates
+  };
+
   const handleChange = (text, fieldIndex) => {
+    console.log(text, fieldIndex);
     setDuration((prev) =>
       prev.map((item) =>
         item.type === selectedDuration
@@ -68,7 +105,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
     );
   };
 
-  const uploadImage = async (mode) => {
+  const uploadImage = async (mode = "camera") => {
     let result = {};
     try {
       if (mode === "gallery") {
@@ -93,13 +130,53 @@ const CreateAuctionFormScreen = ({ navigation }) => {
       if (!result.canceled) {
         // console.log(result.assets[0].uri);
         const file = result.assets[0];
+        setState((prevState) => ({ ...prevState, image: file })); // Merge update
+        setImageUri(file.uri);
         // Dispatch the action correctly
         // dispatch(uploadThumbnail(file));
       }
+      uploadSheetRef.current?.close();
+
       // setShowUploadModal(false);
     } catch (error) {
       console.log("Error uploading image: " + error.message);
     }
+  };
+
+  // validation
+  const validateForm = () => {
+    if (
+      imageUri &&
+      state.title.length >= 2 &&
+      state.description.length >= 2 &&
+      +state.price >= 0 &&
+      state.price.length >= 2 &&
+      // state.duration &&
+      state.type &&
+      state.delivery
+      // state.payment
+    ) {
+      setIsFormValid(true);
+    } else {
+      setIsFormValid(false);
+    }
+  };
+
+  const handleUpdTitle = (title) => {
+    const cleanedTitle = title.replace(/\s+/g, " ").trim();
+    setState((prevState) => ({ ...prevState, title: cleanedTitle })); // Merge updates
+  };
+
+  const handleUpdDescrip = (description) => {
+    const cleanedDescription = description.replace(/\s+/g, " ").trim();
+    setState((prevState) => ({
+      ...prevState,
+      description: cleanedDescription,
+    })); // Merge updates
+  };
+
+  const handleUpdPrice = (price) => {
+    setState((prevState) => ({ ...prevState, price })); // Merge updates
   };
 
   return (
@@ -109,15 +186,26 @@ const CreateAuctionFormScreen = ({ navigation }) => {
         <VStack space="md">
           <Text className="text-xl font-semibold ">Add Images</Text>
           <HStack space="sm">
-            {/* Placeholder for uploaded images */}
-            <View style={styles.imagePlaceholder}>
-              <Text style={styles.placeholderText}>Image 1</Text>
-            </View>
+            {/* Placeholder or Uploaded Image */}
+            {imageUri ? (
+              <Image
+                source={{ uri: imageUri }}
+                style={styles.imagePreview}
+                resizeMode="cover"
+              />
+            ) : (
+              <View style={styles.imagePlaceholder}>
+                <Text style={styles.placeholderText}>Image 1</Text>
+              </View>
+            )}
 
             {/* Add Image Button */}
             <TouchableOpacity
               style={styles.addImageButton}
-              onPress={() => setShowUploadModal(true)}
+              onPress={() => {
+                uploadSheetRef.current?.open();
+                // setShowUploadModal(true);
+              }}
             >
               <AntDesign name="plus" size={35} color="white" />
             </TouchableOpacity>
@@ -139,6 +227,8 @@ const CreateAuctionFormScreen = ({ navigation }) => {
               paddingLeft: 10,
               width: "100%",
             }}
+            value={state.title}
+            onChangeText={handleUpdTitle}
           />
           {/* Description */}
           <Textarea
@@ -155,6 +245,8 @@ const CreateAuctionFormScreen = ({ navigation }) => {
             <TextareaInput
               style={{ color: "black" }}
               placeholder="Your text goes here..."
+              value={state.description}
+              onChangeText={handleUpdDescrip}
             />
           </Textarea>
 
@@ -165,6 +257,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
               { key: "Electronics", value: "electronics" },
               { key: "Furniture", value: "furniture" },
             ]}
+            handleSelect={handleSelectCategory}
           />
         </VStack>
 
@@ -172,8 +265,6 @@ const CreateAuctionFormScreen = ({ navigation }) => {
         <View
           className="flex flex-col py-4 gap-y-5"
           style={{
-            // borderWidth: 4,
-            // borderColor: "blue",
             marginVertical: 9,
           }}
         >
@@ -192,6 +283,8 @@ const CreateAuctionFormScreen = ({ navigation }) => {
                 height: 35,
                 paddingLeft: 10,
               }}
+              value={state.price}
+              onChangeText={handleUpdPrice}
             />
           </View>
 
@@ -209,6 +302,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
                 { key: "5k", value: "5000" },
                 { key: "10k", value: "10000" },
               ]}
+              handleSelect={handleSelectIncreaseAmount}
             />
           </View>
 
@@ -222,7 +316,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
                 { key: "Hours", value: "hours" },
                 { key: "Minutes", value: "minutes" },
               ]}
-              handleSelect={handleSelect}
+              handleSelect={handleSelectDuration}
             />
             {selectedDuration && (
               <HStack space="xl" className="mt-2 py-4 justify-center">
@@ -274,6 +368,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
                 { key: "Used", value: "used" },
                 { key: "New", value: "new" },
               ]}
+              handleSelect={handleSelectType}
             />
           </View>
 
@@ -286,58 +381,27 @@ const CreateAuctionFormScreen = ({ navigation }) => {
                 { key: "Pickup", value: "pickup" },
                 { key: "Delivery", value: "delivery" },
               ]}
+              handleSelect={handleSelectDelivery}
             />
           </View>
         </View>
 
         {/* Payment Methods Section */}
-        <VStack space={3}>
-          <Text style={[styles.sectionTitle, { textAlign: "center" }]}>
-            Payment Methods
-          </Text>
+        <PaymentMethodSelector allowMultiple={true} />
 
-          <View style={styles.paymentMethods}>
-            {/* First Row */}
-            <View style={styles.paymentRow}>
-              <PaymentMethod
-                icon={require("../../assets/icons/nairaNote.svg")}
-                label="Cash"
-              />
-              <PaymentMethod
-                icon={require("../../assets/icons/BankTransfer.svg")}
-                label="Bank Transfer"
-              />
-              <PaymentMethod
-                icon={require("../../assets/icons/Paypal.svg")}
-                label="PayPal"
-              />
-            </View>
-
-            {/* Second Row */}
-            {/* <HStack space={3} style={styles.paymentRow}>
-              <PaymentMethod
-                icon={require("../../assets/icons/DebitCard.svg")}
-                label="Debit Card"
-              />
-              <PaymentMethod
-                icon={require("../../assets/icons/Apple.svg")}
-                label="Apple Pay"
-              />
-              <PaymentMethod label="Others" />
-            </HStack> */}
-          </View>
-        </VStack>
-
-        <SubmitButton text="Post Auction" isDisabled={true} handleSubmit={{}} />
-      </VStack>
-      {showUploadModal && (
-        <UploadPictModel
-          show={showUploadModal}
-          onClose={() => setShowUploadModal(false)}
-          onCameraPress={() => uploadImage()}
-          onGalleryPress={() => uploadImage("gallery")}
+        <SubmitButton
+          text="Post Auction"
+          isDisabled={!isFormValid}
+          handleSubmit={{}}
         />
-      )}
+      </VStack>
+      {/* {showUploadModal && ( */}
+      <UploadPictModel
+        ref={uploadSheetRef}
+        onCameraPress={() => uploadImage("camera")}
+        onGalleryPress={() => uploadImage("gallery")}
+      />
+      {/* )} */}
     </ScrollView>
   );
 };
@@ -346,19 +410,24 @@ export default CreateAuctionFormScreen;
 
 const styles = StyleSheet.create({
   imagePlaceholder: {
-    width: 80,
-    height: 80,
+    width: 130,
+    height: 100,
     backgroundColor: "#e1e1e1",
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
   },
+  imagePreview: {
+    width: 130,
+    height: 100,
+    borderRadius: 12,
+  },
   placeholderText: {
     color: "#888",
   },
   addImageButton: {
-    width: 80,
-    height: 80,
+    width: 130,
+    height: 100,
     borderRadius: 8,
     backgroundColor: COLORS.primary,
     justifyContent: "center",
@@ -372,19 +441,5 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     marginTop: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 8,
-    color: "#333",
-  },
-  paymentMethods: {
-    marginTop: 8,
-  },
-  paymentRow: {
-    marginBottom: 12,
-    flexDirection: "row",
-    justifyContent: "space-between",
   },
 });
