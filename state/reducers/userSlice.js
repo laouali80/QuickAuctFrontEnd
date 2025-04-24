@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import apiRequest from "@/core/api";
 import utils from "@/core/utils";
+import secure from "@/core/secure";
+import { Platform } from "react-native";
 // import secure from "@/core/secure";
 
 const initialState = {
@@ -19,6 +21,12 @@ export const logInUser = createAsyncThunk(
     try {
       const response = await apiRequest("users/auth/login/", data, "POST");
       utils.log("Login Response:", response.data);
+      // utils.log("b4 call:");
+      // let store = await secure.storeUserSession(
+      //   "accessToken",
+      //   response.tokens.access
+      // );
+      // utils.log("after call:", store);
 
       return response.data;
     } catch (err) {
@@ -35,6 +43,8 @@ export const signUpUser = createAsyncThunk(
       const response = await apiRequest("users/auth/register/", data, "POST");
       // const response = await apiRequest("users/");
       utils.log("Sign Up Response:", response);
+      // secure.storeUserSession("accessToken", response.tokens.access);
+
       return response;
     } catch (err) {
       return rejectWithValue(err.message);
@@ -81,13 +91,35 @@ export const OTPValidation = createAsyncThunk(
   }
 );
 
+export const setLocation = createAsyncThunk(
+  "user/location",
+  async (data, { rejectWithValue }) => {
+    try {
+      // console.log("test: ", data.token.access);
+
+      // console.log("Latest Location: ", data);
+      const response =
+        Platform.OS === "web"
+          ? await apiRequest("users/location/", data, "POST", {
+              Authorization: `Bearer ${data.token.access}`,
+            })
+          : await apiRequest("users/location/", data, "POST");
+
+      console.log("location response", response);
+
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
 // User Slice
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
     updateThumbnail(state, action) {
-      console.log("reach");
       state.user = action.payload;
     },
     logOutUser(state) {
@@ -97,8 +129,11 @@ const userSlice = createSlice({
       state.error = null;
       state.status = null;
       state.initialized = false;
-      // secure.removeUserSession("tokens");
+      // secure.removeUserSession("accessToken");
     },
+    // setLocation(state, action) {
+    //   state.user.location = action.payload;
+    // },
   },
   extraReducers: (builder) => {
     builder
@@ -107,13 +142,14 @@ const userSlice = createSlice({
         state.status = "pending";
       })
       .addCase(logInUser.fulfilled, (state, action) => {
+        // console.log("reach");
         state.user = action.payload.user;
         state.tokens = action.payload.tokens;
         state.authenticated = true;
         state.initialized = true;
         state.status = "fulfilled";
         state.error = null;
-        // secure.storeUserSession("tokens", action.payload.tokens);
+        secure.storeUserSession("accessToken", action.payload.tokens.access);
       })
       .addCase(logInUser.rejected, (state, action) => {
         state.status = "rejected";
@@ -130,9 +166,27 @@ const userSlice = createSlice({
         state.authenticated = true;
         state.status = "fulfilled";
         state.error = null;
-        // secure.storeUserSession("tokens", action.payload.tokens);
+        secure.storeUserSession("accessToken", action.payload.tokens.access);
       })
       .addCase(signUpUser.rejected, (state, action) => {
+        state.status = "rejected";
+        state.error = action.payload;
+      })
+
+      // Update Location
+      .addCase(setLocation.pending, (state) => {
+        state.status = "pending";
+      })
+      .addCase(setLocation.fulfilled, (state, action) => {
+        // console.log(action.payload);
+        state.user = action.payload.user;
+        state.tokens = action.payload.tokens;
+        state.authenticated = true;
+        state.status = "fulfilled";
+        state.error = null;
+        secure.storeUserSession("accessToken", action.payload.tokens.access);
+      })
+      .addCase(setLocation.rejected, (state, action) => {
         state.status = "rejected";
         state.error = action.payload;
       });

@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { BaseAddress } from "./api";
+import { BaseAddress, DEVELOPMENT } from "./api";
 import utils from "./utils";
 
 // core/socketManager.js
@@ -31,8 +31,9 @@ export const initializeAuctionSocket = createAsyncThunk(
         socket.close();
       }
 
+      const protocol = DEVELOPMENT ? "ws" : "wss";
       socket = new WebSocket(
-        `ws://${BaseAddress}/ws/auctions/?tokens=${tokens.access}`
+        `${protocol}://${BaseAddress}/ws/auctions/?tokens=${tokens.access}`
       );
 
       socket.onopen = () => {

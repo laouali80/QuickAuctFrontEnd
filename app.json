@@ -14,23 +14,18 @@
     },
     "ios": {
       "supportsTablet": true
-      // "infoPlist": {
-      //   "NSAppTransportSecurity": {
-      //     "NSAllowsArbitraryLoads": true
-      //   }
-      // }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
-      // "permissions": [],
-      // "intentFilters": [],
-      // "package": "com.quickauct"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

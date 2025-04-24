@@ -100,3 +100,6 @@ https://www.youtube.com/watch?v=xjMP0hspNLE
 
 method of payment
 https://youtu.be/JWXKv6D3SxM?si=gsLD723hFf4NsjUB
+
+reverse geo code
+https://youtu.be/d7G0E_9FwyE
