@@ -29,6 +29,8 @@ import api from "@/core/api";
 import { useDispatch } from "react-redux";
 import { EmailVerification, SignUpUser } from "@/state/reducers/userSlice";
 import { useNavigation } from "@react-navigation/native";
+import { persistor } from "@/state/store";
+import secure from "@/core/secure";
 
 const SignUpForm = () => {
   const navigation = useNavigation();
@@ -74,10 +76,13 @@ const SignUpForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
       // console.log("Form submitted:", formData);
-      navigation.navigate("OTP", formData);
+
+      // Clear any previously storage
+      await persistor.purge(); // Clear Redux-persist storage
+      await secure.removeUserSession("accessToken");
 
       dispatch(
         EmailVerification({
@@ -85,6 +90,8 @@ const SignUpForm = () => {
           first_name: formData.firstName,
         })
       );
+
+      navigation.navigate("OTP", formData);
 
       // Make a request
     }

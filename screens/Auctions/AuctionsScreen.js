@@ -17,7 +17,11 @@ import {
   ChatSocketClose,
 } from "@/state/reducers/chatsSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { getTokens } from "@/state/reducers/userSlice";
+import {
+  getTokens,
+  getUserInfo,
+  setLocation,
+} from "@/state/reducers/userSlice";
 import utils from "@/core/utils";
 import {
   AuctionSocketClose,
@@ -26,16 +30,70 @@ import {
 } from "@/core/auctionSocketManager";
 import { store } from "@/state/store";
 import { getAuctionsList } from "@/state/reducers/auctionsSlice";
+import * as Location from "expo-location";
+import secure from "@/core/secure";
 
 const CONTAINER_HEIGHT = 230;
 const AuctionsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const tokens = useSelector(getTokens);
   const auctionsList = useSelector(getAuctionsList);
+  const user = useSelector(getUserInfo);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  console.log("from auctions: ", user);
+
+  const getCurrentLocation = async () => {
+    try {
+      // console.log("Requesting location permission...");
+      let { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        console.warn("Location permission denied");
+        return;
+      }
+
+      // console.log("Fetching current location...");
+      let location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+        timeout: 15000,
+      });
+
+      let reverseGeoCode = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+
+      if (!reverseGeoCode || reverseGeoCode.length === 0) {
+        setErrorMsg("Could not determine your location");
+        return;
+      }
+
+      const { city, region } = reverseGeoCode[0];
+      const stringLocation = `${city || "Unknown"}, ${region || "Unknown"}`;
+
+      // console.log("Resolved Location:", stringLocation);
+
+      if (user.location !== stringLocation) {
+        dispatch(setLocation({ location: stringLocation }));
+      }
+    } catch (error) {
+      console.error("Location error:", error);
+      setErrorMsg("Failed to get location: " + error.message);
+    }
+  };
+
+  useLayoutEffect(() => {
+    // console.log("Component mounted, fetching location...");
+
+    Platform.OS === "web"
+      ? dispatch(setLocation({ location: "Yola, Adamawa", token: tokens }))
+      : getCurrentLocation();
+  }, [getCurrentLocation]);
 
   useEffect(() => {
     // utils.log('receive: ', tokens)
-
     setStore(store); // Initialize socket manager with store reference
     dispatch(initializeChatSocket(tokens)); // initialize chat socket channel
     dispatch(initializeAuctionSocket(tokens)); // initialize auction socket channel

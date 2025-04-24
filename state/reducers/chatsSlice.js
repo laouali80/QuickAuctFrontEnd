@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import apiRequest, { BaseAddress } from "@/core/api";
+import apiRequest, { BaseAddress, DEVELOPMENT } from "@/core/api";
 import { useDispatch, useSelector } from "react-redux";
 import utils from "@/core/utils";
 import { getTokens, updateThumbnail } from "./userSlice";
@@ -93,11 +93,11 @@ export const initializeChatSocket = createAsyncThunk(
   "chats/connection",
   async (tokens, { dispatch, getState, rejectWithValue }) => {
     try {
-      utils.log("Connecting WebSocket with token:", tokens);
+      // utils.log("Connecting WebSocket with token:", tokens);
 
-      // const protocol = BaseAddress.startsWith("https") ? "wss" : "ws";
+      const protocol = DEVELOPMENT ? "ws" : "wss";
       socket = new WebSocket(
-        `ws://${BaseAddress}/ws/chat/?tokens=${tokens.access}`
+        `${protocol}://${BaseAddress}/ws/chat/?tokens=${tokens.access}`
       );
 
       socket.onopen = () => {

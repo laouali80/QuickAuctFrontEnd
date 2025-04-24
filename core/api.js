@@ -1,6 +1,7 @@
 import axios from "axios";
 
 import { Platform } from "react-native";
+import secure from "./secure";
 
 // if using android studio
 // const BaseAddress =
@@ -8,12 +9,16 @@ import { Platform } from "react-native";
 
 // https://quick-auct-backend.vercel.app/api/users/
 
-export const BaseAddress = "localhost:8000";
-export const HostBaseAddress = "quick-auct-backend.vercel.app";
-export const Protocol = HostBaseAddress ? "https" : "http";
-// console.log(Protocol);
+export const DEVELOPMENT = true;
+
+export const BaseAddress = DEVELOPMENT
+  ? "localhost:8000"
+  : "quick-auct-backend.vercel.app";
+
+export const Protocol = DEVELOPMENT ? "http" : "https";
+
 const api = axios.create({
-  baseURL: `${Protocol}://${HostBaseAddress}/api/`,
+  baseURL: `${Protocol}://${BaseAddress}/api/`,
   headers: {
     "Content-Type": "application/json",
   },
@@ -27,15 +32,22 @@ export const apiRequest = async (
   headers = {}
 ) => {
   try {
+    const token = await secure.getUserSession("accessToken");
+    // console.log("token from secure", token);
+
+    // If no token then no need for Bearer token authorization
+    const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
     const response = await api({
       url: url,
       method: method.toUpperCase(),
       data: data,
       headers: {
         ...api.defaults.headers, // Preserve default headers
+        ...authHeaders, // Add authorization token if any
         ...headers, // Merge with custom headers
       },
-      withCredentials: true, // 👈 necessary for Django session cookies
+      withCredentials: true, // necessary for Django session cookies
     });
 
     // console.log(url);

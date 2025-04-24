@@ -28,6 +28,8 @@ import api, { apiRequest, login } from "@/core/api";
 import utils from "@/core/utils";
 import { useDispatch } from "react-redux";
 import { logInUser } from "@/state/reducers/userSlice";
+import secure from "@/core/secure";
+import { persistor } from "@/state/store";
 
 const LogInForm = () => {
   const [email, setEmail] = useState("");
@@ -79,15 +81,12 @@ const LogInForm = () => {
 
   const handleSubmit = async () => {
     if (validateForm()) {
-      // const response = await fetch("http://localhost:8000/api/users/");
-      // console.log("reach", response);
       console.log("Login attempt with:", { email, password });
-
+      // Clear any previously storage
+      await persistor.purge(); // Clear Redux-persist storage
+      await secure.removeUserSession("accessToken");
       // Dispatch the action correctly
       dispatch(logInUser({ email: email.toLowerCase(), password }));
-
-      // login(email, password);
-      // Handle login API call here
     }
   };
 

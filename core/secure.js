@@ -1,11 +1,13 @@
+import * as SecureStore from "expo-secure-store";
+
 // Same function as Redux Persist but this one secure/encrypt our data and maybe more easier
 
-import * as SecureStore from 'expo-secure-store';
-
 // Store data securely
-async function storeUserSession(key, object) {
+async function storeUserSession(key, value) {
+  console.log("reach: ", key, value);
   try {
-    await SecureStore.setItemAsync(key, JSON.stringify(object));
+    const toStore = typeof value === "string" ? value : JSON.stringify(value);
+    await SecureStore.setItemAsync(key, toStore);
   } catch (error) {
     console.log("Error storing data: ", error);
   }
@@ -14,11 +16,13 @@ async function storeUserSession(key, object) {
 // Get data securely
 async function getUserSession(key) {
   try {
-    const data = await SecureStore.getItemAsync(key);
-    if (data) {
-      return JSON.parse(data);  // Parse the stringified data to object
+    const value = await SecureStore.getItemAsync(key);
+
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value; // return raw string if not JSON
     }
-    return null;
   } catch (error) {
     console.log("Error retrieving data: ", error);
     return null;
@@ -29,6 +33,7 @@ async function getUserSession(key) {
 async function removeUserSession(key) {
   try {
     await SecureStore.deleteItemAsync(key);
+    console.log("success deletion token secure storage");
   } catch (error) {
     console.log("Error removing data: ", error);
   }

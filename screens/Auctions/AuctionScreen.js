@@ -161,7 +161,9 @@ const AuctionScreen = ({ navigation, route }) => {
                 <Text style={styles.ownerName}>{auction.seller.username}</Text>
                 <View style={styles.locationRow}>
                   <EvilIcons name="location" size={24} color={COLORS.primary} />
-                  <Text style={styles.locationText}>Yola, Adamawa</Text>
+                  <Text style={styles.locationText}>
+                    {auction.seller.latest_location || "Unknown, Uknown"}
+                  </Text>
                 </View>
               </View>
 

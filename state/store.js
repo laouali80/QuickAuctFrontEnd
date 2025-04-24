@@ -33,8 +33,11 @@ const store = configureStore({
           "persist/PERSIST",
           "persist/REHYDRATE",
           "persist/REGISTER",
+          "persist/PAUSE",
+          "persist/FLUSH",
+          "persist/PURGE",
         ],
-        ignoredPaths: ["register"],
+        // ignoredPaths: ["register"],
       },
     }),
 });
