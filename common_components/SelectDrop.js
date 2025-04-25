@@ -17,10 +17,10 @@ import { COLORS } from "@/constants/COLORS";
 
 const SelectDrop = ({ placeholder, selectItems = [], handleSelect }) => {
   const handleValueChange = (value) => {
+    // console.log("Selected Value:", value);
     if (handleSelect) {
       handleSelect(value); // Call parent function if provided
     }
-    console.log("Selected Value:", value);
   };
 
   return (
@@ -50,11 +50,7 @@ const SelectDrop = ({ placeholder, selectItems = [], handleSelect }) => {
           </SelectDragIndicatorWrapper>
           {Array.isArray(selectItems) &&
             selectItems.map((item) => (
-              <SelectItem
-                key={item.value}
-                label={item.key}
-                value={item.value}
-              />
+              <SelectItem key={item.key} label={item.value} value={item.key} />
             ))}
         </SelectContent>
       </SelectPortal>

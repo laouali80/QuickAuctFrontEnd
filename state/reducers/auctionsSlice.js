@@ -42,6 +42,15 @@ export const searchAuctions = (query) => (dispatch, getState) => {
   }
 };
 
+export const createAuction = (data) => {
+  // console.log("data: ", data);
+
+  sendThroughSocket({
+    source: "create_auction",
+    data,
+  });
+};
+
 // Selectors
 export const getSearchList = (state) => state.auctions.searchList;
 export const getAuctionsList = (state) => state.auctions.auctions;
