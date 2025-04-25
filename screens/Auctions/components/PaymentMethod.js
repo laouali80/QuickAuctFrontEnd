@@ -3,10 +3,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
 
-const PaymentMethodSelector = ({ allowMultiple = false }) => {
-  const [selectedMethods, setSelectedMethods] = useState([]);
-
-  // console.log("selected: ", selectedMethods);
+const PaymentMethodSelector = ({ selectedMethods, setSelectedMethods }) => {
   const paymentMethods = [
     {
       id: "cash",
@@ -55,14 +52,10 @@ const PaymentMethodSelector = ({ allowMultiple = false }) => {
   ];
 
   const toggleMethod = (methodId) => {
-    if (allowMultiple) {
-      if (selectedMethods.includes(methodId)) {
-        setSelectedMethods(selectedMethods.filter((id) => id !== methodId));
-      } else {
-        setSelectedMethods([...selectedMethods, methodId]);
-      }
+    if (selectedMethods.includes(methodId)) {
+      setSelectedMethods(selectedMethods.filter((id) => id !== methodId));
     } else {
-      setSelectedMethods(selectedMethods.includes(methodId) ? [] : [methodId]);
+      setSelectedMethods([...selectedMethods, methodId]);
     }
   };
 
