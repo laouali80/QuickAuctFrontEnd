@@ -103,3 +103,20 @@ https://youtu.be/JWXKv6D3SxM?si=gsLD723hFf4NsjUB
 
 reverse geo code
 https://youtu.be/d7G0E_9FwyE
+
+you only use dispatch() when you're calling an actual Redux action or thunk that’s meant to:
+
+Update the Redux state
+
+Trigger side effects (e.g., via createAsyncThunk)
+
+Communicate with the reducer
+
+✅ DO use dispatch when you're doing something like this:
+
+dispatch(setAuctionList(data)); // updates state
+dispatch(fetchAuctions()); // thunk to fetch data
+
+❌ DON'T use dispatch for regular helper functions like:
+
+createAuction(state); // just sends data through WebSocket

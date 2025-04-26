@@ -12,6 +12,7 @@ const initialState = {
   activeChatUsername: null, // Track which chat is currently open
   messageTyping: null,
   messagesNext: null,
+  newChats: 0,
 };
 
 // WebSocket instance (outside Redux)
@@ -329,5 +330,6 @@ export const getChatsList = (state) => state.chats.chatsList;
 export const getMessages = (state) => state.chats.messagesList;
 export const checkMessageTyping = (state) => state.chats.messageTyping;
 export const getNextPage = (state) => state.chats.messagesNext;
+export const getNewChats = (state) => state.chats.newChats;
 
 export default chatsSlice.reducer;

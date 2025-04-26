@@ -34,6 +34,7 @@ const AuctionScreen = ({ navigation, route }) => {
   const [showReportModal, setShowReportModal] = useState(false);
 
   // console.log("auction receive: ", auction);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: "Auction",
@@ -96,7 +97,7 @@ const AuctionScreen = ({ navigation, route }) => {
           /> */}
 
           <Thumbnail
-            url={auction.images[0]}
+            url={auction.images[0].image}
             width={300}
             height={300}
             borderRadius={10}

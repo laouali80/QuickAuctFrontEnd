@@ -7,6 +7,7 @@ const initialState = {
   auctions: [],
   isConnected: false,
   searchList: null,
+  newAuctions: 0,
 };
 
 const auctionsSlice = createSlice({
@@ -26,6 +27,14 @@ const auctionsSlice = createSlice({
     setAuctionsList(state, action) {
       // console.log("payload: ", action.payload);
       state.auctions = action.payload;
+    },
+    addNewAuction(state, action) {
+      const { seller, currentUserId } = action.payload;
+
+      // Check if seller exists and isn't the current user
+      if (seller?.userId && seller.userId !== currentUserId) {
+        state.newAuctions = (state.newAuctions || 0) + 1;
+      }
     },
   },
 });
@@ -54,6 +63,7 @@ export const createAuction = (data) => {
 // Selectors
 export const getSearchList = (state) => state.auctions.searchList;
 export const getAuctionsList = (state) => state.auctions.auctions;
+export const getNewAuctions = (state) => state.auctions.newAuctions;
 export const { setSocketConnected, setSocketDisconnected, setSearchList } =
   auctionsSlice.actions;
 
