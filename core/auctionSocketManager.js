@@ -23,6 +23,16 @@ function responseAuctionsList(data) {
   });
 }
 
+function responseNewAuction(data) {
+  const state = storeRef.getState();
+  const currentUserId = state.user.user?.userId; // adjust path if different
+  const { seller } = data;
+  storeRef?.dispatch({
+    type: "auctions/addNewAuction",
+    payload: { seller, currentUserId },
+  });
+}
+
 export const initializeAuctionSocket = createAsyncThunk(
   "auctions/connection",
   async (tokens, { dispatch, rejectWithValue }) => {
@@ -52,6 +62,7 @@ export const initializeAuctionSocket = createAsyncThunk(
               payload: data,
             }),
           auctionsList: responseAuctionsList,
+          new_auction: responseNewAuction,
         };
 
         if (handlers[parsed.source]) {

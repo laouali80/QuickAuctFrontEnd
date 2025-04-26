@@ -17,7 +17,7 @@ import { getUserInfo } from "@/state/reducers/userSlice";
 
 const Header = () => {
   const user = useSelector(getUserInfo);
-  console.log("from header: ", user);
+  // console.log("from header: ", user);
   useEffect(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
   }, [user.latest_location]);

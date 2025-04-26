@@ -20,7 +20,7 @@ const AuctionCard = ({ auction }) => {
   const handleLike = () => {
     like === "heart-o" ? setLike("heart") : setLike("heart-o");
   };
-
+  // console.log("auction receive: ", auction.title, auction.images[0].image);
   const _navigate = () => {
     navigation.navigate("Auction", auction);
   };
@@ -42,7 +42,8 @@ const AuctionCard = ({ auction }) => {
       {/* Image and Like Button */}
       <View>
         <Thumbnail
-          url={auction.images[0]}
+          url={auction.images[0].image}
+          // url={auction.images[0]}
           width={120}
           height={100}
           borderRadius={10}

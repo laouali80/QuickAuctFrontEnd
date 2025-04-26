@@ -97,7 +97,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
     const isTitleValid = typeof title === "string" && title.trim().length >= 2;
     const isDescriptionValid =
       typeof description === "string" && description.trim().length >= 2;
-    const isCategoryValid = !isNaN(bid_increment);
+    const isCategoryValid = !isNaN(category);
     const isStartingPriceValid =
       !isNaN(starting_price) &&
       starting_price >= 0 &&
@@ -243,7 +243,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
     setIsSubmitting(true);
     try {
       // console.log("Submitting auction data:", state);
-      dispatch(createAuction(state));
+      createAuction(state); //  Don't dispatch
 
       // Reset form after successful submission
       setState({

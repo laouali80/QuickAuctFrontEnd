@@ -17,8 +17,17 @@ import {
 import { CurvedBottomBarExpo } from "react-native-curved-bottom-bar";
 import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
+import IconBadge from "./components/IconBadge";
+import { useSelector } from "react-redux";
+import { getNewAuctions } from "@/state/reducers/auctionsSlice";
+import { getNewChats } from "@/state/reducers/chatsSlice";
 
 const HomeScreen = ({ navigation }) => {
+  const newAuctions = useSelector(getNewAuctions);
+  const newChats = useSelector(getNewChats);
+
+  // console.log("got you guys: ", newAuctions, newChats);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
@@ -39,7 +48,8 @@ const HomeScreen = ({ navigation }) => {
             }
           />
         );
-        break;
+        return <IconBadge icon={icon} badgeCount={newAuctions} />;
+
       case "Insights":
         icon = (
           <Feather
@@ -65,7 +75,8 @@ const HomeScreen = ({ navigation }) => {
             }
           />
         );
-        break;
+
+        return <IconBadge icon={icon} badgeCount={newChats} />;
       case "Profile":
         icon = (
           <FontAwesome
