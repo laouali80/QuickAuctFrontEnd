@@ -9,7 +9,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useCallback, useLayoutEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 import { COLORS } from "@/constants/COLORS";
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
@@ -26,14 +31,21 @@ import { SIZES } from "@/constants/SIZES";
 import ReportModal from "@/screens/Auctions/components/ReportModal";
 import { formatAuctionTime } from "@/core/utils";
 import Thumbnail from "@/common_components/Thumbnail";
+import { useSelector } from "react-redux";
+import { getAuction } from "@/state/reducers/auctionsSlice";
 
 const AuctionScreen = ({ navigation, route }) => {
-  const auction = route.params;
+  const { id } = route.params;
+  // const auction = useSelector((state) =>
+  //   state.auctions.auctions.find((a) => a.id === id)
+  // );
+  const auction = useSelector(getAuction(id));
+
   const [selectedTab, setSelectedTab] = useState("Overview");
   const [like, setLike] = useState("heart-o");
   const [showReportModal, setShowReportModal] = useState(false);
 
-  // console.log("auction receive: ", auction);
+  // console.log("auction receive: ", updAuction);
 
   useLayoutEffect(() => {
     navigation.setOptions({

@@ -11,14 +11,22 @@ import { COLORS } from "@/constants/COLORS";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Thumbnail from "@/common_components/Thumbnail";
-import { placeBid } from "@/state/reducers/auctionsSlice";
+import { placeBid, watchAuction } from "@/state/reducers/auctionsSlice";
+import { useDispatch } from "react-redux";
 
 const AuctionCard = ({ auction }) => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [like, setLike] = useState("heart-o");
 
   const handleLike = () => {
-    like === "heart-o" ? setLike("heart") : setLike("heart-o");
+    if (like === "heart-o") {
+      watchAuction();
+      setLike("heart");
+    } else {
+      watchAuction();
+      setLike("heart-o");
+    }
   };
   // console.log("auction receive: ", auction.title, auction.images[0].image);
   const _navigate = () => {
@@ -26,7 +34,10 @@ const AuctionCard = ({ auction }) => {
   };
 
   const RequestBid = () => {
-    placeBid({ auction_id: auction.id, current_price: auction.current_price });
+    placeBid({
+      auction_id: auction.id,
+      current_price: parseInt(auction.current_price),
+    });
   };
   return (
     <TouchableOpacity
