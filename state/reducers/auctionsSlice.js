@@ -1,6 +1,6 @@
 // store/auctionsSlice.js
 import { sendThroughSocket } from "@/core/auctionSocketManager";
-import utils from "@/core/utils";
+import utils, { formatAuctionTime } from "@/core/utils";
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -8,6 +8,20 @@ const initialState = {
   isConnected: false,
   searchList: null,
   newAuctions: 0,
+};
+
+const addTimeLeft = (auction) => {
+  return {
+    ...auction,
+    timeLeft: formatAuctionTime(auction.end_time),
+  };
+};
+
+const updAuctTime = (auction) => {
+  return {
+    ...auction,
+    timeLeft: formatAuctionTime(auction.end_time),
+  };
 };
 
 const auctionsSlice = createSlice({
@@ -26,7 +40,7 @@ const auctionsSlice = createSlice({
     },
     setAuctionsList(state, action) {
       // console.log("payload: ", action.payload);
-      state.auctions = action.payload;
+      state.auctions = [...action.payload.map(addTimeLeft)];
     },
     addNewAuction(state, action) {
       const { seller, currentUserId } = action.payload;
@@ -35,6 +49,22 @@ const auctionsSlice = createSlice({
       if (seller?.userId && seller.userId !== currentUserId) {
         state.newAuctions = (state.newAuctions || 0) + 1;
       }
+    },
+    updateTime(state) {
+      // console.log("call: ", [
+      //   ...state.auctions
+      //     .filter((auction) => auction.timeLeft !== "Completed")
+      //     .map(updAuctTime),
+      // ]);
+      // state.auctions = [
+      //   ...state.auctions
+      //     .filter((auction) => auction.timeLeft !== "Completed")
+      //     .map(updAuctTime),
+      // ];
+
+      state.auctions = state.auctions.map((auction) =>
+        auction.timeLeft === "Completed" ? auction : updAuctTime(auction)
+      );
     },
   },
 });
@@ -60,12 +90,25 @@ export const createAuction = (data) => {
   });
 };
 
+export const placeBid = (data) => {
+  // console.log("data: ", data);
+
+  sendThroughSocket({
+    source: "place_bid",
+    data,
+  });
+};
+
 // Selectors
 export const getSearchList = (state) => state.auctions.searchList;
 export const getAuctionsList = (state) => state.auctions.auctions;
 export const getNewAuctions = (state) => state.auctions.newAuctions;
-export const { setSocketConnected, setSocketDisconnected, setSearchList } =
-  auctionsSlice.actions;
+export const {
+  setSocketConnected,
+  setSocketDisconnected,
+  setSearchList,
+  updateTime,
+} = auctionsSlice.actions;
 
 export default auctionsSlice.reducer;
 

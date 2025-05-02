@@ -48,7 +48,9 @@ export const initializeAuctionSocket = createAsyncThunk(
 
       socket.onopen = () => {
         console.log("Auction Socket connected!");
-        socket.send(JSON.stringify({ source: "FetchAuctionsList" }));
+        socket.send(
+          JSON.stringify({ source: "FetchAuctionsList", data: { page: 1 } })
+        );
         // storeRef?.dispatch({ type: "auctions/setSocketConnected" });
       };
 

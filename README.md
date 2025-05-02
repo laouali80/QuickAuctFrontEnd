@@ -120,3 +120,41 @@ dispatch(fetchAuctions()); // thunk to fetch data
 ❌ DON'T use dispatch for regular helper functions like:
 
 createAuction(state); // just sends data through WebSocket
+
+To check for unused packages
+Automated Tools
+Using depcheck (Recommended)
+depcheck is a tool that analyzes dependencies in a project to find unused or missing packages.
+
+Install depcheck globally or locally:
+
+bash
+npm install -g depcheck
+or
+
+bash
+npx depcheck
+Run depcheck in your project root:
+
+bash
+depcheck
+This will list:
+
+Unused dependencies (packages installed but not imported).
+
+Missing dependencies (packages used but not installed).
+
+Unused devDependencies.
+
+Using npm-check
+npm-check provides an interactive way to review outdated, unused, and missing dependencies.
+
+Install it:
+
+bash
+npm install -g npm-check
+Run it:
+
+bash
+npm-check
+It will show unused packages in an interactive UI.

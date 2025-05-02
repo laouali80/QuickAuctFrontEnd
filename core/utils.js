@@ -88,7 +88,9 @@ export const formatAuctionTime = (dateString) => {
     return `${hours}:${minutes}:${seconds}s`;
   } else if (minutes > 0) {
     return `${minutes}:${seconds}s`;
-  } else {
+  } else if (seconds > 0) {
     return `${minutes}:${seconds}s`;
   }
+
+  return "Completed";
 };

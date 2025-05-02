@@ -11,7 +11,7 @@ import { COLORS } from "@/constants/COLORS";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Thumbnail from "@/common_components/Thumbnail";
-import { formatAuctionTime } from "@/core/utils";
+import { placeBid } from "@/state/reducers/auctionsSlice";
 
 const AuctionCard = ({ auction }) => {
   const navigation = useNavigation();
@@ -23,6 +23,10 @@ const AuctionCard = ({ auction }) => {
   // console.log("auction receive: ", auction.title, auction.images[0].image);
   const _navigate = () => {
     navigation.navigate("Auction", auction);
+  };
+
+  const RequestBid = () => {
+    placeBid({ auction_id: auction.id, current_price: auction.current_price });
   };
   return (
     <TouchableOpacity
@@ -99,7 +103,7 @@ const AuctionCard = ({ auction }) => {
           style={{ color: COLORS.primary }}
           numberOfLines={1} // Prevent text overflow
         >
-          Ends in {formatAuctionTime(auction.end_time)}
+          Ends in {auction.timeLeft}
         </Text>
       </View>
 
@@ -123,6 +127,7 @@ const AuctionCard = ({ auction }) => {
             borderRadius: 20,
             padding: 5,
           }}
+          onPress={RequestBid}
         >
           <Image
             source={require("../../../assets/icons/auction1.png")}
