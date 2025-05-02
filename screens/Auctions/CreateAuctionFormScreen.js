@@ -63,7 +63,7 @@ const CreateAuctionFormScreen = ({ navigation }) => {
   // Custom hooks
   const useDebounce = (callback, delay, deps) => {
     useEffect(() => {
-      console.log("states: ", state);
+      // console.log("states: ", state);
       const handler = setTimeout(() => callback(), delay);
       return () => clearTimeout(handler);
     }, [...(deps || [])]);

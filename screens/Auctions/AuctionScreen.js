@@ -132,7 +132,9 @@ const AuctionScreen = ({ navigation, route }) => {
             <View style={styles.titleContainer}>
               <Text style={styles.productTitle}>{auction.title}</Text>
               <View style={styles.categoryTag}>
-                <Text style={styles.categoryText}>{auction.category.name}</Text>
+                <Text style={styles.categoryText}>
+                  {auction.category.value}
+                </Text>
               </View>
             </View>
 

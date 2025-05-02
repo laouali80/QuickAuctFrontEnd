@@ -29,19 +29,21 @@ import {
   setStore,
 } from "@/core/auctionSocketManager";
 import { store } from "@/state/store";
-import { getAuctionsList } from "@/state/reducers/auctionsSlice";
+import { getAuctionsList, updateTime } from "@/state/reducers/auctionsSlice";
 import * as Location from "expo-location";
 import secure from "@/core/secure";
 
 const CONTAINER_HEIGHT = 230;
 const AuctionsScreen = ({ navigation }) => {
+  const intervalRef = useRef(null);
   const dispatch = useDispatch();
   const tokens = useSelector(getTokens);
   const auctionsList = useSelector(getAuctionsList);
   const user = useSelector(getUserInfo);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  console.log("from auctions: ", user);
+  // console.log("from auctions: ", user);
+  console.log("auctions: ", auctionsList);
 
   const getCurrentLocation = async () => {
     try {
@@ -102,6 +104,14 @@ const AuctionsScreen = ({ navigation }) => {
       dispatch(ChatSocketClose());
       dispatch(AuctionSocketClose());
     };
+  }, []);
+
+  // Timer for updating time
+  useEffect(() => {
+    const interval = setInterval(() => {
+      dispatch(updateTime());
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const scrollY = useRef(new Animated.Value(0)).current;
