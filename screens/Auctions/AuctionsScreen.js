@@ -43,7 +43,7 @@ const AuctionsScreen = ({ navigation }) => {
   const [errorMsg, setErrorMsg] = useState(null);
 
   // console.log("from auctions: ", user);
-  console.log("auctions: ", auctionsList);
+  // console.log("auctions: ", auctionsList);
 
   const getCurrentLocation = async () => {
     try {

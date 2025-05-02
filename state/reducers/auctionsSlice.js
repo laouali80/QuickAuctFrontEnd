@@ -111,7 +111,7 @@ export const watchAuction = (data) => {
 
   sendThroughSocket({
     source: "watch_auction",
-    // data,
+    data,
   });
 };
 

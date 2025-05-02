@@ -6,28 +6,40 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { COLORS } from "@/constants/COLORS";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Thumbnail from "@/common_components/Thumbnail";
 import { placeBid, watchAuction } from "@/state/reducers/auctionsSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserInfo } from "@/state/reducers/userSlice";
 
 const AuctionCard = ({ auction }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const [like, setLike] = useState("heart-o");
+  const user = useSelector(getUserInfo);
+  const [like, setLike] = useState(
+    auction.watchers.includes(user.userId) ? "heart" : "heart-o"
+  );
+
+  // console.log("user: ", user.userId);
+  // console.log("get watchers: ", auction.watchers);
 
   const handleLike = () => {
     if (like === "heart-o") {
-      watchAuction();
       setLike("heart");
+      watchAuction({ auction_id: auction.id });
     } else {
-      watchAuction();
       setLike("heart-o");
+      watchAuction({ auction_id: auction.id });
     }
   };
+
+  useEffect(() => {
+    setLike(auction.watchers.includes(user.userId) ? "heart" : "heart-o");
+  }, [auction.watchers]);
+
   // console.log("auction receive: ", auction.title, auction.images[0].image);
   const _navigate = () => {
     navigation.navigate("Auction", auction);
