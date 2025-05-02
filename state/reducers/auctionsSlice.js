@@ -51,11 +51,6 @@ const auctionsSlice = createSlice({
       }
     },
     updateTime(state) {
-      // console.log("call: ", [
-      //   ...state.auctions
-      //     .filter((auction) => auction.timeLeft !== "Completed")
-      //     .map(updAuctTime),
-      // ]);
       // state.auctions = [
       //   ...state.auctions
       //     .filter((auction) => auction.timeLeft !== "Completed")
@@ -66,11 +61,23 @@ const auctionsSlice = createSlice({
         auction.timeLeft === "Completed" ? auction : updAuctTime(auction)
       );
     },
+    auction_deleted(state, action) {
+      state.auctions = state.auctions.filter(
+        (auction) => auction.id !== action.payload
+      );
+    },
+    auction_updated(state, action) {
+      const updatedAuction = action.payload;
+
+      state.auctions = state.auctions.map((auction) =>
+        auction.id === updatedAuction.id ? updAuctTime(updatedAuction) : auction
+      );
+    },
   },
 });
 
 export const searchAuctions = (query) => (dispatch, getState) => {
-  console.log("query receive slice: ", query);
+  // console.log("query receive slice: ", query);
   if (query) {
     sendThroughSocket({
       source: "search",
@@ -99,10 +106,22 @@ export const placeBid = (data) => {
   });
 };
 
+export const watchAuction = (data) => {
+  // console.log("data: ", data);
+
+  sendThroughSocket({
+    source: "watch_auction",
+    // data,
+  });
+};
+
 // Selectors
 export const getSearchList = (state) => state.auctions.searchList;
 export const getAuctionsList = (state) => state.auctions.auctions;
 export const getNewAuctions = (state) => state.auctions.newAuctions;
+export const getAuction = (id) => (state) =>
+  state.auctions.auctions.find((auction) => auction.id === id);
+
 export const {
   setSocketConnected,
   setSocketDisconnected,

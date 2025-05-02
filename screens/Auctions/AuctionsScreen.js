@@ -34,8 +34,8 @@ import * as Location from "expo-location";
 import secure from "@/core/secure";
 
 const CONTAINER_HEIGHT = 230;
+
 const AuctionsScreen = ({ navigation }) => {
-  const intervalRef = useRef(null);
   const dispatch = useDispatch();
   const tokens = useSelector(getTokens);
   const auctionsList = useSelector(getAuctionsList);
@@ -86,13 +86,13 @@ const AuctionsScreen = ({ navigation }) => {
     }
   };
 
-  useLayoutEffect(() => {
-    // console.log("Component mounted, fetching location...");
+  // useLayoutEffect(() => {
+  //   // console.log("Component mounted, fetching location...");
 
-    Platform.OS === "web"
-      ? dispatch(setLocation({ location: "Yola, Adamawa", token: tokens }))
-      : getCurrentLocation();
-  }, [getCurrentLocation]);
+  //   Platform.OS === "web"
+  //     ? dispatch(setLocation({ location: "Yola, Adamawa", token: tokens }))
+  //     : getCurrentLocation();
+  // }, [getCurrentLocation]);
 
   useEffect(() => {
     // utils.log('receive: ', tokens)
