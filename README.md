@@ -158,3 +158,15 @@ Run it:
 bash
 npm-check
 It will show unused packages in an interactive UI.
+
+[Violation] 'setInterval' handler took 52ms
+
+1. Debounce or limit updates
+   Instead of updating every 1 second globally, track ends_at timestamps and calculate remaining time dynamically in the card:
+
+const remainingTime = useMemo(() => {
+const diff = new Date(auction.ends_at) - Date.now();
+return Math.max(0, Math.floor(diff / 1000));
+}, [auction.ends_at, Date.now()]);
+
+This avoids state updates every second and keeps UI smoother.

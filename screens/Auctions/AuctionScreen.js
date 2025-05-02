@@ -32,17 +32,17 @@ import ReportModal from "@/screens/Auctions/components/ReportModal";
 import { formatAuctionTime } from "@/core/utils";
 import Thumbnail from "@/common_components/Thumbnail";
 import { useSelector } from "react-redux";
-import { getAuction } from "@/state/reducers/auctionsSlice";
+import { getAuction, watchAuction } from "@/state/reducers/auctionsSlice";
+import { getUserInfo } from "@/state/reducers/userSlice";
 
 const AuctionScreen = ({ navigation, route }) => {
   const { id } = route.params;
-  // const auction = useSelector((state) =>
-  //   state.auctions.auctions.find((a) => a.id === id)
-  // );
   const auction = useSelector(getAuction(id));
-
+  const user = useSelector(getUserInfo);
   const [selectedTab, setSelectedTab] = useState("Overview");
-  const [like, setLike] = useState("heart-o");
+  const [like, setLike] = useState(
+    auction.watchers.includes(user.userId) ? "heart" : "heart-o"
+  );
   const [showReportModal, setShowReportModal] = useState(false);
 
   // console.log("auction receive: ", updAuction);
@@ -73,7 +73,13 @@ const AuctionScreen = ({ navigation, route }) => {
   }, [navigation]);
 
   const handleLike = () => {
-    like === "heart-o" ? setLike("heart") : setLike("heart-o");
+    if (like === "heart-o") {
+      setLike("heart");
+      watchAuction({ auction_id: auction.id });
+    } else {
+      setLike("heart-o");
+      watchAuction({ auction_id: auction.id });
+    }
   };
 
   const handleOverviewPress = useCallback(() => setSelectedTab("Overview"), []);
