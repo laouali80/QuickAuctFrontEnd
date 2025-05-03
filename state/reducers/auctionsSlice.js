@@ -8,6 +8,7 @@ const initialState = {
   isConnected: false,
   searchList: null,
   newAuctions: 0,
+  NextPage: null,
 };
 
 const addTimeLeft = (auction) => {
@@ -39,8 +40,27 @@ const auctionsSlice = createSlice({
       state.searchList = action.payload;
     },
     setAuctionsList(state, action) {
-      // console.log("payload: ", action.payload);
-      state.auctions = [...action.payload.map(addTimeLeft)];
+      const { auctions, nextPage, loaded } = action.payload;
+      const newAuctions = auctions.map(addTimeLeft);
+
+      const merged = loaded
+        ? [...state.auctions, ...newAuctions]
+        : [...newAuctions, ...state.auctions];
+
+      // to remove duplicate id
+      // Deduplicate by auction.id
+      const unique = [];
+      const seenIds = new Set();
+
+      for (const auction of merged) {
+        if (!seenIds.has(auction.id)) {
+          seenIds.add(auction.id);
+          unique.push(auction);
+        }
+      }
+      // console.log(unique);
+      state.auctions = unique;
+      state.NextPage = nextPage;
     },
     addNewAuction(state, action) {
       const { seller, currentUserId } = action.payload;
@@ -72,6 +92,10 @@ const auctionsSlice = createSlice({
       state.auctions = state.auctions.map((auction) =>
         auction.id === updatedAuction.id ? updAuctTime(updatedAuction) : auction
       );
+    },
+    clearAuctions(state) {
+      state.auctions = [];
+      state.NextPage = null;
     },
   },
 });
@@ -115,12 +139,30 @@ export const watchAuction = (data) => {
   });
 };
 
+export const refresh = () => (dispatch) => {
+  // clear old
+  dispatch(auctionsSlice.actions.clearAuctions());
+
+  sendThroughSocket({
+    source: "FetchAuctionsList",
+    data: { page: 1 },
+  });
+};
+
+export const loadMore = (data) => {
+  sendThroughSocket({
+    source: "load_more",
+    data,
+  });
+};
+
 // Selectors
 export const getSearchList = (state) => state.auctions.searchList;
 export const getAuctionsList = (state) => state.auctions.auctions;
 export const getNewAuctions = (state) => state.auctions.newAuctions;
 export const getAuction = (id) => (state) =>
   state.auctions.auctions.find((auction) => auction.id === id);
+export const getAuctNextPage = (state) => state.auctions.NextPage;
 
 export const {
   setSocketConnected,

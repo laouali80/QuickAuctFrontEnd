@@ -1,9 +1,41 @@
-import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import { categories } from "@/mockData/categories";
 import { COLORS } from "@/constants/COLORS";
 
 const CategoriesFilter = () => {
+  const [categoryClick, setCategoryClick] = useState(0);
+  // const [categories, setCategories] = useState([]);
+  // useEffect(() => {
+  //   const fetchCategories = async () => {
+  //     const response = await apiRequest("auctions/categories/");
+
+  //     // console.log(response);
+  //     // setCategories(response.categories);
+  //     // if (response.ok) {
+  //     //   // const { token } = await response.json();
+  //     //   const resp = await response.json();
+
+  //     //   // return token;
+  //     // }
+  //     // const errMessage = await response.json();
+  //     // console.log(errMessage);
+  //   };
+
+  //   fetchCategories();
+  // }, []);
+
+  const handleOnclick = (index) => {
+    setCategoryClick(index);
+    // query({})
+  };
   return (
     <View style={styles.categoriesContainer}>
       <Text style={styles.categoriesTitle}>Categories</Text>
@@ -13,19 +45,23 @@ const CategoriesFilter = () => {
         contentContainerStyle={styles.categoriesScroll}
       >
         {categories.map((category, index) => (
-          <View
+          <TouchableOpacity
+            onPress={() => handleOnclick(index)}
             key={index}
-            style={[styles.categoryPill, index === 0 && styles.activeCategory]}
+            style={[
+              styles.categoryPill,
+              index === categoryClick && styles.activeCategory,
+            ]}
           >
             <Text
               style={[
                 styles.categoryText,
-                index === 0 && styles.activeCategoryText,
+                index === categoryClick && styles.activeCategoryText,
               ]}
             >
               {category.category}
             </Text>
-          </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </View>

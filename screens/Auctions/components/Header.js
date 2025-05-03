@@ -11,7 +11,6 @@ import React, { useEffect } from "react";
 import { EvilIcons, FontAwesome } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
 import SearchFilter from "../../Search/components/SearchFilter";
-import CategoriesFilter from "./CategoriesFilter";
 import { useSelector } from "react-redux";
 import { getUserInfo } from "@/state/reducers/userSlice";
 
@@ -43,9 +42,6 @@ const Header = () => {
 
       {/* Search Bar */}
       <SearchFilter />
-
-      {/* Categories */}
-      <CategoriesFilter />
     </SafeAreaView>
   );
 };
@@ -54,6 +50,14 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingTop: Platform.OS === "ios" ? 0 : 16,
+
+    backgroundColor: "rgba(255, 255, 255, 0.9)", // Transparent white
+
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3, // for Android shadow
   },
   topBar: {
     flexDirection: "row",

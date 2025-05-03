@@ -1,10 +1,19 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
+import { refresh } from "@/state/reducers/auctionsSlice";
 
 const IconBadge = ({ icon, badgeCount = 0, color, size }) => {
+  const refreshPage = () => {
+    console.log("test");
+    refresh();
+  };
   return (
-    <View style={{ width: size || 24, height: size || 24, margin: 5 }}>
+    <Pressable
+      style={{ width: size || 24, height: size || 24, margin: 5 }}
+      onPress={refreshPage}
+    >
+      {/* <View style={{ width: size || 24, height: size || 24, margin: 5 }}> */}
       {icon}
       {badgeCount > 0 && (
         <View
@@ -33,7 +42,8 @@ const IconBadge = ({ icon, badgeCount = 0, color, size }) => {
           </Text>
         </View>
       )}
-    </View>
+      {/* </View> */}
+    </Pressable>
   );
 };
 
