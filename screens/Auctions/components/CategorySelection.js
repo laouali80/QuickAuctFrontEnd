@@ -6,10 +6,9 @@ import apiRequest from "@/core/api";
 const CategorySelection = ({ handleSelectCategory }) => {
   const [categories, setCategories] = useState([]);
   useEffect(() => {
-    const fetchCategories = async (email, password) => {
+    const fetchCategories = async (e) => {
       const response = await apiRequest("auctions/categories/");
 
-      // console.log(response);
       setCategories(response.categories);
       // if (response.ok) {
       //   // const { token } = await response.json();
