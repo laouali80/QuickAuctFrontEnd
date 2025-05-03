@@ -26,7 +26,7 @@ const Likes = () => {
   const isCooldownRef = useRef(false);
   const [like, setLike] = useState("heart-o");
 
-  console.log("likesAuctions: ", likesAuctions);
+  // console.log("likesAuctions: ", likesAuctions);
 
   const handleLike = () => {
     if (like === "heart-o") {
