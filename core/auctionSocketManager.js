@@ -42,9 +42,17 @@ function responseNewBid(data) {
 }
 
 function responseWatcher(data) {
-  console.log(data);
+  // console.log(data);
   storeRef?.dispatch({
     type: "auctions/auction_updated",
+    payload: data,
+  });
+}
+
+function responseLikesAuctions(data) {
+  // console.log(data);
+  storeRef?.dispatch({
+    type: "auctions/setLikesAuctions",
     payload: data,
   });
 }
@@ -84,6 +92,7 @@ export const initializeAuctionSocket = createAsyncThunk(
           new_auction: responseNewAuction,
           new_bid: responseNewBid,
           watcher: responseWatcher,
+          likesAuctions: responseLikesAuctions,
         };
 
         if (handlers[parsed.source]) {

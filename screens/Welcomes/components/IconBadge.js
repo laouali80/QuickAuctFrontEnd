@@ -9,9 +9,9 @@ const IconBadge = ({ icon, badgeCount = 0, color, size }) => {
     refresh();
   };
   return (
-    <Pressable
+    <View
       style={{ width: size || 24, height: size || 24, margin: 5 }}
-      onPress={refreshPage}
+      // onPress={refreshPage}
     >
       {/* <View style={{ width: size || 24, height: size || 24, margin: 5 }}> */}
       {icon}
@@ -43,7 +43,7 @@ const IconBadge = ({ icon, badgeCount = 0, color, size }) => {
         </View>
       )}
       {/* </View> */}
-    </Pressable>
+    </View>
   );
 };
 

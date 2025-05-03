@@ -165,24 +165,6 @@ const AuctionsScreen = ({ navigation }) => {
     }
   );
 
-  // const onScroll = Animated.event(
-  //   [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-  //   {
-  //     useNativeDriver: true,
-  //     listener: (event) => {
-  //       const currentOffset = event.nativeEvent.contentOffset.y;
-
-  //       // Only start hiding header AFTER threshold
-  //       if (currentOffset > CONTAINER_HEIGHT) {
-  //         scrollDirection.current =
-  //           currentOffset > scrollOffset.current ? "down" : "up";
-  //       }
-
-  //       scrollOffset.current = currentOffset;
-  //     },
-  //   }
-  // );
-
   const onScrollEnd = () => {
     const toValue = scrollDirection.current === "down" ? CONTAINER_HEIGHT : 0;
 
@@ -193,29 +175,9 @@ const AuctionsScreen = ({ navigation }) => {
     }).start();
   };
 
-  // const onScrollEnd = () => {
-  //   if (scrollOffset.current < CONTAINER_HEIGHT) {
-  //     // Not enough scroll to hide header — always show
-  //     Animated.timing(offsetY, {
-  //       toValue: 0,
-  //       duration: 300,
-  //       useNativeDriver: true,
-  //     }).start();
-  //     return;
-  //   }
-
-  //   const toValue = scrollDirection.current === "down" ? CONTAINER_HEIGHT : 0;
-
-  //   Animated.timing(offsetY, {
-  //     toValue,
-  //     duration: 300,
-  //     useNativeDriver: true,
-  //   }).start();
-  // };
-
   // Improved pagination handler
   const handleLoadMore = useCallback(() => {
-    console.log("reach");
+    // console.log("reach");
 
     if (isLoading || isCooldownRef.current || !NextPage) return;
 

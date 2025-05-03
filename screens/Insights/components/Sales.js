@@ -5,12 +5,15 @@ import SaleCard from "@/screens/Insights/components/SaleCard";
 
 const Sales = () => {
   return (
-    <View className="mx-6 mt-6 ">
+    <View className="flex-1 mx-6 mt-6 ">
       <FlatList
         data={sales}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <SaleCard auction={item} />}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: 100,
+        }}
       />
     </View>
   );

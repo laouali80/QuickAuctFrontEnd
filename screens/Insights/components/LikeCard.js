@@ -11,6 +11,7 @@ import { COLORS } from "@/constants/COLORS";
 
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import Thumbnail from "@/common_components/Thumbnail";
 
 const LikeCard = ({ auction }) => {
   const navigation = useNavigation();
@@ -33,14 +34,13 @@ const LikeCard = ({ auction }) => {
     >
       {/* Image Container */}
       <View style={{ marginRight: 12 }}>
-        <Image
-          source={auction.image}
-          style={{
-            width: 120,
-            height: 100,
-            borderRadius: 10,
-            resizeMode: "cover",
-          }}
+        <Thumbnail
+          url={auction.images[0].image}
+          // url={auction.images[0]}
+          width={120}
+          height={100}
+          borderRadius={10}
+          // resizeMode: "cover"
         />
       </View>
 
@@ -89,7 +89,7 @@ const LikeCard = ({ auction }) => {
             }}
           >
             <Text style={{ color: "white", fontSize: 12 }}>
-              Bids: {auction.bids}
+              Bids: {auction.bids.length}
             </Text>
           </View>
           <View
@@ -103,7 +103,7 @@ const LikeCard = ({ auction }) => {
             }}
           >
             <Text style={{ color: COLORS.primary, fontSize: 12 }}>
-              Ends in {auction.endingTime}
+              Ends in {auction.timeLeft}
             </Text>
           </View>
         </View>
@@ -133,7 +133,7 @@ const LikeCard = ({ auction }) => {
                 fontSize: 16,
               }}
             >
-              {auction.current_bid}
+              {auction.current_price}
             </Text>
           </View>
 

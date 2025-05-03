@@ -1,5 +1,6 @@
 import {
   Animated,
+  FlatList,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -13,15 +14,28 @@ import Bids from "./components/Bids";
 import Sales from "./components/Sales";
 import Likes from "./components/Likes";
 import { COLORS } from "@/constants/COLORS";
+import { fetchLikesAuctions } from "@/state/reducers/auctionsSlice";
+import { useDispatch } from "react-redux";
 
 const InsightsScreen = () => {
+  const dispatch = useDispatch();
   const [selectedTab, setSelectedTab] = useState("Bids");
   const colorScheme = useColorScheme();
   const activeBg = colorScheme === "dark" ? "bg-gray-800" : "bg-white";
 
-  const handleBidsPress = useCallback(() => setSelectedTab("Bids"), []);
-  const handleSalesPress = useCallback(() => setSelectedTab("Sales"), []);
-  const handleLikesPress = useCallback(() => setSelectedTab("Likes"), []);
+  const handleBidsPress = useCallback(() => {
+    // fetchBidsAuctions({ page: 1 });
+    setSelectedTab("Bids");
+  }, []);
+  const handleSalesPress = useCallback(() => {
+    // fetchSalessAuctions({ page: 1 });
+    setSelectedTab("Sales");
+  }, []);
+  const handleLikesPress = useCallback(() => {
+    console.log("reach here");
+    dispatch(fetchLikesAuctions({ page: 1 }));
+    setSelectedTab("Likes");
+  }, []);
 
   return (
     <VStack className="flex-1 bg-white">
@@ -97,11 +111,11 @@ const InsightsScreen = () => {
       </View>
 
       {/* Dynamic view with smooth transition */}
-      <Animated.View className="flex-1">
+      <View className="flex-1" style={{ borderColor: "red", borderWidth: 1 }}>
         {selectedTab === "Bids" && <Bids />}
         {selectedTab === "Sales" && <Sales />}
         {selectedTab === "Likes" && <Likes />}
-      </Animated.View>
+      </View>
     </VStack>
   );
 };
