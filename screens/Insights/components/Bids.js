@@ -5,12 +5,15 @@ import BidCard from "@/screens/Insights/components/BidCard";
 
 const Bids = () => {
   return (
-    <View className="mx-6 mt-6 ">
+    <View className="flex-1 mx-6 mt-6 ">
       <FlatList
         data={bids}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <BidCard auction={item} />}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: 100,
+        }}
       />
     </View>
   );

@@ -9,6 +9,9 @@ const initialState = {
   searchList: null,
   newAuctions: 0,
   NextPage: null,
+  likesAuctions: [],
+  bidsAuctions: [],
+  salesAuctions: [],
 };
 
 const addTimeLeft = (auction) => {
@@ -96,6 +99,31 @@ const auctionsSlice = createSlice({
     clearAuctions(state) {
       state.auctions = [];
       state.NextPage = null;
+      state.likesAuctions = [];
+    },
+    setLikesAuctions(state, action) {
+      const { auctions, nextPage, loaded } = action.payload;
+      console.log("Unique: ", auctions);
+      const newAuctions = auctions.map(addTimeLeft);
+
+      const merged = loaded
+        ? [...state.likesAuctions, ...newAuctions]
+        : [...newAuctions, ...state.likesAuctions];
+
+      // to remove duplicate id
+      // Deduplicate by auction.id
+      const unique = [];
+      const seenIds = new Set();
+
+      for (const auction of merged) {
+        if (!seenIds.has(auction.id)) {
+          seenIds.add(auction.id);
+          unique.push(auction);
+        }
+      }
+
+      state.likesAuctions = unique;
+      state.NextPage = nextPage;
     },
   },
 });
@@ -156,6 +184,17 @@ export const loadMore = (data) => {
   });
 };
 
+export const fetchLikesAuctions = (data) => (dispatch) => {
+  console.log("fetchLikesAuctions: ", data);
+
+  if (data.page === 1) dispatch(auctionsSlice.actions.clearAuctions());
+
+  sendThroughSocket({
+    source: "likesAuctions",
+    data,
+  });
+};
+
 // Selectors
 export const getSearchList = (state) => state.auctions.searchList;
 export const getAuctionsList = (state) => state.auctions.auctions;
@@ -163,6 +202,7 @@ export const getNewAuctions = (state) => state.auctions.newAuctions;
 export const getAuction = (id) => (state) =>
   state.auctions.auctions.find((auction) => auction.id === id);
 export const getAuctNextPage = (state) => state.auctions.NextPage;
+export const getLikesAuctions = (state) => state.auctions.likesAuctions;
 
 export const {
   setSocketConnected,
@@ -172,118 +212,3 @@ export const {
 } = auctionsSlice.actions;
 
 export default auctionsSlice.reducer;
-
-// import utils from "@/core/utils";
-// import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-// import { useDispatch } from "react-redux";
-
-// const initialState = {
-//   auctions: [],
-//   isConnected: false,
-//   searchList: null,
-// };
-
-// // -----------------------------
-// // WebSocket management functions
-// // -------------------------------
-
-// let socket = null;
-
-// export const initializeAuctionSocket = createAsyncThunk(
-//   "auctions/initializedConnection",
-//   async (tokens, { dispatch, rejectWithValue }) => {
-//     try {
-//       if (socket) {
-//         socket.close();
-//       }
-
-//       socket = new WebSocket(
-//         `ws://${BaseAddress}/ws/auctions/?tokens=${tokens.access}`
-//       );
-
-//       socket.onopen = () => {
-//         dispatch(setSocketConnected());
-//       };
-
-//       socket.onmessage = (event) => {
-//         const parsed = JSON.parse(event.data);
-//         const responses = {
-//           // thumbnail: (data) => dispatch(updateThumbnail(data)),
-//           search: (data) => dispatch(setSearchList(data)),
-//         };
-//         if (responses[parsed.source]) {
-//           responses[parsed.source](parsed);
-//         }
-//       };
-
-//       socket.onerror = (error) => {
-//         console.error("WebSocket Error:", error);
-//         dispatch(socketClose());
-//       };
-
-//       socket.onclose = () => {
-//         dispatch(socketClose());
-//       };
-
-//       return true;
-//     } catch (err) {
-//       return rejectWithValue(err.message);
-//     }
-//   }
-// );
-
-// export const socketClose = () => (dispatch) => {
-//   if (socket) {
-//     socket.close();
-//     socket = null;
-//     dispatch(setSocketDisconnected());
-//   }
-// };
-
-// // -------------------
-// //  Search Auctions
-// // -------------------
-// export const searchAuctions = (query) => {
-//   // const dispatch = useDispatch(); // Get dispatch function
-
-//   utils.log("receive query: ", query);
-//   if (query) {
-//     const socket = get().socket;
-
-//     socket.send(
-//       JSON.stringify({
-//         source: "search",
-//         query: query,
-//       })
-//     );
-//   } else {
-//     dispatch(setSearchList({ searchList: null }));
-//   }
-// };
-
-// // auction slice
-// const auctionsSlice = createSlice({
-//   name: "auctions",
-//   initialState: initialState,
-//   reducers: {
-//     // Actions
-//     setSocketConnected(state) {
-//       state.isConnected = true;
-//     },
-//     setSocketDisconnected(state) {
-//       state.isConnected = false;
-//     },
-//     setSearchList(state, action) {
-//       state.searchList = action.payload;
-//     },
-//   },
-// });
-
-// export const selectAllAuctions = (state) => state.auctions.auctions;
-// export const getSearchList = (state) => state.auctions.searchList;
-
-// // exporting the actions
-// export const { setSearchList } = auctionsSlice.actions;
-
-// // Exporting the reducer
-// export default auctionsSlice.reducer;
