@@ -9,8 +9,9 @@ import {
 } from "@/state/reducers/auctionsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Empty from "@/common_components/Empty";
-import { FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
+import { useLoadMore } from "@/hooks/useLoadMore";
 
 const Bids = () => {
   const dispatch = useDispatch();
@@ -19,61 +20,35 @@ const Bids = () => {
   const [isLoading, setIsLoading] = useState(false);
   const isCooldownRef = useRef(false);
 
+  console.log("bidsAuctions: ", bidsAuctions);
+
   // Improved pagination handler
-  const handleLoadMore = useCallback(() => {
-    console.log("reach");
-    // setIsLoading(true);
-
-    if (isLoading || isCooldownRef.current || !NextPage) return;
-
-    console.log("Loading more auctions...");
-    setIsLoading(true);
-    isCooldownRef.current = true;
-
-    dispatch(fetchBidsAuctions({ page: NextPage }));
-
-    // Delay cooldown reset until after 30 seconds
-    setTimeout(() => {
-      isCooldownRef.current = false;
-    }, 30 * 1000);
-
-    setIsLoading(false);
-  }, [isLoading, NextPage]);
+  const handleLoadMore = useLoadMore({
+    isLoading,
+    setIsLoading,
+    NextPage,
+    isCooldownRef,
+    Action: fetchBidsAuctions,
+  });
 
   // Show loading indicator
   if (bidsAuctions === null) {
     return <ActivityIndicator style={{ flex: 1 }} />;
   }
 
-  // Show empty if no chats
+  // Show empty if no bids
   if (bidsAuctions.length === 0) {
     return (
       <Empty
         icon={
-          <Pressable
-            style={
-              {
-                // width: 130,
-                // height: 130,
-                // borderRadius: 130 / 2,
-                // alignItems: "center",
-                // justifyContent: "center",
-                // backgroundColor: COLORS.lightPrimary,
-                // borderWidth: 3,
-                // borderColor: "white",
-              }
-            }
-            onPress={handleLike}
-          >
-            <FontAwesome5
-              name="inbox"
-              size={90}
-              color={COLORS.primary}
-              style={{
-                margimBottom: 16,
-              }}
-            />
-          </Pressable>
+          <MaterialCommunityIcons
+            name="gavel"
+            size={90}
+            color={COLORS.primary}
+            style={{
+              margimBottom: 16,
+            }}
+          />
         }
         message="You have not bid any auction yet!"
       />
@@ -83,7 +58,7 @@ const Bids = () => {
   return (
     <View className="flex-1 mx-6 mt-6 ">
       <FlatList
-        data={bids}
+        data={bidsAuctions}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <BidCard auction={item} />}
         showsVerticalScrollIndicator={false}

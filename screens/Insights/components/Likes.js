@@ -17,6 +17,7 @@ import {
 import Empty from "@/common_components/Empty";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
+import { useLoadMore } from "@/hooks/useLoadMore";
 
 const Likes = () => {
   const dispatch = useDispatch();
@@ -36,25 +37,33 @@ const Likes = () => {
     }
   };
   // Improved pagination handler
-  const handleLoadMore = useCallback(() => {
-    console.log("reach");
-    // setIsLoading(true);
+  // const handleLoadMore = useCallback(() => {
+  //   console.log("reach");
+  //   // setIsLoading(true);
 
-    if (isLoading || isCooldownRef.current || !NextPage) return;
+  //   if (isLoading || isCooldownRef.current || !NextPage) return;
 
-    console.log("Loading more auctions...");
-    setIsLoading(true);
-    isCooldownRef.current = true;
+  //   console.log("Loading more auctions...");
+  //   setIsLoading(true);
+  //   isCooldownRef.current = true;
 
-    dispatch(fetchLikesAuctions({ page: NextPage }));
+  //   dispatch(fetchLikesAuctions({ page: NextPage }));
 
-    // Delay cooldown reset until after 30 seconds
-    setTimeout(() => {
-      isCooldownRef.current = false;
-    }, 30 * 1000);
+  //   // Delay cooldown reset until after 30 seconds
+  //   setTimeout(() => {
+  //     isCooldownRef.current = false;
+  //   }, 30 * 1000);
 
-    setIsLoading(false);
-  }, [isLoading, NextPage]);
+  //   setIsLoading(false);
+  // }, [isLoading, NextPage]);
+
+  const handleLoadMore = useLoadMore({
+    isLoading,
+    setIsLoading,
+    NextPage,
+    isCooldownRef,
+    Action: fetchLikesAuctions,
+  });
 
   // Show loading indicator
   if (likesAuctions === null) {
@@ -104,6 +113,7 @@ const Likes = () => {
         showsVerticalScrollIndicator={false}
         onEndReached={handleLoadMore}
         ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
+        // onEndReachedThreshold={0.5}
         contentContainerStyle={{
           paddingBottom: 100,
         }}

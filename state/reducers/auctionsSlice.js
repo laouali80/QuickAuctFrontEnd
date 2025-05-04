@@ -101,6 +101,7 @@ const auctionsSlice = createSlice({
       state.NextPage = null;
       state.likesAuctions = [];
       state.bidsAuctions = [];
+      state.salesAuctions = [];
     },
     setLikesAuctions(state, action) {
       const { auctions, nextPage, loaded } = action.payload;
@@ -148,6 +149,30 @@ const auctionsSlice = createSlice({
       }
 
       state.bidsAuctions = unique;
+      state.NextPage = nextPage;
+    },
+    setSalesAuctions(state, action) {
+      const { auctions, nextPage, loaded } = action.payload;
+
+      const newAuctions = auctions.map(addTimeLeft);
+
+      const merged = loaded
+        ? [...state.salesAuctions, ...newAuctions]
+        : [...newAuctions, ...state.salesAuctions];
+
+      // to remove duplicate id
+      // Deduplicate by auction.id
+      const unique = [];
+      const seenIds = new Set();
+
+      for (const auction of merged) {
+        if (!seenIds.has(auction.id)) {
+          seenIds.add(auction.id);
+          unique.push(auction);
+        }
+      }
+
+      state.salesAuctions = unique;
       state.NextPage = nextPage;
     },
   },
@@ -231,6 +256,17 @@ export const fetchBidsAuctions = (data) => (dispatch) => {
   });
 };
 
+export const fetchSalesAuctions = (data) => (dispatch) => {
+  // console.log("fetchSalesAuctions: ", data);
+
+  if (data.page === 1) dispatch(auctionsSlice.actions.clearAuctions());
+
+  sendThroughSocket({
+    source: "salesAuctions",
+    data,
+  });
+};
+
 // Selectors
 export const getSearchList = (state) => state.auctions.searchList;
 export const getAuctionsList = (state) => state.auctions.auctions;
@@ -240,6 +276,7 @@ export const getAuction = (id) => (state) =>
 export const getAuctNextPage = (state) => state.auctions.NextPage;
 export const getLikesAuctions = (state) => state.auctions.likesAuctions;
 export const getBidsAuctions = (state) => state.auctions.bidsAuctions;
+export const getSalesAuctions = (state) => state.auctions.salesAuctions;
 
 export const {
   setSocketConnected,

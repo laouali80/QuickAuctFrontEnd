@@ -2,12 +2,38 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { COLORS } from "@/constants/COLORS";
 import { useNavigation } from "@react-navigation/native";
+import { formatDate } from "@/core/utils";
+import Thumbnail from "@/common_components/Thumbnail";
+import { getUserInfo } from "@/state/reducers/userSlice";
+import { useSelector } from "react-redux";
 
 const BidCard = ({ auction }) => {
+  const user = useSelector(getUserInfo);
   const navigation = useNavigation();
   const _navigate = () => {
     navigation.navigate("Auction");
   };
+
+  const userBid = auction.bids.find((bid) => bid.bidder.userId === user.userId);
+  const placedAt = userBid?.placed_at;
+
+  let bgColor = COLORS.lightPrimary;
+  let textColor = COLORS.primary;
+  let statusText = "Active Bid";
+
+  if (auction.has_ended) {
+    if (auction.winner?.userId === user.userId) {
+      bgColor = COLORS.lightYellow;
+      textColor = COLORS.yellow;
+      statusText = "Won";
+    } else {
+      bgColor = COLORS.lightRed;
+      textColor = COLORS.red;
+      statusText = "Bid Lost";
+    }
+  } else if (auction.highest_bid?.bidder?.userId === user.userId) {
+    statusText = "Winning";
+  }
   return (
     <TouchableOpacity
       onPress={_navigate}
@@ -24,14 +50,11 @@ const BidCard = ({ auction }) => {
     >
       {/* Image Container */}
       <View style={{ marginRight: 12 }}>
-        <Image
-          source={auction.image}
-          style={{
-            width: 120,
-            height: 100,
-            borderRadius: 10,
-            resizeMode: "cover", // Ensures consistent image aspect ratio
-          }}
+        <Thumbnail
+          url={auction.images[0].image}
+          width={120}
+          height={100}
+          borderRadius={10}
         />
       </View>
 
@@ -64,7 +87,7 @@ const BidCard = ({ auction }) => {
               alignSelf: "flex-end",
             }}
           >
-            {auction.date_created}
+            {formatDate(placedAt)}
           </Text>
         </View>
 
@@ -85,7 +108,7 @@ const BidCard = ({ auction }) => {
             }}
           >
             <Text style={{ color: "white", fontSize: 12 }}>
-              Bids: {auction.bids}
+              Bids: {auction.bids.length}
             </Text>
           </View>
           <View
@@ -99,7 +122,7 @@ const BidCard = ({ auction }) => {
             }}
           >
             <Text style={{ color: COLORS.primary, fontSize: 12 }}>
-              Ends in {auction.endingTime}
+              Ends in {auction.timeLeft}
             </Text>
           </View>
         </View>
@@ -129,7 +152,7 @@ const BidCard = ({ auction }) => {
                 fontSize: 16,
               }}
             >
-              {auction.current_bid}
+              {auction.current_price}
             </Text>
           </View>
 
@@ -139,7 +162,7 @@ const BidCard = ({ auction }) => {
               justifyContent: "center",
             }}
           >
-            {auction.status === "Won" && (
+            {auction.has_ended && auction.winner?.userId === user.userId && (
               <Image
                 source={require("../../../assets/icons/win.png")}
                 style={{
@@ -154,27 +177,17 @@ const BidCard = ({ auction }) => {
                 paddingVertical: 4,
                 paddingHorizontal: 12,
                 borderRadius: 12,
-                backgroundColor:
-                  auction.status === "Won"
-                    ? COLORS.lightYellow
-                    : auction.status === "Bid Lost"
-                    ? COLORS.lightRed
-                    : COLORS.lightPrimary,
+                backgroundColor: bgColor,
               }}
             >
               <Text
                 style={{
                   fontWeight: "600",
                   fontSize: 12,
-                  color:
-                    auction.status === "Won"
-                      ? COLORS.yellow
-                      : auction.status === "Bid Lost"
-                      ? COLORS.red
-                      : COLORS.primary,
+                  color: textColor,
                 }}
               >
-                {auction.status}
+                {statusText}
               </Text>
             </View>
           </View>

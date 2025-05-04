@@ -14,7 +14,11 @@ import Bids from "./components/Bids";
 import Sales from "./components/Sales";
 import Likes from "./components/Likes";
 import { COLORS } from "@/constants/COLORS";
-import { fetchLikesAuctions } from "@/state/reducers/auctionsSlice";
+import {
+  fetchBidsAuctions,
+  fetchLikesAuctions,
+  fetchSalesAuctions,
+} from "@/state/reducers/auctionsSlice";
 import { useDispatch } from "react-redux";
 
 const InsightsScreen = () => {
@@ -24,11 +28,12 @@ const InsightsScreen = () => {
   const activeBg = colorScheme === "dark" ? "bg-gray-800" : "bg-white";
 
   const handleBidsPress = useCallback(() => {
-    // fetchBidsAuctions({ page: 1 });
+    dispatch(fetchBidsAuctions({ page: 1 }));
     setSelectedTab("Bids");
   }, []);
   const handleSalesPress = useCallback(() => {
-    // fetchSalessAuctions({ page: 1 });
+    // console.log("sales...");
+    dispatch(fetchSalesAuctions({ page: 1 }));
     setSelectedTab("Sales");
   }, []);
   const handleLikesPress = useCallback(() => {
@@ -111,7 +116,7 @@ const InsightsScreen = () => {
       </View>
 
       {/* Dynamic view with smooth transition */}
-      <View className="flex-1" style={{ borderColor: "red", borderWidth: 1 }}>
+      <View className="flex-1">
         {selectedTab === "Bids" && <Bids />}
         {selectedTab === "Sales" && <Sales />}
         {selectedTab === "Likes" && <Likes />}

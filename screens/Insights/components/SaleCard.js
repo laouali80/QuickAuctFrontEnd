@@ -2,6 +2,8 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { COLORS } from "@/constants/COLORS";
 import { useNavigation } from "@react-navigation/native";
+import { formatDate } from "@/core/utils";
+import Thumbnail from "@/common_components/Thumbnail";
 
 const SaleCard = ({ auction }) => {
   const navigation = useNavigation();
@@ -24,14 +26,11 @@ const SaleCard = ({ auction }) => {
     >
       {/* Image Container */}
       <View style={{ marginRight: 12 }}>
-        <Image
-          source={auction.image}
-          style={{
-            width: 120,
-            height: 100,
-            borderRadius: 10,
-            resizeMode: "cover",
-          }}
+        <Thumbnail
+          url={auction.images[0].image}
+          width={120}
+          height={100}
+          borderRadius={10}
         />
       </View>
 
@@ -64,7 +63,7 @@ const SaleCard = ({ auction }) => {
               alignSelf: "flex-end",
             }}
           >
-            {auction.date_created}
+            {formatDate(auction.updated_at)}
           </Text>
         </View>
 
@@ -77,7 +76,7 @@ const SaleCard = ({ auction }) => {
             marginBottom: 8,
           }}
         >
-          {auction.price}
+          {auction.current_price}
         </Text>
 
         {/* Status Badge - Centered */}
@@ -88,7 +87,10 @@ const SaleCard = ({ auction }) => {
               paddingHorizontal: 12,
               borderRadius: 12,
               backgroundColor:
-                auction.status === "Sold" ? COLORS.red : COLORS.yellow,
+                auction.status === "completed" && auction.winner
+                  ? COLORS.primary
+                  : COLORS.yellow,
+              // auction.status === "completed" && auction.winner ? COLORS.red : COLORS.yellow,
               alignSelf: "flex-start", // Aligns to left but can be changed to 'center' if needed
             }}
           >
@@ -99,7 +101,7 @@ const SaleCard = ({ auction }) => {
                 fontSize: 12,
               }}
             >
-              {auction.status}
+              {auction.status.charAt(0).toUpperCase() + auction.status.slice(1)}
             </Text>
           </View>
         </View>

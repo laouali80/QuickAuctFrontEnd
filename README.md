@@ -170,3 +170,13 @@ return Math.max(0, Math.floor(diff / 1000));
 }, [auction.ends_at, Date.now()]);
 
 This avoids state updates every second and keeps UI smoother.
+
+refreshing page
+https://www.youtube.com/watch?v=kU0VGgcBmwg
+
+flatlist refreshing
+https://www.youtube.com/watch?v=2-sr2e7LYhM
+
+bids: <FontAwesome5 name="gavel" size={90} color={COLORS.primary} />,
+sales: <FontAwesome5 name="store" size={90} color={COLORS.primary} />,
+likes: <FontAwesome name="heart" size={90} color={COLORS.primary} />,
