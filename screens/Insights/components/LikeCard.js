@@ -36,11 +36,9 @@ const LikeCard = ({ auction }) => {
       <View style={{ marginRight: 12 }}>
         <Thumbnail
           url={auction.images[0].image}
-          // url={auction.images[0]}
           width={120}
           height={100}
           borderRadius={10}
-          // resizeMode: "cover"
         />
       </View>
 

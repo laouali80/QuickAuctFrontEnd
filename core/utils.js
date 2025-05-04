@@ -94,3 +94,16 @@ export const formatAuctionTime = (dateString) => {
 
   return "Completed";
 };
+
+export const formatDate = (isoDateString) => {
+  // Create a Date object from the ISO string
+  const date = new Date(isoDateString);
+
+  // Extract day, month, and year
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+  const year = date.getFullYear();
+
+  // Return in DD/MM/YYYY format
+  return `${day}/${month}/${year}`;
+};
