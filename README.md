@@ -65,6 +65,7 @@ https://www.youtube.com/watch?v=2-sr2e7LYhM
 
 react-native-reanimated-carousel
 https://rn-carousel.dev/Examples/custom-animations/blur-parallax
+https://github.com/dohooo/react-native-reanimated-carousel/blob/main/example/app/app/demos/custom-animations/blur-parallax/index.tsx
 
 **_Documentation_**
 
@@ -189,3 +190,6 @@ sales: <FontAwesome5 name="store" size={90} color={COLORS.primary} />,
 likes: <FontAwesome name="heart" size={90} color={COLORS.primary} />,
 
 npx expo install react-native-reanimated-carousel react-native-image-viewing react-navigation react-native-gesture-handler react-native-reanimated
+
+D:\Projects\QuickAuc…development.js:5943 Uncaught Error: Rendered more hooks than during the previous render.
+at AuctionsScreen (D:\Projects\QuickAuc…onsScreen.js:228:12)

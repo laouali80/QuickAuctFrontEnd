@@ -23,7 +23,7 @@ const Sales = () => {
   const handleLoadMore = useLoadMore({
     isLoading,
     setIsLoading,
-    NextPage,
+    data: { page: NextPage },
     isCooldownRef,
     Action: fetchSalesAuctions,
   });

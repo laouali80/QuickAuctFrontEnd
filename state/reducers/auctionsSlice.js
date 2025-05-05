@@ -1,7 +1,8 @@
 // store/auctionsSlice.js
+import apiRequest from "@/core/api";
 import { sendThroughSocket } from "@/core/auctionSocketManager";
 import utils, { formatAuctionTime } from "@/core/utils";
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   auctions: [],
@@ -12,6 +13,8 @@ const initialState = {
   likesAuctions: [],
   bidsAuctions: [],
   salesAuctions: [],
+  categories: [],
+  error: null,
 };
 
 const addTimeLeft = (auction) => {
@@ -176,6 +179,24 @@ const auctionsSlice = createSlice({
       state.NextPage = nextPage;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      // Categories Cases
+      .addCase(fetchCategories.pending, (state) => {
+        state.status = "pending";
+      })
+      .addCase(fetchCategories.fulfilled, (state, action) => {
+        // console.log("reach");
+        state.categories = action.payload.categories;
+
+        // state.status = "fulfilled";
+        state.error = null;
+      })
+      .addCase(fetchCategories.rejected, (state, action) => {
+        // state.status = "rejected";
+        state.error = action.payload;
+      });
+  },
 });
 
 export const searchAuctions = (query) => (dispatch, getState) => {
@@ -273,10 +294,25 @@ export const fetchAuctions = (data) => (dispatch) => {
   if (data.page === 1) dispatch(auctionsSlice.actions.clearAuctions());
 
   sendThroughSocket({
-    source: "FetchAuctionsList",
+    source: "FetchAuctionsListByCategory",
     data,
   });
 };
+
+export const fetchCategories = createAsyncThunk(
+  "auctions/categories",
+  async (_, { rejectWithValue }) => {
+    try {
+      // console.log("categories fetching");
+      const response = await apiRequest("auctions/categories/");
+      // console.log("reach: ", response);
+
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
 
 // Selectors
 export const getSearchList = (state) => state.auctions.searchList;
@@ -288,6 +324,7 @@ export const getAuctNextPage = (state) => state.auctions.NextPage;
 export const getLikesAuctions = (state) => state.auctions.likesAuctions;
 export const getBidsAuctions = (state) => state.auctions.bidsAuctions;
 export const getSalesAuctions = (state) => state.auctions.salesAuctions;
+export const getCategories = (state) => state.auctions.categories;
 
 export const {
   setSocketConnected,

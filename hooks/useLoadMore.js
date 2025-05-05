@@ -5,22 +5,22 @@ import { useDispatch } from "react-redux";
 export const useLoadMore = ({
   isLoading,
   setIsLoading,
-  NextPage,
+  data,
   isCooldownRef,
   Action,
 }) => {
   const dispatch = useDispatch();
   return useCallback(() => {
-    if (isLoading || isCooldownRef.current || !NextPage) return;
+    if (isLoading || isCooldownRef.current || !data.page) return;
 
-    console.log("Loading more auctions...", NextPage);
+    console.log("Loading more auctions...", data.page);
     setIsLoading(true);
     isCooldownRef.current = true;
-    dispatch(Action({ page: NextPage }));
+    dispatch(Action(data));
 
     setTimeout(() => {
       isCooldownRef.current = false;
     }, 30 * 1000);
     setIsLoading(false);
-  }, [isLoading, NextPage, Action]);
+  }, [isLoading, data.page, Action]);
 };

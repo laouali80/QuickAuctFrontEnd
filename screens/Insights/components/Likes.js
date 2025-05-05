@@ -44,7 +44,7 @@ const Likes = () => {
   const handleLoadMore = useLoadMore({
     isLoading,
     setIsLoading,
-    NextPage,
+    data: { page: NextPage },
     isCooldownRef,
     Action: fetchLikesAuctions,
   });

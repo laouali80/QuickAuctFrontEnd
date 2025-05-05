@@ -41,8 +41,10 @@ import {
 import { store } from "@/state/store";
 import {
   fetchAuctions,
+  fetchCategories,
   getAuctionsList,
   getAuctNextPage,
+  getCategories,
   loadMore,
   updateTime,
 } from "@/state/reducers/auctionsSlice";
@@ -54,19 +56,44 @@ import Empty from "@/common_components/Empty";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { EmptyState } from "@/common_components/EmptyState";
 import { useFocusEffect } from "@react-navigation/native";
-
-const CONTAINER_HEIGHT = 110;
+import { SIZES } from "@/constants/SIZES";
 
 const AuctionsScreen = ({ navigation, route }) => {
+  const dispatch = useDispatch();
+  const tokens = useSelector(getTokens);
+  const auctionsList = useSelector(getAuctionsList);
+  const user = useSelector(getUserInfo);
+  const NextPage = useSelector(getAuctNextPage);
+  // const categories = useSelector(getCategories);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const isCooldownRef = useRef(false);
   const [refreshing, setRefreshing] = useState(false);
   const lastActiveRef = useRef(new Date());
   const appState = useRef(AppState.currentState);
-  const [lastTimeStamp, setLastTimeStamp] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState({
+    key: 0,
+    value: "All",
+  });
+  const didMountRef = useRef(false);
+
+  useEffect(() => {
+    if (didMountRef.current) {
+      console.log("Fetching auctions for category:", selectedCategory);
+      dispatch(fetchAuctions({ page: 1, category: selectedCategory }));
+    } else {
+      didMountRef.current = true;
+    }
+  }, [selectedCategory.key]);
+  // console.log("from auctions: ", user);
+  // console.log("auctions: ", auctionsList);
+  // console.log("next page: ", NextPage);
+  // console.log("selectedCategory: ", selectedCategory);
 
   const handleRefresh = () => {
     // console.log("reach the refresh");
     setRefreshing(true);
-    dispatch(fetchAuctions({ page: 1 }));
+    dispatch(fetchAuctions({ page: 1, category: selectedCategory }));
     setRefreshing(false);
   };
 
@@ -112,19 +139,6 @@ const AuctionsScreen = ({ navigation, route }) => {
     }, [])
   );
 
-  const dispatch = useDispatch();
-  const tokens = useSelector(getTokens);
-  const auctionsList = useSelector(getAuctionsList);
-  const user = useSelector(getUserInfo);
-  const NextPage = useSelector(getAuctNextPage);
-  const [errorMsg, setErrorMsg] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const isCooldownRef = useRef(false);
-
-  // console.log("from auctions: ", user);
-  // console.log("auctions: ", auctionsList);
-  // console.log("next page: ", NextPage);
-
   const getCurrentLocation = async () => {
     try {
       // console.log("Requesting location permission...");
@@ -166,20 +180,20 @@ const AuctionsScreen = ({ navigation, route }) => {
     }
   };
 
-  // useLayoutEffect(() => {
-  //   // console.log("Component mounted, fetching location...");
+  useLayoutEffect(() => {
+    // console.log("Component mounted, fetching location...");
 
-  //   Platform.OS === "web"
-  //     ? dispatch(setLocation({ location: "Yola, Adamawa", token: tokens }))
-  //     : getCurrentLocation();
-  // }, [getCurrentLocation]);
+    Platform.OS === "web"
+      ? dispatch(setLocation({ location: "Yola, Adamawa", token: tokens }))
+      : getCurrentLocation();
+  }, [getCurrentLocation]);
 
   useEffect(() => {
     // utils.log('receive: ', tokens)
     setStore(store); // Initialize socket manager with store reference
     dispatch(initializeChatSocket(tokens)); // initialize chat socket channel
     dispatch(initializeAuctionSocket(tokens)); // initialize auction socket channel
-
+    dispatch(fetchCategories());
     return () => {
       dispatch(ChatSocketClose());
       dispatch(AuctionSocketClose());
@@ -187,12 +201,12 @@ const AuctionsScreen = ({ navigation, route }) => {
   }, []);
 
   // Timer for updating time
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     dispatch(updateTime());
-  //   }, 1000);
-  //   return () => clearInterval(interval);
-  // }, []);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      dispatch(updateTime());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const offsetY = useRef(new Animated.Value(0)).current;
@@ -200,12 +214,12 @@ const AuctionsScreen = ({ navigation, route }) => {
   const clampedScroll = Animated.diffClamp(
     Animated.add(scrollY, offsetY),
     0,
-    CONTAINER_HEIGHT
+    SIZES.CONTAINER_HEIGHT
   );
 
   const headerTranslate = clampedScroll.interpolate({
-    inputRange: [0, CONTAINER_HEIGHT],
-    outputRange: [0, -CONTAINER_HEIGHT],
+    inputRange: [0, SIZES.CONTAINER_HEIGHT],
+    outputRange: [0, -SIZES.CONTAINER_HEIGHT],
     extrapolate: "clamp",
   });
 
@@ -227,7 +241,8 @@ const AuctionsScreen = ({ navigation, route }) => {
   );
 
   const onScrollEnd = () => {
-    const toValue = scrollDirection.current === "down" ? CONTAINER_HEIGHT : 0;
+    const toValue =
+      scrollDirection.current === "down" ? SIZES.CONTAINER_HEIGHT : 0;
 
     Animated.timing(offsetY, {
       toValue,
@@ -240,44 +255,13 @@ const AuctionsScreen = ({ navigation, route }) => {
   const handleLoadMore = useLoadMore({
     isLoading,
     setIsLoading,
-    NextPage,
+    data: { page: NextPage, category: selectedCategory },
     isCooldownRef,
     Action: loadMore,
   });
 
-  // Show loading indicator
-  // if (auctionsList === null) {
-  //   return <ActivityIndicator style={{ flex: 1 }} />;
-  // }
-
-  // // Show empty if no  auctions
-  // if (auctionsList.length === 0) {
-  //   return <EmptyState type="auctions" message="No Watch Auctions" />;
-  // }
-
-  // <ScrollView refreshControl={
-  //   <RefreshControl
-  //   refreshing={false}
-  //   onRefresh={
-  //     ()=>{
-  //       navigation.navigate('Auctions', {refreshTimeStamp: new Date()})
-  //     }
-  //   }
-  //   />
-  // }></ScrollView>
-
   return (
-    <SafeAreaView
-      style={{ flex: 1 }}
-      refreshControl={
-        <RefreshControl
-          refreshing={false}
-          onRefresh={() => {
-            navigation.navigate("Auctions", { refreshTimeStamp: new Date() });
-          }}
-        />
-      }
-    >
+    <SafeAreaView style={{ flex: 1 }}>
       {/* Animated Header */}
       <Animated.View
         style={[
@@ -286,61 +270,33 @@ const AuctionsScreen = ({ navigation, route }) => {
         ]}
       >
         <Header />
-        {/* <FakeHeader /> */}
       </Animated.View>
 
-      <Animated.FlatList
-        data={auctionsList}
-        // data={auctions}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
-        columnWrapperStyle={{
-          justifyContent: "space-between",
-          columnGap: 10,
-        }}
-        contentContainerStyle={{
-          paddingTop: CONTAINER_HEIGHT, // makes room for sticky header
-          paddingHorizontal: 16,
-          paddingBottom: 100,
-        }}
-        ListHeaderComponent={
-          <>
-            <CategoriesFilter />
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginBottom: 10,
-              }}
-            >
-              <Text style={{ fontSize: 22, fontWeight: "bold" }}>
-                Newest Items
-              </Text>
-              <Text
-                style={{
-                  fontSize: 22,
-                  fontWeight: "bold",
-                  color: COLORS.primary,
-                }}
-              >
-                Filters
-              </Text>
-            </View>
-          </>
-        }
-        ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
-        renderItem={({ item }) => <AuctionCard auction={item} />}
-        showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
-        onScroll={onScroll}
-        onScrollEndDrag={onScrollEnd}
-        onMomentumScrollEnd={onScrollEnd}
-        // onMomentumScrollBegin={onMomentumScrollBegin}
-        onEndReached={handleLoadMore}
-        useNativeDriver={true}
-        refreshing={refreshing}
-        onRefresh={handleRefresh}
-      />
+      {auctionsList === null ? (
+        <renderLoading />
+      ) : auctionsList.length === 0 ? (
+        <renderEmpty />
+      ) : (
+        <Animated.FlatList
+          data={auctionsList}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2}
+          columnWrapperStyle={styles.columnWrapper}
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={<renderFlatListHeader />}
+          ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
+          renderItem={({ item }) => <AuctionCard auction={item} />}
+          showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          onScroll={onScroll}
+          onScrollEndDrag={onScrollEnd}
+          onMomentumScrollEnd={onScrollEnd}
+          onEndReached={handleLoadMore}
+          useNativeDriver={true}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -353,7 +309,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: 0,
-    height: CONTAINER_HEIGHT,
+    height: SIZES.CONTAINER_HEIGHT,
     zIndex: 10,
   },
 });

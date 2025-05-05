@@ -7,33 +7,19 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { categories } from "@/mockData/categories";
+// import { categories } from "@/mockData/categories";
 import { COLORS } from "@/constants/COLORS";
+import apiRequest from "@/core/api";
+import { useSelector } from "react-redux";
+import { getCategories } from "@/state/reducers/auctionsSlice";
 
-const CategoriesFilter = () => {
-  const [categoryClick, setCategoryClick] = useState(0);
-  // const [categories, setCategories] = useState([]);
-  // useEffect(() => {
-  //   const fetchCategories = async () => {
-  //     const response = await apiRequest("auctions/categories/");
-
-  //     // console.log(response);
-  //     // setCategories(response.categories);
-  //     // if (response.ok) {
-  //     //   // const { token } = await response.json();
-  //     //   const resp = await response.json();
-
-  //     //   // return token;
-  //     // }
-  //     // const errMessage = await response.json();
-  //     // console.log(errMessage);
-  //   };
-
-  //   fetchCategories();
-  // }, []);
-
-  const handleOnclick = (index) => {
-    setCategoryClick(index);
+const CategoriesFilter = ({ selectedCategory, setSelectedCategory }) => {
+  // const [categoryClick, setCategoryClick] = useState(0);
+  const categories = useSelector(getCategories);
+  const displayedCategories = [{ key: 0, value: "All" }, ...categories];
+  // console.log("selectedCategory: ", selectedCategory);
+  const handleOnclick = (category) => {
+    setSelectedCategory(category);
     // query({})
   };
   return (
@@ -44,25 +30,26 @@ const CategoriesFilter = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.categoriesScroll}
       >
-        {categories.map((category, index) => (
-          <TouchableOpacity
-            onPress={() => handleOnclick(index)}
-            key={index}
-            style={[
-              styles.categoryPill,
-              index === categoryClick && styles.activeCategory,
-            ]}
-          >
-            <Text
-              style={[
-                styles.categoryText,
-                index === categoryClick && styles.activeCategoryText,
-              ]}
-            >
-              {category.category}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {Array.isArray(displayedCategories) &&
+          displayedCategories.map(({ key, value }) => {
+            const isActive = key === selectedCategory?.key;
+            return (
+              <TouchableOpacity
+                onPress={() => handleOnclick({ key, value })}
+                key={key}
+                style={[styles.categoryPill, isActive && styles.activeCategory]}
+              >
+                <Text
+                  style={[
+                    styles.categoryText,
+                    isActive && styles.activeCategoryText,
+                  ]}
+                >
+                  {value}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
       </ScrollView>
     </View>
   );
