@@ -3,17 +3,9 @@ import React, { useEffect, useLayoutEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import InsightsScreen from "../Insights/InsightsScreen";
 import AuctionsScreen from "../Auctions/AuctionsScreen";
-import CreationScren from "../Creation/CreationScren";
 import ChatsScreen from "../Chats/ChatsScreen";
 import ProfileScreen from "../Profile/ProfileScreen";
-
-import {
-  Alert,
-  Animated,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Animated, StyleSheet, TouchableOpacity } from "react-native";
 import { CurvedBottomBarExpo } from "react-native-curved-bottom-bar";
 import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
@@ -117,7 +109,7 @@ const HomeScreen = ({ navigation }) => {
         <Animated.View style={styles.btnCircleUp}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigate("CreateAuctionForm")}
+            onPress={() => navigate("AuctionCreation")}
           >
             <Ionicons name="add" size={25} color="white" />
           </TouchableOpacity>
@@ -132,17 +124,20 @@ const HomeScreen = ({ navigation }) => {
         component={() => <AuctionsScreen />}
       />
       <CurvedBottomBarExpo.Screen
+        options={{ headerTitleAlign: "center" }}
         name="Insights"
         position="LEFT"
         component={() => <InsightsScreen />}
       />
       <CurvedBottomBarExpo.Screen
+        options={{ headerTitleAlign: "center" }}
         name="Chats"
         component={() => <ChatsScreen />}
         position="RIGHT"
         // options={{ headerShown: false }}
       />
       <CurvedBottomBarExpo.Screen
+        options={{ headerTitleAlign: "center" }}
         name="Profile"
         component={() => <ProfileScreen />}
         position="RIGHT"

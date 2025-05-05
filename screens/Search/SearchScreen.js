@@ -16,6 +16,7 @@ import SearchRow from "@/screens/Search/components/SearchRow";
 import { useDispatch, useSelector } from "react-redux";
 import { getSearchList, searchAuctions } from "@/state/reducers/auctionsSlice";
 import { getUserInfo } from "@/state/reducers/userSlice";
+import { EmptyState } from "@/common_components/EmptyState";
 
 const SearchScreen = () => {
   const [query, setQuery] = useState("");
@@ -58,32 +59,10 @@ const SearchScreen = () => {
       </View>
 
       {searchList === null ? (
-        <Empty
-          icon={
-            <FontAwesome6
-              name="magnifying-glass"
-              size={90}
-              color={COLORS.primary}
-              style={{
-                margimBottom: 16,
-              }}
-            />
-          }
-          message={"Search Items"}
-          centered={false}
-        />
+        <EmptyState type="search" message={"Search Items"} centered={false} />
       ) : searchList.length === 0 ? (
-        <Empty
-          icon={
-            <FontAwesome6
-              name="triangle-exclamation"
-              size={90}
-              color={COLORS.primary}
-              style={{
-                margimBottom: 16,
-              }}
-            />
-          }
+        <EmptyState
+          type="emptySearchResult"
           message={'No items found "' + query + '"'}
           centered={false}
         />

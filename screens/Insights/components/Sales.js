@@ -1,23 +1,15 @@
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  View,
-} from "react-native";
-import React, { useCallback, useRef, useState } from "react";
+import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
+import React, { useRef, useState } from "react";
 import { sales } from "@/mockData/sales";
 import SaleCard from "@/screens/Insights/components/SaleCard";
-import Empty from "@/common_components/Empty";
-import { COLORS } from "@/constants/COLORS";
 import {
   fetchSalesAuctions,
   getAuctNextPage,
   getSalesAuctions,
 } from "@/state/reducers/auctionsSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { FontAwesome5 } from "@expo/vector-icons";
 import { useLoadMore } from "@/hooks/useLoadMore";
+import { EmptyState } from "@/common_components/EmptyState";
 
 const Sales = () => {
   const dispatch = useDispatch();
@@ -43,21 +35,7 @@ const Sales = () => {
 
   // Show empty if no sales
   if (salesAuctions.length === 0) {
-    return (
-      <Empty
-        icon={
-          <FontAwesome5
-            name="store"
-            size={90}
-            color={COLORS.primary}
-            style={{
-              margimBottom: 16,
-            }}
-          />
-        }
-        message="No Sales Yet"
-      />
-    );
+    return <EmptyState type="sales" message="No Sales Yet" />;
   }
   return (
     <View className="flex-1 mx-6 mt-6 ">

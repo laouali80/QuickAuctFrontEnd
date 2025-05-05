@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import React from "react";
 import { COLORS } from "@/constants/COLORS";
-
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Thumbnail from "@/common_components/Thumbnail";

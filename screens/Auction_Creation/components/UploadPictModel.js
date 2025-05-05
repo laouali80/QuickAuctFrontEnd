@@ -1,16 +1,5 @@
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import React, {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-} from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { forwardRef, useImperativeHandle, useRef } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import RBSheet from "react-native-raw-bottom-sheet";
 import SubmitButton from "@/common_components/SubmitButton";

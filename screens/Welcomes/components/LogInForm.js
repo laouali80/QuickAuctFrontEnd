@@ -14,13 +14,7 @@ import { AlertCircleIcon, EyeIcon, EyeOffIcon } from "@/components/ui/icon";
 import React, { useState } from "react";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-} from "react-native";
+import { Keyboard, Platform, Pressable } from "react-native";
 import SubmitButton from "../../../common_components/SubmitButton";
 import OrDivider from "../../../common_components/OrDivider";
 import SocialsButton from "./SocialsButton";

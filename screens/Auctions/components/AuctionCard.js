@@ -12,19 +12,18 @@ import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Thumbnail from "@/common_components/Thumbnail";
 import { placeBid, watchAuction } from "@/state/reducers/auctionsSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { getUserInfo } from "@/state/reducers/userSlice";
 
 const AuctionCard = ({ auction }) => {
   const navigation = useNavigation();
-  const dispatch = useDispatch();
   const user = useSelector(getUserInfo);
   const [like, setLike] = useState(
     auction.watchers.includes(user.userId) ? "heart" : "heart-o"
   );
 
   // console.log("user: ", user.userId);
-  // console.log("get watchers: ", auction.watchers);
+  // console.log("get watchers: ", auction);
 
   const handleLike = () => {
     if (like === "heart-o") {

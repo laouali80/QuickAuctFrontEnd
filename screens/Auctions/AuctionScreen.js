@@ -1,5 +1,167 @@
+// // ProductDetailScreen.js
+// import React, { useState } from "react";
+// import {
+//   View,
+//   Text,
+//   Image,
+//   TouchableOpacity,
+//   StyleSheet,
+//   Dimensions,
+//   ScrollView,
+// } from "react-native";
+// import Carousel from "react-native-reanimated-carousel";
+
+// // import ImageViewing from "react-native-image-viewing";
+// import { useNavigation } from "@react-navigation/native";
+
+// const { width } = Dimensions.get("window");
+
+// const images = [
+//   { uri: "https://example.com/image1.jpg" },
+//   { uri: "https://example.com/image2.jpg" },
+//   { uri: "https://example.com/image3.jpg" },
+// ];
+
+// export default function ProductDetailScreen() {
+//   const navigation = useNavigation();
+//   const [visible, setIsVisible] = useState(false);
+
+//   const openImage = () => setIsVisible(true);
+//   const closeImage = () => setIsVisible(false);
+
+//   const renderItem = ({ item }) => (
+//     <TouchableOpacity onPress={openImage}>
+//       <Image source={{ uri: item.uri }} style={styles.carouselImage} />
+//     </TouchableOpacity>
+//   );
+
+//   return (
+//     <ScrollView style={styles.container}>
+//       <Text style={styles.header}>Product</Text>
+
+//       <Carousel
+//         data={images}
+//         renderItem={renderItem}
+//         sliderWidth={width}
+//         itemWidth={width}
+//         loop
+//       />
+
+//       <View style={styles.bidInfo}>
+//         <Text style={styles.price}>$6.00</Text>
+//         <Text style={styles.endsIn}>Ends In 28:32:12</Text>
+//       </View>
+
+//       <View style={styles.infoSection}>
+//         <Text style={styles.title}>Macbook Pro</Text>
+//         <Text style={styles.category}>Electronics</Text>
+
+//         <View style={styles.owner}>
+//           <Image
+//             source={require("../../assets/auctions/xbox.jpg")}
+//             style={styles.avatar}
+//           />
+//           <View>
+//             <Text style={styles.name}>Angela Yu</Text>
+//             <Text style={styles.location}>Grafenwohr, Germany</Text>
+//           </View>
+//           <View style={{ marginLeft: "auto" }}>
+//             <Text style={styles.used}>Used</Text>
+//             <Text style={styles.pickup}>Pickup</Text>
+//           </View>
+//         </View>
+//       </View>
+
+//       <View style={styles.tabs}>
+//         <Text style={styles.activeTab}>Overview</Text>
+//         <Text style={styles.tab}>Bids</Text>
+//         <Text style={styles.tab}>Options</Text>
+//       </View>
+
+//       <TouchableOpacity onPress={() => navigation.navigate("OverviewScreen")}>
+//         <Text style={styles.description}>
+//           It is not enough that we build products that function, that are
+//           understandable and usable, to build products that bring joy...
+//           <Text style={styles.readMore}>Read More</Text>
+//         </Text>
+//       </TouchableOpacity>
+
+//       <TouchableOpacity style={styles.bidButton}>
+//         <Text style={styles.bidText}>Bid $1</Text>
+//       </TouchableOpacity>
+
+//       {/* <ImageViewing
+//         images={images}
+//         imageIndex={0}
+//         visible={visible}
+//         onRequestClose={closeImage}
+//       /> */}
+//     </ScrollView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: { flex: 1, backgroundColor: "#f5fef9" },
+//   header: { fontSize: 20, fontWeight: "bold", margin: 16 },
+//   carouselImage: { width: width, height: 250 },
+//   bidInfo: {
+//     flexDirection: "row",
+//     justifyContent: "space-around",
+//     backgroundColor: "white",
+//     paddingVertical: 16,
+//     borderRadius: 8,
+//     marginHorizontal: 16,
+//     marginTop: -20,
+//     elevation: 4,
+//   },
+//   price: { color: "#00a86b", fontSize: 18, fontWeight: "bold" },
+//   endsIn: { color: "#333" },
+//   infoSection: { padding: 16 },
+//   title: { fontSize: 22, fontWeight: "bold" },
+//   category: {
+//     backgroundColor: "#def7ea",
+//     alignSelf: "flex-start",
+//     paddingHorizontal: 8,
+//     borderRadius: 4,
+//     marginTop: 4,
+//     color: "#00a86b",
+//   },
+//   owner: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     marginTop: 12,
+//     backgroundColor: "white",
+//     padding: 12,
+//     borderRadius: 8,
+//     elevation: 2,
+//   },
+//   avatar: { width: 40, height: 40, borderRadius: 20, marginRight: 12 },
+//   name: { fontWeight: "bold" },
+//   location: { color: "#888" },
+//   used: { color: "#f39c12", fontWeight: "bold" },
+//   pickup: { color: "#00a86b" },
+//   tabs: {
+//     flexDirection: "row",
+//     justifyContent: "space-around",
+//     marginVertical: 16,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#ccc",
+//   },
+//   activeTab: { borderBottomWidth: 2, borderColor: "#00a86b", paddingBottom: 4 },
+//   tab: { color: "#888" },
+//   description: { marginHorizontal: 16, fontSize: 14, color: "#333" },
+//   readMore: { color: "#00a86b", fontWeight: "bold" },
+//   bidButton: {
+//     backgroundColor: "#00a86b",
+//     margin: 16,
+//     padding: 14,
+//     borderRadius: 8,
+//     alignItems: "center",
+//   },
+//   bidText: { color: "white", fontWeight: "bold" },
+// });
+
 import {
-  Image,
   Linking,
   Platform,
   Pressable,
@@ -9,12 +171,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
+import React, { useCallback, useLayoutEffect, useState } from "react";
 import { COLORS } from "@/constants/COLORS";
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
@@ -40,12 +197,11 @@ const AuctionScreen = ({ navigation, route }) => {
   const auction = useSelector(getAuction(id));
   const user = useSelector(getUserInfo);
   const [selectedTab, setSelectedTab] = useState("Overview");
+  console.log("auction receive: ", auction);
   const [like, setLike] = useState(
     auction.watchers.includes(user.userId) ? "heart" : "heart-o"
   );
   const [showReportModal, setShowReportModal] = useState(false);
-
-  // console.log("auction receive: ", updAuction);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -165,11 +321,6 @@ const AuctionScreen = ({ navigation, route }) => {
           <View style={styles.ownerCard}>
             <Text style={styles.sectionLabel}>Owner</Text>
             <View style={styles.ownerInfo}>
-              {/* <Image
-                source={require("../../assets/profiles/default.png")}
-                style={styles.ownerImage}
-              /> */}
-
               <Thumbnail
                 url={auction.seller.thumbnail}
                 width={50}

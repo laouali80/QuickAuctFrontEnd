@@ -3,13 +3,7 @@ import { Text } from "@/components/ui/text";
 import React, { useCallback, useState } from "react";
 import LogInForm from "./LogInForm";
 import { VStack } from "@/components/ui/vstack";
-
-import {
-  KeyboardAvoidingView,
-  Platform,
-  TouchableOpacity,
-  useColorScheme,
-} from "react-native";
+import { TouchableOpacity, useColorScheme } from "react-native";
 import SignUpForm from "./SignUpForm";
 
 const GetStartedTabs = () => {

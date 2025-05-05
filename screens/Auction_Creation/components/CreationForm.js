@@ -3,22 +3,21 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { VStack } from "@/components/ui/vstack";
 import SubmitButton from "@/common_components/SubmitButton";
 // import PaymentMethod from "@/screens/Auctions/components/PaymentMethod";
-import UploadPictModel from "./components/UploadPictModel";
 import * as ImagePicker from "expo-image-picker";
-import PaymentMethodSelector from "@/screens/Auctions/components/PaymentMethod";
-import TitleInput from "./components/TitleInput";
-import DescriptionInput from "./components/DescriptionInput";
-import CategorySelection from "./components/CategorySelection";
-import StartingPrice from "./components/StartingPrice";
-import BidIncreament from "./components/BidIncreament";
-import AuctionDeliveryMode from "./components/AuctionDeliveryMode";
-import AuctionLength from "./components/AuctionLength";
-import AddImages from "./components/AddImages";
-import { useDispatch } from "react-redux";
+import PaymentMethodSelector from "@/screens/Auction_Creation/components/PaymentMethod";
+import TitleInput from "./TitleInput";
+import DescriptionInput from "./DescriptionInput";
+import CategorySelection from "./CategorySelection";
+import StartingPrice from "./StartingPrice";
+import BidIncreament from "./BidIncreament";
+import AuctionDeliveryMode from "./AuctionDeliveryMode";
+import AuctionLength from "./AuctionLength";
+import AddImages from "./AddImages";
 import { createAuction } from "@/state/reducers/auctionsSlice";
-import ItemCondition from "./components/ItemCondition";
+import ItemCondition from "./ItemCondition";
+import UploadPictModel from "./UploadPictModel";
 
-const CreateAuctionFormScreen = ({ navigation }) => {
+const CreationForm = ({ navigation }) => {
   // State declarations
   const [state, setState] = useState({
     image: null,
@@ -54,8 +53,6 @@ const CreateAuctionFormScreen = ({ navigation }) => {
       values: ["", ""],
     },
   ]);
-
-  const dispatch = useDispatch();
 
   // Refs
   const uploadSheetRef = useRef();
@@ -355,6 +352,6 @@ const CreateAuctionFormScreen = ({ navigation }) => {
   );
 };
 
-export default CreateAuctionFormScreen;
+export default CreationForm;
 
 const styles = StyleSheet.create({});

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, TextInput } from "react-native";
 import React from "react";
 import { COLORS } from "@/constants/COLORS";
 
@@ -16,7 +16,6 @@ const TitleInput = ({ value, handleUpdTitle }) => {
         paddingLeft: 10,
         width: "100%",
       }}
-      // value={state.title}
       value={value}
       onChangeText={handleUpdTitle}
     />

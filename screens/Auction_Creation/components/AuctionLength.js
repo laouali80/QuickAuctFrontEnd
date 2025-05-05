@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TextInput, View } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import SelectDrop from "@/common_components/SelectDrop";
 import { HStack } from "@/components/ui/hstack";
 import { COLORS } from "@/constants/COLORS";

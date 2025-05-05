@@ -267,6 +267,17 @@ export const fetchSalesAuctions = (data) => (dispatch) => {
   });
 };
 
+export const fetchAuctions = (data) => (dispatch) => {
+  // console.log("fetchSalesAuctions: ", data);
+
+  if (data.page === 1) dispatch(auctionsSlice.actions.clearAuctions());
+
+  sendThroughSocket({
+    source: "FetchAuctionsList",
+    data,
+  });
+};
+
 // Selectors
 export const getSearchList = (state) => state.auctions.searchList;
 export const getAuctionsList = (state) => state.auctions.auctions;
