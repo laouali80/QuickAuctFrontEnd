@@ -1,10 +1,8 @@
 import {
   Platform,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
-  View,
 } from "react-native";
 import React from "react";
 import { FontAwesome } from "@expo/vector-icons";

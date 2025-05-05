@@ -1,12 +1,10 @@
 import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
-import React, { useLayoutEffect } from "react";
-import Empty from "@/common_components/Empty";
+import React from "react";
 import ChatRow from "@/screens/Chats/components/ChatRow";
-import { FontAwesome5 } from "@expo/vector-icons";
-import { COLORS } from "@/constants/COLORS";
 import { useSelector } from "react-redux";
 import { getChatsList } from "@/state/reducers/chatsSlice";
 import utils from "@/core/utils";
+import { EmptyState } from "@/common_components/EmptyState";
 
 const ChatsScreen = () => {
   const chatsList = useSelector(getChatsList);
@@ -21,21 +19,7 @@ const ChatsScreen = () => {
 
   // Show empty if no chats
   if (chatsList.length === 0) {
-    return (
-      <Empty
-        icon={
-          <FontAwesome5
-            name="inbox"
-            size={90}
-            color={COLORS.primary}
-            style={{
-              margimBottom: 16,
-            }}
-          />
-        }
-        message="No Chats yet"
-      />
-    );
+    return <EmptyState type="chats" message="No Chats yet" />;
   }
 
   return (

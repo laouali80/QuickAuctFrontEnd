@@ -1,6 +1,6 @@
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import React from "react";
-import { Entypo, EvilIcons, FontAwesome } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 
 const ChatInput = ({ message, setMessage, onSend }) => {
   return (

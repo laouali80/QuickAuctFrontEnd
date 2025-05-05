@@ -1,8 +1,10 @@
 import {
   ActivityIndicator,
   Animated,
+  AppState,
   FlatList,
   Platform,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -38,6 +40,7 @@ import {
 } from "@/core/auctionSocketManager";
 import { store } from "@/state/store";
 import {
+  fetchAuctions,
   getAuctionsList,
   getAuctNextPage,
   loadMore,
@@ -45,12 +48,70 @@ import {
 } from "@/state/reducers/auctionsSlice";
 import * as Location from "expo-location";
 import secure from "@/core/secure";
-import FakeHeader from "./components/FakeHeader";
 import CategoriesFilter from "./components/CategoriesFilter";
+import { useLoadMore } from "@/hooks/useLoadMore";
+import Empty from "@/common_components/Empty";
+import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
+import { EmptyState } from "@/common_components/EmptyState";
+import { useFocusEffect } from "@react-navigation/native";
 
 const CONTAINER_HEIGHT = 110;
 
-const AuctionsScreen = ({ navigation }) => {
+const AuctionsScreen = ({ navigation, route }) => {
+  const [refreshing, setRefreshing] = useState(false);
+  const lastActiveRef = useRef(new Date());
+  const appState = useRef(AppState.currentState);
+  const [lastTimeStamp, setLastTimeStamp] = useState(null);
+
+  const handleRefresh = () => {
+    // console.log("reach the refresh");
+    setRefreshing(true);
+    dispatch(fetchAuctions({ page: 1 }));
+    setRefreshing(false);
+  };
+
+  // Listen to app state changes (background/foreground)
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        const now = new Date();
+        const last = lastActiveRef.current;
+        const diff = (now - last) / (1000 * 60); // in minutes
+
+        if (diff >= 5) {
+          handleRefresh();
+        }
+      }
+
+      appState.current = nextAppState;
+      if (nextAppState === "active") {
+        lastActiveRef.current = new Date(); // update on resume
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  // Also check when screen is focused (navigation)
+  useFocusEffect(
+    useCallback(() => {
+      const now = new Date();
+      const last = lastActiveRef.current;
+      const diff = (now - last) / (1000 * 60); // in minutes
+
+      if (diff >= 5) {
+        handleRefresh();
+      }
+
+      lastActiveRef.current = now;
+    }, [])
+  );
+
   const dispatch = useDispatch();
   const tokens = useSelector(getTokens);
   const auctionsList = useSelector(getAuctionsList);
@@ -126,12 +187,12 @@ const AuctionsScreen = ({ navigation }) => {
   }, []);
 
   // Timer for updating time
-  useEffect(() => {
-    const interval = setInterval(() => {
-      dispatch(updateTime());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     dispatch(updateTime());
+  //   }, 1000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const offsetY = useRef(new Animated.Value(0)).current;
@@ -176,27 +237,47 @@ const AuctionsScreen = ({ navigation }) => {
   };
 
   // Improved pagination handler
-  const handleLoadMore = useCallback(() => {
-    // console.log("reach");
+  const handleLoadMore = useLoadMore({
+    isLoading,
+    setIsLoading,
+    NextPage,
+    isCooldownRef,
+    Action: loadMore,
+  });
 
-    if (isLoading || isCooldownRef.current || !NextPage) return;
+  // Show loading indicator
+  // if (auctionsList === null) {
+  //   return <ActivityIndicator style={{ flex: 1 }} />;
+  // }
 
-    console.log("Loading more auctions...");
-    setIsLoading(true);
-    isCooldownRef.current = true;
+  // // Show empty if no  auctions
+  // if (auctionsList.length === 0) {
+  //   return <EmptyState type="auctions" message="No Watch Auctions" />;
+  // }
 
-    loadMore({ page: NextPage });
-
-    // Delay cooldown reset until after 30 seconds
-    setTimeout(() => {
-      isCooldownRef.current = false;
-    }, 30 * 1000);
-
-    setIsLoading(false);
-  }, [isLoading, NextPage]);
+  // <ScrollView refreshControl={
+  //   <RefreshControl
+  //   refreshing={false}
+  //   onRefresh={
+  //     ()=>{
+  //       navigation.navigate('Auctions', {refreshTimeStamp: new Date()})
+  //     }
+  //   }
+  //   />
+  // }></ScrollView>
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView
+      style={{ flex: 1 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={false}
+          onRefresh={() => {
+            navigation.navigate("Auctions", { refreshTimeStamp: new Date() });
+          }}
+        />
+      }
+    >
       {/* Animated Header */}
       <Animated.View
         style={[
@@ -210,6 +291,7 @@ const AuctionsScreen = ({ navigation }) => {
 
       <Animated.FlatList
         data={auctionsList}
+        // data={auctions}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         columnWrapperStyle={{
@@ -256,6 +338,8 @@ const AuctionsScreen = ({ navigation }) => {
         // onMomentumScrollBegin={onMomentumScrollBegin}
         onEndReached={handleLoadMore}
         useNativeDriver={true}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
       />
     </SafeAreaView>
   );

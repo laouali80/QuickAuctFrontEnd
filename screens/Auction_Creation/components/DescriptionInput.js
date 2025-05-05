@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import React from "react";
 import { COLORS } from "@/constants/COLORS";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
@@ -19,7 +19,6 @@ const DescriptionInput = ({ value, handleUpdDescrip }) => {
       <TextareaInput
         style={{ color: "black" }}
         placeholder="Your text goes here..."
-        //   value={state.description}
         value={value}
         onChangeText={handleUpdDescrip}
       />

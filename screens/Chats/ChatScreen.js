@@ -2,9 +2,7 @@ import {
   ActivityIndicator,
   FlatList,
   InputAccessoryView,
-  Keyboard,
   Platform,
-  Pressable,
   SafeAreaView,
   StyleSheet,
   View,
@@ -19,7 +17,6 @@ import React, {
 import MessageBubble from "./components/MessageBubble";
 import ChatInput from "./components/ChatInput";
 import ChatHeader from "./components/ChatHeader";
-import { EvilIcons, FontAwesome } from "@expo/vector-icons";
 import {
   getMessages,
   getNextPage,

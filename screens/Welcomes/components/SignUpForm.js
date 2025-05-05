@@ -14,12 +14,7 @@ import {
   CheckboxIndicator,
   CheckboxIcon,
 } from "@/components/ui/checkbox";
-import {
-  Pressable,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { Pressable, Keyboard, Platform } from "react-native";
 import { HStack } from "@/components/ui/hstack";
 import TermsConditionsModal from "./TermsConditionsModal";
 import SubmitButton from "@/common_components/SubmitButton";

@@ -11,15 +11,13 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "./screens/Welcomes/HomeScreen";
 import InsightsScreen from "./screens/Insights/InsightsScreen";
 import ChatsScreen from "./screens/Chats/ChatsScreen";
-import CreationScren from "./screens/Creation/CreationScren";
 import ProfileScreen from "./screens/Profile/ProfileScreen";
 import { useEffect, useState } from "react";
 import SplashScreen from "./screens/Welcomes/SplashScreen";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import AuctionOverviewScreen from "./screens/Auctions/AuctionOverviewScreen";
-import CreateAuctionFormScreen from "./screens/Auctions/CreateAuctionFormScreen";
 import AuctionBidsScreen from "./screens/Auctions/AuctionBidsScreen";
-import AuctionScreen from "./screens/Auctions/AuctionScreen";
+// import AuctionScreen from "./screens/Auctions/AuctionScreen";
 import { store, persistor } from "./state/store";
 import { getAuthentication } from "./state/reducers/userSlice";
 import { PersistGate } from "redux-persist/integration/react";
@@ -34,6 +32,9 @@ import {
   View,
   TouchableOpacity,
 } from "react-native";
+import CreationScreen from "./screens/Auction_Creation/CreationScreen";
+// import ProductDetailScreen from "./screens/Auctions/AuctionScreen";
+import AuctionScreen from "./screens/Auctions/AuctionScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -102,6 +103,10 @@ function AppContent() {
 
                   {/* Auction */}
                   <Stack.Screen name="Auction" component={AuctionScreen} />
+                  {/* <Stack.Screen
+                    name="Auction"
+                    component={ProductDetailScreen}
+                  /> */}
                   <Stack.Screen
                     name="AuctionBids"
                     component={AuctionBidsScreen}
@@ -113,8 +118,8 @@ function AppContent() {
 
                   {/* Auction Creation */}
                   <Stack.Screen
-                    name="CreateAuctionForm"
-                    component={CreateAuctionFormScreen}
+                    name="AuctionCreation"
+                    component={CreationScreen}
                   />
 
                   <Stack.Screen name="Chat" component={ChatScreen} />

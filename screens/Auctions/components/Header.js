@@ -2,7 +2,6 @@ import {
   LayoutAnimation,
   Platform,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   Text,
   View,

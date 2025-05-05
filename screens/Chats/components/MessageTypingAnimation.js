@@ -1,4 +1,4 @@
-import { Animated, Easing, StyleSheet, Text, View } from "react-native";
+import { Animated, Easing, StyleSheet } from "react-native";
 import React, { useEffect, useRef } from "react";
 
 const MessageTypingAnimation = ({ offset }) => {

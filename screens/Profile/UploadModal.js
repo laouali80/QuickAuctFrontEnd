@@ -1,7 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
-import { Box } from "@/components/ui/box";
-import { Button, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import {
   Modal,
@@ -9,7 +7,6 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalFooter,
 } from "@/components/ui/modal";
 import { Text } from "@/components/ui/text";
 import { MaterialCommunityIcons } from "@expo/vector-icons";

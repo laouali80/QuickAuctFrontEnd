@@ -1,6 +1,5 @@
 import { StyleSheet } from "react-native";
 import React, { useState } from "react";
-
 import { Button, ButtonText } from "@/components/ui/button";
 import { Center } from "@/components/ui/center";
 import { Heading } from "@/components/ui/heading";

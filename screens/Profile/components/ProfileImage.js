@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
 import { EvilIcons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";

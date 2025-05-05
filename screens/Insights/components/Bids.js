@@ -1,5 +1,5 @@
-import { FlatList, Pressable, StyleSheet, View } from "react-native";
-import React, { useCallback, useRef, useState } from "react";
+import { FlatList, StyleSheet, View } from "react-native";
+import React, { useRef, useState } from "react";
 import { bids } from "@/mockData/bids";
 import BidCard from "@/screens/Insights/components/BidCard";
 import {
@@ -8,10 +8,9 @@ import {
   getBidsAuctions,
 } from "@/state/reducers/auctionsSlice";
 import { useDispatch, useSelector } from "react-redux";
-import Empty from "@/common_components/Empty";
-import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
-import { COLORS } from "@/constants/COLORS";
+
 import { useLoadMore } from "@/hooks/useLoadMore";
+import { EmptyState } from "@/common_components/EmptyState";
 
 const Bids = () => {
   const dispatch = useDispatch();
@@ -39,19 +38,7 @@ const Bids = () => {
   // Show empty if no bids
   if (bidsAuctions.length === 0) {
     return (
-      <Empty
-        icon={
-          <MaterialCommunityIcons
-            name="gavel"
-            size={90}
-            color={COLORS.primary}
-            style={{
-              margimBottom: 16,
-            }}
-          />
-        }
-        message="You have not bid any auction yet!"
-      />
+      <EmptyState type="bids" message="You have not bid any auction yet!" />
     );
   }
 

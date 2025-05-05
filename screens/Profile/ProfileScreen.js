@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import ProfileImage from "./components/ProfileImage";
 import ProfileLogout from "./components/ProfileLogout";
