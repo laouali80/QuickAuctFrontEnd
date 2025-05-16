@@ -35,6 +35,8 @@ import {
 import CreationScreen from "./screens/Auction_Creation/CreationScreen";
 // import ProductDetailScreen from "./screens/Auctions/AuctionScreen";
 import AuctionScreen from "./screens/Auctions/AuctionScreen";
+// import NotificationScreen from "./screens/Notification/NotificationsScreen";
+import NotificationsScreen from "./screens/Notification/NotificationsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -126,6 +128,10 @@ function AppContent() {
 
                   <Stack.Screen name="Chats" component={ChatsScreen} />
                   <Stack.Screen name="Profile" component={ProfileScreen} />
+                  <Stack.Screen
+                    name="Notifications"
+                    component={NotificationsScreen}
+                  />
                 </>
               )}
             </Stack.Navigator>
