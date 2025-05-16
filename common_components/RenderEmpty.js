@@ -1,18 +1,19 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import renderFlatListHeader from "../renderFlatListHeader";
 import { SIZES } from "@/constants/SIZES";
+import RenderFlatListHeader from "./RenderFlatListHeader";
+import { EmptyState } from "./EmptyState";
 
-const renderLoading = () => {
+const RenderEmpty = () => {
   return (
     <View style={styles.contentContainer}>
-      <renderFlatListHeader />
-      <ActivityIndicator style={{ flex: 1 }} />
+      <RenderFlatListHeader />
+      <EmptyState type="auctions" message="No Watch Auctions" />
     </View>
   );
 };
 
-export default renderLoading;
+export default RenderEmpty;
 
 const styles = StyleSheet.create({
   contentContainer: {

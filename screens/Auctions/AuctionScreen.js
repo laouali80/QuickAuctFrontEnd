@@ -193,16 +193,25 @@ import { getAuction, watchAuction } from "@/state/reducers/auctionsSlice";
 import { getUserInfo } from "@/state/reducers/userSlice";
 
 const AuctionScreen = ({ navigation, route }) => {
+  // -------------------- Navigation Parameters --------------------
   const { id } = route.params;
+
+  // -------------------- Redux State --------------------
   const auction = useSelector(getAuction(id));
   const user = useSelector(getUserInfo);
+
+  // -------------------- Local State --------------------
   const [selectedTab, setSelectedTab] = useState("Overview");
-  console.log("auction receive: ", auction);
   const [like, setLike] = useState(
     auction.watchers.includes(user.userId) ? "heart" : "heart-o"
   );
   const [showReportModal, setShowReportModal] = useState(false);
 
+  // -------------------- Debugs --------------------
+  // console.log("auction receive: ", auction);
+
+  // -------------------- Effects --------------------
+  // set up Screen header
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: "Auction",
@@ -228,6 +237,9 @@ const AuctionScreen = ({ navigation, route }) => {
     });
   }, [navigation]);
 
+  // -------------------- Handlers --------------------
+
+  // handle the like the unlike animation
   const handleLike = () => {
     if (like === "heart-o") {
       setLike("heart");
@@ -241,11 +253,13 @@ const AuctionScreen = ({ navigation, route }) => {
   const handleOverviewPress = useCallback(() => setSelectedTab("Overview"), []);
   const handleBidsPress = useCallback(() => setSelectedTab("Bids"), []);
 
+  // Navigate to chat screen
   const _navigateToChat = (userId) => {
     console.log(userId);
     navigation.navigate("Chat", auction.seller);
   };
 
+  // navigate to phone call dial
   const makeCall = () => {
     let phoneNumber = "";
 
@@ -258,8 +272,8 @@ const AuctionScreen = ({ navigation, route }) => {
     Linking.openURL(phoneNumber);
   };
 
+  // -------------------- Render --------------------
   return (
-    // <ScrollView>
     <ScrollView style={styles.container}>
       {/* Auction Image Section (50% of screen) */}
       <View style={[styles.imageSection, { height: SIZES.height / 2 }]}>
@@ -529,8 +543,6 @@ const AuctionScreen = ({ navigation, route }) => {
         />
       )}
     </ScrollView>
-
-    // </ScrollView>
   );
 };
 

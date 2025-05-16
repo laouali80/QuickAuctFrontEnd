@@ -8,7 +8,7 @@ import utils from "@/core/utils";
 import { getUserInfo } from "@/state/reducers/userSlice";
 import Thumbnail from "@/common_components/Thumbnail";
 import * as ImagePicker from "expo-image-picker";
-import UploadModal from "../UploadModal";
+import UploadModal from "./UploadModal";
 
 const ProfileImage = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);

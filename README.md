@@ -191,5 +191,38 @@ likes: <FontAwesome name="heart" size={90} color={COLORS.primary} />,
 
 npx expo install react-native-reanimated-carousel react-native-image-viewing react-navigation react-native-gesture-handler react-native-reanimated
 
-D:\Projects\QuickAuc…development.js:5943 Uncaught Error: Rendered more hooks than during the previous render.
-at AuctionsScreen (D:\Projects\QuickAuc…onsScreen.js:228:12)
+why is setSelectedCategory undefine at categoryfilter component?
+
+ListHeaderComponent={
+<RenderFlatListHeader
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+            />
+}
+
+const RenderFlatListHeader = ({ selectedCategory, setSelectedCategory }) => {
+return (
+<>
+<CategoriesFilter
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+      />
+<View style={styles.sectionHeader}>
+<Text style={styles.sectionTitle}>Newest Items</Text>
+<Text style={styles.filterText}>Filters</Text>
+</View>
+</>
+);
+};
+
+const CategoriesFilter = ({ selectedCategory, setSelectedCategory }) => {
+// const [categoryClick, setCategoryClick] = useState(0);
+const categories = useSelector(getCategories);
+const displayedCategories = [{ key: 0, value: "All" }, ...categories];
+console.log("selectedCategory: ", typeof setSelectedCategory);
+const handleOnclick = (category) => {
+setSelectedCategory(category);
+// query({})
+};
+ret
+ChatGPT said:

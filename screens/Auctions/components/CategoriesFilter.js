@@ -17,7 +17,7 @@ const CategoriesFilter = ({ selectedCategory, setSelectedCategory }) => {
   // const [categoryClick, setCategoryClick] = useState(0);
   const categories = useSelector(getCategories);
   const displayedCategories = [{ key: 0, value: "All" }, ...categories];
-  // console.log("selectedCategory: ", selectedCategory);
+  // console.log("selectedCategory: ", typeof setSelectedCategory);
   const handleOnclick = (category) => {
     setSelectedCategory(category);
     // query({})

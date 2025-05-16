@@ -57,159 +57,38 @@ import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { EmptyState } from "@/common_components/EmptyState";
 import { useFocusEffect } from "@react-navigation/native";
 import { SIZES } from "@/constants/SIZES";
+import RenderLoading from "../../common_components/RenderLoading";
+import RenderEmpty from "../../common_components/RenderEmpty";
+import RenderFlatListHeader from "@/common_components/RenderFlatListHeader";
 
 const AuctionsScreen = ({ navigation, route }) => {
+  // -------------------- Redux State --------------------
   const dispatch = useDispatch();
   const tokens = useSelector(getTokens);
   const auctionsList = useSelector(getAuctionsList);
-  const user = useSelector(getUserInfo);
   const NextPage = useSelector(getAuctNextPage);
-  // const categories = useSelector(getCategories);
-  const [errorMsg, setErrorMsg] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const isCooldownRef = useRef(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const lastActiveRef = useRef(new Date());
-  const appState = useRef(AppState.currentState);
+  const user = useSelector(getUserInfo);
+
+  // -------------------- Local State --------------------
   const [selectedCategory, setSelectedCategory] = useState({
     key: 0,
     value: "All",
   });
+  const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  // -------------------- Refs --------------------
+  const appState = useRef(AppState.currentState);
+  const lastActiveRef = useRef(new Date());
   const didMountRef = useRef(false);
+  const isCooldownRef = useRef(false);
 
-  useEffect(() => {
-    if (didMountRef.current) {
-      console.log("Fetching auctions for category:", selectedCategory);
-      dispatch(fetchAuctions({ page: 1, category: selectedCategory }));
-    } else {
-      didMountRef.current = true;
-    }
-  }, [selectedCategory.key]);
-  // console.log("from auctions: ", user);
-  // console.log("auctions: ", auctionsList);
-  // console.log("next page: ", NextPage);
-  // console.log("selectedCategory: ", selectedCategory);
-
-  const handleRefresh = () => {
-    // console.log("reach the refresh");
-    setRefreshing(true);
-    dispatch(fetchAuctions({ page: 1, category: selectedCategory }));
-    setRefreshing(false);
-  };
-
-  // Listen to app state changes (background/foreground)
-  useEffect(() => {
-    const subscription = AppState.addEventListener("change", (nextAppState) => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === "active"
-      ) {
-        const now = new Date();
-        const last = lastActiveRef.current;
-        const diff = (now - last) / (1000 * 60); // in minutes
-
-        if (diff >= 5) {
-          handleRefresh();
-        }
-      }
-
-      appState.current = nextAppState;
-      if (nextAppState === "active") {
-        lastActiveRef.current = new Date(); // update on resume
-      }
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
-
-  // Also check when screen is focused (navigation)
-  useFocusEffect(
-    useCallback(() => {
-      const now = new Date();
-      const last = lastActiveRef.current;
-      const diff = (now - last) / (1000 * 60); // in minutes
-
-      if (diff >= 5) {
-        handleRefresh();
-      }
-
-      lastActiveRef.current = now;
-    }, [])
-  );
-
-  const getCurrentLocation = async () => {
-    try {
-      // console.log("Requesting location permission...");
-      let { status } = await Location.requestForegroundPermissionsAsync();
-
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        console.warn("Location permission denied");
-        return;
-      }
-
-      // console.log("Fetching current location...");
-      let location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-        timeout: 15000,
-      });
-
-      let reverseGeoCode = await Location.reverseGeocodeAsync({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
-
-      if (!reverseGeoCode || reverseGeoCode.length === 0) {
-        setErrorMsg("Could not determine your location");
-        return;
-      }
-
-      const { city, region } = reverseGeoCode[0];
-      const stringLocation = `${city || "Unknown"}, ${region || "Unknown"}`;
-
-      // console.log("Resolved Location:", stringLocation);
-
-      if (user.location !== stringLocation) {
-        dispatch(setLocation({ location: stringLocation }));
-      }
-    } catch (error) {
-      console.error("Location error:", error);
-      setErrorMsg("Failed to get location: " + error.message);
-    }
-  };
-
-  useLayoutEffect(() => {
-    // console.log("Component mounted, fetching location...");
-
-    Platform.OS === "web"
-      ? dispatch(setLocation({ location: "Yola, Adamawa", token: tokens }))
-      : getCurrentLocation();
-  }, [getCurrentLocation]);
-
-  useEffect(() => {
-    // utils.log('receive: ', tokens)
-    setStore(store); // Initialize socket manager with store reference
-    dispatch(initializeChatSocket(tokens)); // initialize chat socket channel
-    dispatch(initializeAuctionSocket(tokens)); // initialize auction socket channel
-    dispatch(fetchCategories());
-    return () => {
-      dispatch(ChatSocketClose());
-      dispatch(AuctionSocketClose());
-    };
-  }, []);
-
-  // Timer for updating time
-  useEffect(() => {
-    const interval = setInterval(() => {
-      dispatch(updateTime());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
+  // -------------------- Scroll Animation Setup --------------------
   const scrollY = useRef(new Animated.Value(0)).current;
   const offsetY = useRef(new Animated.Value(0)).current;
+  const scrollOffset = useRef(0);
+  const scrollDirection = useRef("down");
 
   const clampedScroll = Animated.diffClamp(
     Animated.add(scrollY, offsetY),
@@ -222,10 +101,6 @@ const AuctionsScreen = ({ navigation, route }) => {
     outputRange: [0, -SIZES.CONTAINER_HEIGHT],
     extrapolate: "clamp",
   });
-
-  // Used to track whether we should snap header up/down
-  const scrollOffset = useRef(0);
-  const scrollDirection = useRef("down");
 
   const onScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -243,7 +118,6 @@ const AuctionsScreen = ({ navigation, route }) => {
   const onScrollEnd = () => {
     const toValue =
       scrollDirection.current === "down" ? SIZES.CONTAINER_HEIGHT : 0;
-
     Animated.timing(offsetY, {
       toValue,
       duration: 300,
@@ -251,7 +125,83 @@ const AuctionsScreen = ({ navigation, route }) => {
     }).start();
   };
 
-  // Improved pagination handler
+  // -------------------- Effects --------------------
+
+  // Fetch auctions when category changes
+  useEffect(() => {
+    if (didMountRef.current) {
+      dispatch(fetchAuctions({ page: 1, category: selectedCategory }));
+    } else {
+      didMountRef.current = true;
+    }
+  }, [selectedCategory.key]);
+
+  // Get location and set on mount
+  useLayoutEffect(() => {
+    Platform.OS === "web"
+      ? dispatch(setLocation({ location: "Yola, Adamawa", token: tokens }))
+      : fetchAndSetCurrentLocation();
+  }, []);
+
+  // Initialize sockets, cleanup on unmount
+  useEffect(() => {
+    setStore(store);
+    dispatch(initializeChatSocket(tokens));
+    dispatch(initializeAuctionSocket(tokens));
+    dispatch(fetchCategories());
+
+    return () => {
+      dispatch(ChatSocketClose());
+      dispatch(AuctionSocketClose());
+    };
+  }, []);
+
+  // Timer for auction time updates
+  useEffect(() => {
+    const interval = setInterval(() => dispatch(updateTime()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Resume-refresh listener
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        const now = new Date();
+        const last = lastActiveRef.current;
+        const diff = (now - last) / (1000 * 60); // in minutes
+
+        if (diff >= 5) handleRefresh();
+      }
+
+      appState.current = nextAppState;
+      if (nextAppState === "active") lastActiveRef.current = new Date();
+    });
+
+    return () => subscription.remove();
+  }, []);
+
+  // Focus refresh logic
+  useFocusEffect(
+    useCallback(() => {
+      const now = new Date();
+      const last = lastActiveRef.current;
+      const diff = (now - last) / (1000 * 60);
+      if (diff >= 5) handleRefresh();
+      lastActiveRef.current = now;
+    }, [])
+  );
+
+  // -------------------- Handlers --------------------
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    dispatch(fetchAuctions({ page: 1, category: selectedCategory }));
+    setRefreshing(false);
+  };
+
   const handleLoadMore = useLoadMore({
     isLoading,
     setIsLoading,
@@ -259,6 +209,37 @@ const AuctionsScreen = ({ navigation, route }) => {
     isCooldownRef,
     Action: loadMore,
   });
+
+  const fetchAndSetCurrentLocation = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+        timeout: 15000,
+      });
+
+      let reverseGeoCode = await Location.reverseGeocodeAsync(location.coords);
+      if (!reverseGeoCode?.length) {
+        setErrorMsg("Could not determine your location");
+        return;
+      }
+
+      const { city, region } = reverseGeoCode[0];
+      const stringLocation = `${city || "Unknown"}, ${region || "Unknown"}`;
+
+      if (user.location !== stringLocation) {
+        dispatch(setLocation({ location: stringLocation }));
+      }
+    } catch (error) {
+      console.error("Location error:", error);
+      setErrorMsg("Failed to get location: " + error.message);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -273,9 +254,9 @@ const AuctionsScreen = ({ navigation, route }) => {
       </Animated.View>
 
       {auctionsList === null ? (
-        <renderLoading />
+        <RenderLoading />
       ) : auctionsList.length === 0 ? (
-        <renderEmpty />
+        <RenderEmpty />
       ) : (
         <Animated.FlatList
           data={auctionsList}
@@ -283,7 +264,12 @@ const AuctionsScreen = ({ navigation, route }) => {
           numColumns={2}
           columnWrapperStyle={styles.columnWrapper}
           contentContainerStyle={styles.listContent}
-          ListHeaderComponent={<renderFlatListHeader />}
+          ListHeaderComponent={
+            <RenderFlatListHeader
+              selectedCategory={selectedCategory}
+              setSelectedCategory={(category) => setSelectedCategory(category)}
+            />
+          }
           ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
           renderItem={({ item }) => <AuctionCard auction={item} />}
           showsVerticalScrollIndicator={false}
@@ -311,5 +297,14 @@ const styles = StyleSheet.create({
     top: 0,
     height: SIZES.CONTAINER_HEIGHT,
     zIndex: 10,
+  },
+  columnWrapper: {
+    justifyContent: "space-between",
+    columnGap: 10,
+  },
+  listContent: {
+    paddingTop: SIZES.CONTAINER_HEIGHT,
+    paddingHorizontal: 16,
+    paddingBottom: 100,
   },
 });

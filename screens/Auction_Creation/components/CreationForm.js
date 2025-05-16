@@ -16,6 +16,7 @@ import AddImages from "./AddImages";
 import { createAuction } from "@/state/reducers/auctionsSlice";
 import ItemCondition from "./ItemCondition";
 import UploadPictModel from "./UploadPictModel";
+import { useDebounce } from "@/hooks/useDebouce";
 
 const CreationForm = ({ navigation }) => {
   // State declarations
@@ -56,15 +57,6 @@ const CreationForm = ({ navigation }) => {
 
   // Refs
   const uploadSheetRef = useRef();
-
-  // Custom hooks
-  const useDebounce = (callback, delay, deps) => {
-    useEffect(() => {
-      // console.log("states: ", state);
-      const handler = setTimeout(() => callback(), delay);
-      return () => clearTimeout(handler);
-    }, [...(deps || [])]);
-  };
 
   // Navigation setup
   useLayoutEffect(() => {

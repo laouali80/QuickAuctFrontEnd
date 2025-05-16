@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import CategoriesFilter from "./components/CategoriesFilter";
 import { COLORS } from "@/constants/COLORS";
+import CategoriesFilter from "@/screens/Auctions/components/CategoriesFilter";
 
-const renderFlatListHeader = () => {
+const RenderFlatListHeader = ({ selectedCategory, setSelectedCategory }) => {
   return (
     <>
       <CategoriesFilter
@@ -18,7 +18,7 @@ const renderFlatListHeader = () => {
   );
 };
 
-export default renderFlatListHeader;
+export default RenderFlatListHeader;
 
 const styles = StyleSheet.create({
   sectionHeader: {
