@@ -36,7 +36,7 @@ const PaymentMethodSelector = ({ selectedMethods, setSelectedMethods }) => {
       imageStyle: { width: 100, height: 50 },
     },
     {
-      id: "debit _card",
+      id: "debit_card",
       name: "Debit Card",
       icon: require("../../../assets/icons/DebitCard.svg"),
       // imageUrl: "https://i.ibb.co/wQnrX86/American-Express.jpg",

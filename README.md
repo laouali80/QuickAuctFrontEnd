@@ -65,6 +65,7 @@ https://www.youtube.com/watch?v=2-sr2e7LYhM
 
 react-native-reanimated-carousel
 https://rn-carousel.dev/Examples/custom-animations/blur-parallax
+https://github.com/dohooo/react-native-reanimated-carousel/blob/main/example/app/app/demos/custom-animations/blur-parallax/index.tsx
 
 **_Documentation_**
 
@@ -189,3 +190,39 @@ sales: <FontAwesome5 name="store" size={90} color={COLORS.primary} />,
 likes: <FontAwesome name="heart" size={90} color={COLORS.primary} />,
 
 npx expo install react-native-reanimated-carousel react-native-image-viewing react-navigation react-native-gesture-handler react-native-reanimated
+
+why is setSelectedCategory undefine at categoryfilter component?
+
+ListHeaderComponent={
+<RenderFlatListHeader
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+            />
+}
+
+const RenderFlatListHeader = ({ selectedCategory, setSelectedCategory }) => {
+return (
+<>
+<CategoriesFilter
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+      />
+<View style={styles.sectionHeader}>
+<Text style={styles.sectionTitle}>Newest Items</Text>
+<Text style={styles.filterText}>Filters</Text>
+</View>
+</>
+);
+};
+
+const CategoriesFilter = ({ selectedCategory, setSelectedCategory }) => {
+// const [categoryClick, setCategoryClick] = useState(0);
+const categories = useSelector(getCategories);
+const displayedCategories = [{ key: 0, value: "All" }, ...categories];
+console.log("selectedCategory: ", typeof setSelectedCategory);
+const handleOnclick = (category) => {
+setSelectedCategory(category);
+// query({})
+};
+ret
+ChatGPT said:

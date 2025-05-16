@@ -88,7 +88,16 @@ export const initializeAuctionSocket = createAsyncThunk(
         console.log("Auction Socket connected!");
         storeRef.dispatch({ type: "auctions/clearAuctions" }); // clear old
         socket.send(
-          JSON.stringify({ source: "FetchAuctionsList", data: { page: 1 } })
+          JSON.stringify({
+            source: "FetchAuctionsListByCategory",
+            data: {
+              page: 1,
+              category: {
+                key: 0,
+                value: "All",
+              },
+            },
+          })
         );
         // storeRef?.dispatch({ type: "auctions/setSocketConnected" });
       };

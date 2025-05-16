@@ -41,8 +41,10 @@ import {
 import { store } from "@/state/store";
 import {
   fetchAuctions,
+  fetchCategories,
   getAuctionsList,
   getAuctNextPage,
+  getCategories,
   loadMore,
   updateTime,
 } from "@/state/reducers/auctionsSlice";
@@ -54,164 +56,51 @@ import Empty from "@/common_components/Empty";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { EmptyState } from "@/common_components/EmptyState";
 import { useFocusEffect } from "@react-navigation/native";
-
-const CONTAINER_HEIGHT = 110;
+import { SIZES } from "@/constants/SIZES";
+import RenderLoading from "../../common_components/RenderLoading";
+import RenderEmpty from "../../common_components/RenderEmpty";
+import RenderFlatListHeader from "@/common_components/RenderFlatListHeader";
 
 const AuctionsScreen = ({ navigation, route }) => {
-  const [refreshing, setRefreshing] = useState(false);
-  const lastActiveRef = useRef(new Date());
-  const appState = useRef(AppState.currentState);
-  const [lastTimeStamp, setLastTimeStamp] = useState(null);
-
-  const handleRefresh = () => {
-    // console.log("reach the refresh");
-    setRefreshing(true);
-    dispatch(fetchAuctions({ page: 1 }));
-    setRefreshing(false);
-  };
-
-  // Listen to app state changes (background/foreground)
-  useEffect(() => {
-    const subscription = AppState.addEventListener("change", (nextAppState) => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === "active"
-      ) {
-        const now = new Date();
-        const last = lastActiveRef.current;
-        const diff = (now - last) / (1000 * 60); // in minutes
-
-        if (diff >= 5) {
-          handleRefresh();
-        }
-      }
-
-      appState.current = nextAppState;
-      if (nextAppState === "active") {
-        lastActiveRef.current = new Date(); // update on resume
-      }
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
-
-  // Also check when screen is focused (navigation)
-  useFocusEffect(
-    useCallback(() => {
-      const now = new Date();
-      const last = lastActiveRef.current;
-      const diff = (now - last) / (1000 * 60); // in minutes
-
-      if (diff >= 5) {
-        handleRefresh();
-      }
-
-      lastActiveRef.current = now;
-    }, [])
-  );
-
+  // -------------------- Redux State --------------------
   const dispatch = useDispatch();
   const tokens = useSelector(getTokens);
   const auctionsList = useSelector(getAuctionsList);
-  const user = useSelector(getUserInfo);
   const NextPage = useSelector(getAuctNextPage);
-  const [errorMsg, setErrorMsg] = useState(null);
+  const user = useSelector(getUserInfo);
+
+  // -------------------- Local State --------------------
+  const [selectedCategory, setSelectedCategory] = useState({
+    key: 0,
+    value: "All",
+  });
+  const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  // -------------------- Refs --------------------
+  const appState = useRef(AppState.currentState);
+  const lastActiveRef = useRef(new Date());
+  const didMountRef = useRef(false);
   const isCooldownRef = useRef(false);
 
-  // console.log("from auctions: ", user);
-  // console.log("auctions: ", auctionsList);
-  // console.log("next page: ", NextPage);
-
-  const getCurrentLocation = async () => {
-    try {
-      // console.log("Requesting location permission...");
-      let { status } = await Location.requestForegroundPermissionsAsync();
-
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        console.warn("Location permission denied");
-        return;
-      }
-
-      // console.log("Fetching current location...");
-      let location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-        timeout: 15000,
-      });
-
-      let reverseGeoCode = await Location.reverseGeocodeAsync({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
-
-      if (!reverseGeoCode || reverseGeoCode.length === 0) {
-        setErrorMsg("Could not determine your location");
-        return;
-      }
-
-      const { city, region } = reverseGeoCode[0];
-      const stringLocation = `${city || "Unknown"}, ${region || "Unknown"}`;
-
-      // console.log("Resolved Location:", stringLocation);
-
-      if (user.location !== stringLocation) {
-        dispatch(setLocation({ location: stringLocation }));
-      }
-    } catch (error) {
-      console.error("Location error:", error);
-      setErrorMsg("Failed to get location: " + error.message);
-    }
-  };
-
-  // useLayoutEffect(() => {
-  //   // console.log("Component mounted, fetching location...");
-
-  //   Platform.OS === "web"
-  //     ? dispatch(setLocation({ location: "Yola, Adamawa", token: tokens }))
-  //     : getCurrentLocation();
-  // }, [getCurrentLocation]);
-
-  useEffect(() => {
-    // utils.log('receive: ', tokens)
-    setStore(store); // Initialize socket manager with store reference
-    dispatch(initializeChatSocket(tokens)); // initialize chat socket channel
-    dispatch(initializeAuctionSocket(tokens)); // initialize auction socket channel
-
-    return () => {
-      dispatch(ChatSocketClose());
-      dispatch(AuctionSocketClose());
-    };
-  }, []);
-
-  // Timer for updating time
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     dispatch(updateTime());
-  //   }, 1000);
-  //   return () => clearInterval(interval);
-  // }, []);
-
+  // -------------------- Scroll Animation Setup --------------------
   const scrollY = useRef(new Animated.Value(0)).current;
   const offsetY = useRef(new Animated.Value(0)).current;
+  const scrollOffset = useRef(0);
+  const scrollDirection = useRef("down");
 
   const clampedScroll = Animated.diffClamp(
     Animated.add(scrollY, offsetY),
     0,
-    CONTAINER_HEIGHT
+    SIZES.CONTAINER_HEIGHT
   );
 
   const headerTranslate = clampedScroll.interpolate({
-    inputRange: [0, CONTAINER_HEIGHT],
-    outputRange: [0, -CONTAINER_HEIGHT],
+    inputRange: [0, SIZES.CONTAINER_HEIGHT],
+    outputRange: [0, -SIZES.CONTAINER_HEIGHT],
     extrapolate: "clamp",
   });
-
-  // Used to track whether we should snap header up/down
-  const scrollOffset = useRef(0);
-  const scrollDirection = useRef("down");
 
   const onScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -227,8 +116,8 @@ const AuctionsScreen = ({ navigation, route }) => {
   );
 
   const onScrollEnd = () => {
-    const toValue = scrollDirection.current === "down" ? CONTAINER_HEIGHT : 0;
-
+    const toValue =
+      scrollDirection.current === "down" ? SIZES.CONTAINER_HEIGHT : 0;
     Animated.timing(offsetY, {
       toValue,
       duration: 300,
@@ -236,48 +125,124 @@ const AuctionsScreen = ({ navigation, route }) => {
     }).start();
   };
 
-  // Improved pagination handler
+  // -------------------- Effects --------------------
+
+  // Fetch auctions when category changes
+  useEffect(() => {
+    if (didMountRef.current) {
+      dispatch(fetchAuctions({ page: 1, category: selectedCategory }));
+    } else {
+      didMountRef.current = true;
+    }
+  }, [selectedCategory.key]);
+
+  // Get location and set on mount
+  useLayoutEffect(() => {
+    Platform.OS === "web"
+      ? dispatch(setLocation({ location: "Yola, Adamawa", token: tokens }))
+      : fetchAndSetCurrentLocation();
+  }, []);
+
+  // Initialize sockets, cleanup on unmount
+  useEffect(() => {
+    setStore(store);
+    dispatch(initializeChatSocket(tokens));
+    dispatch(initializeAuctionSocket(tokens));
+    dispatch(fetchCategories());
+
+    return () => {
+      dispatch(ChatSocketClose());
+      dispatch(AuctionSocketClose());
+    };
+  }, []);
+
+  // Timer for auction time updates
+  useEffect(() => {
+    const interval = setInterval(() => dispatch(updateTime()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Resume-refresh listener
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        const now = new Date();
+        const last = lastActiveRef.current;
+        const diff = (now - last) / (1000 * 60); // in minutes
+
+        if (diff >= 5) handleRefresh();
+      }
+
+      appState.current = nextAppState;
+      if (nextAppState === "active") lastActiveRef.current = new Date();
+    });
+
+    return () => subscription.remove();
+  }, []);
+
+  // Focus refresh logic
+  useFocusEffect(
+    useCallback(() => {
+      const now = new Date();
+      const last = lastActiveRef.current;
+      const diff = (now - last) / (1000 * 60);
+      if (diff >= 5) handleRefresh();
+      lastActiveRef.current = now;
+    }, [])
+  );
+
+  // -------------------- Handlers --------------------
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    dispatch(fetchAuctions({ page: 1, category: selectedCategory }));
+    setRefreshing(false);
+  };
+
   const handleLoadMore = useLoadMore({
     isLoading,
     setIsLoading,
-    NextPage,
+    data: { page: NextPage, category: selectedCategory },
     isCooldownRef,
     Action: loadMore,
   });
 
-  // Show loading indicator
-  // if (auctionsList === null) {
-  //   return <ActivityIndicator style={{ flex: 1 }} />;
-  // }
+  const fetchAndSetCurrentLocation = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
 
-  // // Show empty if no  auctions
-  // if (auctionsList.length === 0) {
-  //   return <EmptyState type="auctions" message="No Watch Auctions" />;
-  // }
+      let location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+        timeout: 15000,
+      });
 
-  // <ScrollView refreshControl={
-  //   <RefreshControl
-  //   refreshing={false}
-  //   onRefresh={
-  //     ()=>{
-  //       navigation.navigate('Auctions', {refreshTimeStamp: new Date()})
-  //     }
-  //   }
-  //   />
-  // }></ScrollView>
+      let reverseGeoCode = await Location.reverseGeocodeAsync(location.coords);
+      if (!reverseGeoCode?.length) {
+        setErrorMsg("Could not determine your location");
+        return;
+      }
+
+      const { city, region } = reverseGeoCode[0];
+      const stringLocation = `${city || "Unknown"}, ${region || "Unknown"}`;
+
+      if (user.location !== stringLocation) {
+        dispatch(setLocation({ location: stringLocation }));
+      }
+    } catch (error) {
+      console.error("Location error:", error);
+      setErrorMsg("Failed to get location: " + error.message);
+    }
+  };
 
   return (
-    <SafeAreaView
-      style={{ flex: 1 }}
-      refreshControl={
-        <RefreshControl
-          refreshing={false}
-          onRefresh={() => {
-            navigation.navigate("Auctions", { refreshTimeStamp: new Date() });
-          }}
-        />
-      }
-    >
+    <SafeAreaView style={{ flex: 1 }}>
       {/* Animated Header */}
       <Animated.View
         style={[
@@ -286,61 +251,38 @@ const AuctionsScreen = ({ navigation, route }) => {
         ]}
       >
         <Header />
-        {/* <FakeHeader /> */}
       </Animated.View>
 
-      <Animated.FlatList
-        data={auctionsList}
-        // data={auctions}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
-        columnWrapperStyle={{
-          justifyContent: "space-between",
-          columnGap: 10,
-        }}
-        contentContainerStyle={{
-          paddingTop: CONTAINER_HEIGHT, // makes room for sticky header
-          paddingHorizontal: 16,
-          paddingBottom: 100,
-        }}
-        ListHeaderComponent={
-          <>
-            <CategoriesFilter />
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginBottom: 10,
-              }}
-            >
-              <Text style={{ fontSize: 22, fontWeight: "bold" }}>
-                Newest Items
-              </Text>
-              <Text
-                style={{
-                  fontSize: 22,
-                  fontWeight: "bold",
-                  color: COLORS.primary,
-                }}
-              >
-                Filters
-              </Text>
-            </View>
-          </>
-        }
-        ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
-        renderItem={({ item }) => <AuctionCard auction={item} />}
-        showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
-        onScroll={onScroll}
-        onScrollEndDrag={onScrollEnd}
-        onMomentumScrollEnd={onScrollEnd}
-        // onMomentumScrollBegin={onMomentumScrollBegin}
-        onEndReached={handleLoadMore}
-        useNativeDriver={true}
-        refreshing={refreshing}
-        onRefresh={handleRefresh}
-      />
+      {auctionsList === null ? (
+        <RenderLoading />
+      ) : auctionsList.length === 0 ? (
+        <RenderEmpty />
+      ) : (
+        <Animated.FlatList
+          data={auctionsList}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2}
+          columnWrapperStyle={styles.columnWrapper}
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={
+            <RenderFlatListHeader
+              selectedCategory={selectedCategory}
+              setSelectedCategory={(category) => setSelectedCategory(category)}
+            />
+          }
+          ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
+          renderItem={({ item }) => <AuctionCard auction={item} />}
+          showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          onScroll={onScroll}
+          onScrollEndDrag={onScrollEnd}
+          onMomentumScrollEnd={onScrollEnd}
+          onEndReached={handleLoadMore}
+          useNativeDriver={true}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -353,7 +295,16 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: 0,
-    height: CONTAINER_HEIGHT,
+    height: SIZES.CONTAINER_HEIGHT,
     zIndex: 10,
+  },
+  columnWrapper: {
+    justifyContent: "space-between",
+    columnGap: 10,
+  },
+  listContent: {
+    paddingTop: SIZES.CONTAINER_HEIGHT,
+    paddingHorizontal: 16,
+    paddingBottom: 100,
   },
 });

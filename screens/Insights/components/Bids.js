@@ -25,7 +25,7 @@ const Bids = () => {
   const handleLoadMore = useLoadMore({
     isLoading,
     setIsLoading,
-    NextPage,
+    data: { page: 1 },
     isCooldownRef,
     Action: fetchBidsAuctions,
   });
