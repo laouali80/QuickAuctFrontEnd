@@ -59,12 +59,12 @@ const CreationForm = ({ navigation }) => {
   const uploadSheetRef = useRef();
 
   // Navigation setup
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: "Create an Auction",
-      headerTitleAlign: "center",
-    });
-  }, [navigation]);
+  // useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerTitle: "Create an Auction",
+  //     headerTitleAlign: "center",
+  //   });
+  // }, [navigation]);
 
   // Form validation
 
