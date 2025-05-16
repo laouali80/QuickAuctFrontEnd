@@ -199,16 +199,17 @@ const AuctionScreen = ({ navigation, route }) => {
   // -------------------- Redux State --------------------
   const auction = useSelector(getAuction(id));
   const user = useSelector(getUserInfo);
+  console.log("auction receive: ", auction);
 
   // -------------------- Local State --------------------
   const [selectedTab, setSelectedTab] = useState("Overview");
   const [like, setLike] = useState(
-    auction.watchers.includes(user.userId) ? "heart" : "heart-o"
+    auction.watchers?.includes(user.userId) ? "heart" : "heart-o"
   );
   const [showReportModal, setShowReportModal] = useState(false);
 
   // -------------------- Debugs --------------------
-  // console.log("auction receive: ", auction);
+  console.log("auction receive: ", auction);
 
   // -------------------- Effects --------------------
   // set up Screen header
