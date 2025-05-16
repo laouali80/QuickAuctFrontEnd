@@ -4,6 +4,7 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import React, { useEffect } from "react";
@@ -12,13 +13,20 @@ import { COLORS } from "@/constants/COLORS";
 import SearchFilter from "../../Search/components/SearchFilter";
 import { useSelector } from "react-redux";
 import { getUserInfo } from "@/state/reducers/userSlice";
+import { useNavigation } from "@react-navigation/native";
 
 const Header = () => {
+  const navigation = useNavigation();
   const user = useSelector(getUserInfo);
   // console.log("from header: ", user);
   useEffect(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
   }, [user.latest_location]);
+
+  const _navigate = () => {
+    // console.log("reach");
+    navigation.navigate("Notifications");
+  };
   return (
     <SafeAreaView style={styles.container}>
       {/* Location and Notification */}
@@ -30,13 +38,14 @@ const Header = () => {
             {/* {"Locating..."} */}
           </Text>
         </View>
-
-        <FontAwesome
-          name="bell-o"
-          size={24}
-          color={COLORS.primary}
-          style={styles.notificationIcon}
-        />
+        <TouchableOpacity onPress={_navigate}>
+          <FontAwesome
+            name="bell-o"
+            size={24}
+            color={COLORS.primary}
+            style={styles.notificationIcon}
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Search Bar */}
