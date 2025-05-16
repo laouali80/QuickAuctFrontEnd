@@ -8,7 +8,7 @@ import Thumbnail from "@/common_components/Thumbnail";
 const SaleCard = ({ auction }) => {
   const navigation = useNavigation();
   const _navigate = () => {
-    navigation.navigate("Auction");
+    navigation.navigate("Auction", auction);
   };
   return (
     <TouchableOpacity
