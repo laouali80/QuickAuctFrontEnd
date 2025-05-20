@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import apiRequest from "@/core/api";
+import apiRequest from "@/api/axiosInstance";
 import utils from "@/core/utils";
-import secure from "@/core/secure";
+import secure from "@/storage/secure";
 import { Platform } from "react-native";
 // import secure from "@/core/secure";
 
@@ -19,18 +19,31 @@ export const logInUser = createAsyncThunk(
   "user/logInUser",
   async (data, { rejectWithValue }) => {
     try {
+      // Optionally save credentials (if needed for re-login or biometric auth)
+      await secure.saveUserCredentials(data.email, data.password);
+
+      await secure.saveUserCredentials(data.email, data.password);
       const response = await apiRequest("users/auth/login/", data, "POST");
       utils.log("Login Response:", response.data);
-      // utils.log("b4 call:");
-      // let store = await secure.storeUserSession(
-      //   "accessToken",
-      //   response.tokens.access
-      // );
-      // utils.log("after call:", store);
+
+      const tokens = response.data?.tokens;
+      if (tokens?.access && tokens?.refresh) {
+        await secure.saveUserSession(tokens.access, tokens.refresh);
+      } else {
+        throw new Error("Missing tokens in response");
+      }
 
       return response.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      await secure.clearUserSession();
+
+      // Log actual error if available
+      utils.log("Login error:", err?.response?.data || err.message);
+
+      // Normalize error message
+      const message =
+        err?.response?.data?.detail || err.message || "Login failed";
+      return rejectWithValue(message);
     }
   }
 );
@@ -45,7 +58,14 @@ export const signUpUser = createAsyncThunk(
       utils.log("Sign Up Response:", response);
       // secure.storeUserSession("accessToken", response.tokens.access);
 
-      return response;
+      const tokens = response.data?.tokens;
+      if (tokens?.access && tokens?.refresh) {
+        await secure.saveUserSession(tokens.access, tokens.refresh);
+      } else {
+        throw new Error("Missing tokens in response");
+      }
+
+      return response.data;
     } catch (err) {
       return rejectWithValue(err.message);
     }
@@ -100,9 +120,7 @@ export const setLocation = createAsyncThunk(
       // console.log("Latest Location: ", data);
       const response =
         Platform.OS === "web"
-          ? await apiRequest("users/location/", data, "POST", {
-              Authorization: `Bearer ${data.token.access}`,
-            })
+          ? await apiRequest("users/location/", data, "POST", {}, data.token)
           : await apiRequest("users/location/", data, "POST");
 
       console.log("location response", response);
@@ -129,7 +147,6 @@ const userSlice = createSlice({
       state.error = null;
       state.status = null;
       state.initialized = false;
-      // secure.removeUserSession("accessToken");
     },
     // setLocation(state, action) {
     //   state.user.location = action.payload;
@@ -149,7 +166,6 @@ const userSlice = createSlice({
         state.initialized = true;
         state.status = "fulfilled";
         state.error = null;
-        secure.storeUserSession("accessToken", action.payload.tokens.access);
       })
       .addCase(logInUser.rejected, (state, action) => {
         state.status = "rejected";
@@ -166,7 +182,6 @@ const userSlice = createSlice({
         state.authenticated = true;
         state.status = "fulfilled";
         state.error = null;
-        secure.storeUserSession("accessToken", action.payload.tokens.access);
       })
       .addCase(signUpUser.rejected, (state, action) => {
         state.status = "rejected";

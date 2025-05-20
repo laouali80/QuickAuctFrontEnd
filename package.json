@@ -45,6 +45,7 @@
     "expo-secure-store": "~14.2.3",
     "expo-status-bar": "~2.2.3",
     "isomorphic-fetch": "^3.0.0",
+    "lucide-react-native": "^0.511.0",
     "nativewind": "^4.1.23",
     "prop-types": "^15.8.1",
     "react": "19.0.0",

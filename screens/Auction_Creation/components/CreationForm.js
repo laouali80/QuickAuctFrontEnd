@@ -17,6 +17,7 @@ import { createAuction } from "@/state/reducers/auctionsSlice";
 import ItemCondition from "./ItemCondition";
 import UploadPictModel from "./UploadPictModel";
 import { useDebounce } from "@/hooks/useDebouce";
+import SuccessModal from "./SuccessModal";
 
 const CreationForm = ({ navigation }) => {
   // State declarations
@@ -32,6 +33,7 @@ const CreationForm = ({ navigation }) => {
     shipping_details: "",
     payment_methods: [],
   });
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [isFormValid, setIsFormValid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -251,6 +253,7 @@ const CreationForm = ({ navigation }) => {
       setIsFormValid(false);
       setIsSubmitting(false);
       setSelectedDuration(null);
+      setShowSuccessModal(true);
 
       // Navigate back or show success message
       // navigation.goBack();
@@ -339,6 +342,14 @@ const CreationForm = ({ navigation }) => {
         ref={uploadSheetRef}
         onCameraPress={() => uploadImage("camera")}
         onGalleryPress={() => uploadImage("gallery")}
+      />
+
+      <SuccessModal
+        visible={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          navigation.navigate("Auctions"); // or your home route
+        }}
       />
     </ScrollView>
   );

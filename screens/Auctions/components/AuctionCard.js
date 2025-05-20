@@ -129,6 +129,20 @@ const AuctionCard = ({ auction }) => {
         </Text>
       </View>
 
+      <View
+        style={{
+          width: "100%", // Takes full width of the card
+          // backgroundColor: "white",
+          // paddingVertical: 8,
+          alignItems: "flex-start",
+        }}
+      >
+        <Text style={{ color: COLORS.silverIcon }}>Current Bid</Text>
+        <Text style={{ color: COLORS.primary, fontWeight: "bold" }}>
+          ${auction.current_price}
+        </Text>
+      </View>
+
       {/* Current Bid and Auction Icon */}
       <View
         style={{
@@ -138,11 +152,14 @@ const AuctionCard = ({ auction }) => {
         }}
       >
         <View style={{ flexDirection: "column", rowGap: 4 }}>
-          <Text style={{ color: COLORS.silverIcon }}>Current Bid</Text>
-          <Text style={{ color: COLORS.primary, fontWeight: "bold" }}>
-            {auction.current_price}
+          <Text style={{ color: COLORS.silverIcon, marginTop: 4 }}>
+            Bid Increment
+          </Text>
+          <Text style={{ color: COLORS.primary, fontWeight: "600" }}>
+            ${auction.bid_increment}
           </Text>
         </View>
+
         <Pressable
           style={{
             backgroundColor: "#fff",

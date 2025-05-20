@@ -6,7 +6,7 @@ import { logOutUser } from "@/state/reducers/userSlice";
 import { persistor } from "@/state/store";
 import { COLORS } from "@/constants/COLORS";
 import { useNavigation } from "@react-navigation/native";
-import secure from "@/core/secure";
+import secure from "@/storage/secure";
 
 const ProfileLogout = () => {
   const navigation = useNavigation();
@@ -15,7 +15,7 @@ const ProfileLogout = () => {
   const handleLogout = async () => {
     dispatch(logOutUser());
     await persistor.purge(); // Clear Redux-persist storage
-    await secure.removeUserSession("accessToken");
+    await secure.clearUserSession();
     navigation.navigate("GetStarted");
 
     // navigation.navigate("GetStarted");
@@ -31,7 +31,8 @@ const ProfileLogout = () => {
         justifyContent: "center",
         paddingHorizontal: 26,
         backgroundColor: COLORS.primary,
-        marginTop: 40,
+        marginBottom: 20,
+        // mt-8 mb-20
       }}
       onPress={handleLogout}
     >

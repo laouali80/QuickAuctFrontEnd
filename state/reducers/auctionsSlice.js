@@ -1,5 +1,5 @@
 // store/auctionsSlice.js
-import apiRequest from "@/core/api";
+import apiRequest from "@/api/axiosInstance";
 import { sendThroughSocket } from "@/core/auctionSocketManager";
 import utils, { formatAuctionTime } from "@/core/utils";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
@@ -305,6 +305,28 @@ export const fetchCategories = createAsyncThunk(
     try {
       // console.log("categories fetching");
       const response = await apiRequest("auctions/categories/");
+      // console.log("reach: ", response);
+
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const fetchUserAuctions = createAsyncThunk(
+  "auctions/user",
+  async (data, { rejectWithValue }) => {
+    try {
+      // console.log("token: ", data.token.access);
+      const response = await apiRequest(
+        "auctions/",
+        null,
+        "GET",
+        {},
+        data.token
+      );
+
       // console.log("reach: ", response);
 
       return response;

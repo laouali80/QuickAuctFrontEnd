@@ -1,5 +1,5 @@
 import { Platform } from "react-native";
-import { BaseAddress } from "./api";
+import { BaseAddress } from "../api/axiosInstance";
 import errorPic from "../assets/errors/error.jpg";
 
 function log() {

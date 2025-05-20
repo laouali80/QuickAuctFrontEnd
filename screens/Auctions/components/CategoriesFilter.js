@@ -9,13 +9,14 @@ import {
 import React, { useEffect, useState } from "react";
 // import { categories } from "@/mockData/categories";
 import { COLORS } from "@/constants/COLORS";
-import apiRequest from "@/core/api";
+import apiRequest from "@/api/axiosInstance";
 import { useSelector } from "react-redux";
 import { getCategories } from "@/state/reducers/auctionsSlice";
 
 const CategoriesFilter = ({ selectedCategory, setSelectedCategory }) => {
   // const [categoryClick, setCategoryClick] = useState(0);
-  const categories = useSelector(getCategories);
+  const categories = useSelector(getCategories) || [];
+
   const displayedCategories = [{ key: 0, value: "All" }, ...categories];
   // console.log("selectedCategory: ", typeof setSelectedCategory);
   const handleOnclick = (category) => {
