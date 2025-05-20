@@ -20,12 +20,12 @@ import TermsConditionsModal from "./TermsConditionsModal";
 import SubmitButton from "@/common_components/SubmitButton";
 import OrDivider from "@/common_components/OrDivider";
 import SocialsButton from "./SocialsButton";
-import api from "@/core/api";
+import api from "@/api/axiosInstance";
 import { useDispatch } from "react-redux";
 import { EmailVerification, SignUpUser } from "@/state/reducers/userSlice";
 import { useNavigation } from "@react-navigation/native";
 import { persistor } from "@/state/store";
-import secure from "@/core/secure";
+import secure from "@/storage/secure";
 
 const SignUpForm = () => {
   const navigation = useNavigation();
@@ -74,10 +74,6 @@ const SignUpForm = () => {
   const handleSubmit = async () => {
     if (validateForm()) {
       // console.log("Form submitted:", formData);
-
-      // Clear any previously storage
-      await persistor.purge(); // Clear Redux-persist storage
-      await secure.removeUserSession("accessToken");
 
       dispatch(
         EmailVerification({

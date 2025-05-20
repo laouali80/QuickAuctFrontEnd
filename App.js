@@ -58,15 +58,12 @@ function AppContent() {
   const isDarkMode = colorScheme === "dark";
   const statusBarStyle = isDarkMode ? "light-content" : "dark-content";
 
-  // useEffect(() => {
-  //   console.log("Authenticated:", authenticated);
-  // }, [authenticated]);
-
   useEffect(() => {
     // Simulate initial loading (like fonts, themes, etc.)
     setTimeout(() => {
       setInitialized(true);
     }, 500); // delay to mimic async init (you can adjust/remove)
+
     console.log("Authenticated:", authenticated);
   }, [authenticated]);
   // const [initialized] = useState(true);

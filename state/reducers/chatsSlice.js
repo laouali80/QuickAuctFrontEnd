@@ -1,9 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import apiRequest, { BaseAddress, DEVELOPMENT } from "@/core/api";
+import apiRequest from "@/api/axiosInstance";
 import { useDispatch, useSelector } from "react-redux";
 import utils from "@/core/utils";
 import { getTokens, updateThumbnail } from "./userSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BaseAddress, DEVELOPMENT } from "@/constants/config";
 
 const initialState = {
   isConnected: false,

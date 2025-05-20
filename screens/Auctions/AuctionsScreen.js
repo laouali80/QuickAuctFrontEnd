@@ -49,7 +49,7 @@ import {
   updateTime,
 } from "@/state/reducers/auctionsSlice";
 import * as Location from "expo-location";
-import secure from "@/core/secure";
+import secure from "@/storage/secure";
 import CategoriesFilter from "./components/CategoriesFilter";
 import { useLoadMore } from "@/hooks/useLoadMore";
 import Empty from "@/common_components/Empty";
@@ -83,6 +83,15 @@ const AuctionsScreen = ({ navigation, route }) => {
   const lastActiveRef = useRef(new Date());
   const didMountRef = useRef(false);
   const isCooldownRef = useRef(false);
+
+  // ------------------- Debug --------------------
+
+  // const logStoredAccessToken = async () => {
+  //   const token = await secure.getCredentials();
+  //   console.log("store Credentials: ", token);
+  // };
+
+  // logStoredAccessToken();
 
   // -------------------- Scroll Animation Setup --------------------
   const scrollY = useRef(new Animated.Value(0)).current;

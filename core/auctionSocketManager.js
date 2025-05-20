@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { BaseAddress, DEVELOPMENT } from "./api";
 import utils from "./utils";
+import { BaseAddress, DEVELOPMENT } from "@/constants/config";
 
 // core/socketManager.js
 let socket = null;
