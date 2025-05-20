@@ -151,6 +151,17 @@ const userSlice = createSlice({
     // setLocation(state, action) {
     //   state.user.location = action.payload;
     // },
+    resetTokens(state, action) {
+      state.tokens = action.payload.tokens;
+    },
+    silentLogin(state, action) {
+      state.user = action.payload.user;
+      state.tokens = action.payload.tokens;
+      state.authenticated = true;
+      state.initialized = true;
+      state.status = "fulfilled";
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -215,5 +226,6 @@ export const getUserInfo = (state) => state.user.user;
 export const getTokens = (state) => state.user.tokens;
 
 // Export Actions & Reducer
-export const { logOutUser, updateThumbnail } = userSlice.actions;
+export const { logOutUser, updateThumbnail, resetTokens, silentLogin } =
+  userSlice.actions;
 export default userSlice.reducer;

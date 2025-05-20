@@ -2,8 +2,11 @@
 
 import { api } from "./axiosInstance";
 import secure from "../storage/secure";
+import { useDispatch } from "react-redux";
+import { resetTokens, silentLogin } from "@/state/reducers/userSlice";
 
 export const refreshAccessToken = async (overrideTokens = null) => {
+  const dispatch = useDispatch();
   try {
     const refreshToken = overrideTokens
       ? overrideTokens.refresh
@@ -22,6 +25,7 @@ export const refreshAccessToken = async (overrideTokens = null) => {
     const tokens = response.data?.tokens;
     if (tokens?.access && tokens?.refresh) {
       await secure.saveUserSession(tokens.access, tokens.refresh);
+      dispatch(resetTokens(tokens));
     } else {
       throw new Error("Missing tokens in response");
     }
@@ -46,10 +50,11 @@ export const attemptSilentLogin = async () => {
       data: creds,
     });
 
-    const tokens = response.data;
+    const { tokens } = response.data;
 
     if (tokens?.access && tokens?.refresh) {
       await secure.saveUserSession(tokens.access, tokens.refresh);
+      dispatch(silentLogin(response.data));
     } else {
       throw new Error("Missing tokens in response");
     }
