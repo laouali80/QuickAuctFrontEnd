@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { SIZES } from "@/constants/SIZES";
 import RenderFlatListHeader from "./RenderFlatListHeader";
-import { EmptyState } from "./EmptyState";
+import { EmptyState } from "../../../common_components/EmptyState";
 
 const RenderEmpty = () => {
   return (

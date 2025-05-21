@@ -5,6 +5,7 @@ import { Button, ButtonText } from "@/components/ui/button";
 const SubmitButton = ({
   handleSubmit,
   text,
+  textColor = "black",
   isDisabled,
   showSpinner = false,
 }) => {
@@ -18,7 +19,7 @@ const SubmitButton = ({
       {showSpinner ? (
         <ActivityIndicator size="small" color="#fff" />
       ) : (
-        <ButtonText>{text}</ButtonText>
+        <ButtonText style={{ color: textColor }}>{text}</ButtonText>
       )}
     </Button>
   );

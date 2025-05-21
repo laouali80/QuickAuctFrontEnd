@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
-import { BaseAddress } from "../api/axiosInstance";
 import errorPic from "../assets/errors/error.jpg";
+import { BaseAddress } from "@/constants/config";
 
 function log() {
   // Much beter console.log function that formats/indents
