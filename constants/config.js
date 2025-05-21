@@ -1,4 +1,4 @@
-export const DEVELOPMENT = false;
+export const DEVELOPMENT = true;
 
 export const BaseAddress = DEVELOPMENT
   ? "localhost:8000"

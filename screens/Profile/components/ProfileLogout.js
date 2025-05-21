@@ -31,7 +31,7 @@ const ProfileLogout = () => {
         justifyContent: "center",
         paddingHorizontal: 26,
         backgroundColor: COLORS.primary,
-        marginBottom: 20,
+        marginBottom: 60,
         // mt-8 mb-20
       }}
       onPress={handleLogout}

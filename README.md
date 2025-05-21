@@ -215,14 +215,5 @@ return (
 );
 };
 
-const CategoriesFilter = ({ selectedCategory, setSelectedCategory }) => {
-// const [categoryClick, setCategoryClick] = useState(0);
-const categories = useSelector(getCategories);
-const displayedCategories = [{ key: 0, value: "All" }, ...categories];
-console.log("selectedCategory: ", typeof setSelectedCategory);
-const handleOnclick = (category) => {
-setSelectedCategory(category);
-// query({})
-};
-ret
-ChatGPT said:
+icons
+https://fontawesome.com/v4/icons/

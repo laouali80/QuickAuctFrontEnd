@@ -57,9 +57,10 @@ import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { EmptyState } from "@/common_components/EmptyState";
 import { useFocusEffect } from "@react-navigation/native";
 import { SIZES } from "@/constants/SIZES";
-import RenderLoading from "../../common_components/RenderLoading";
-import RenderEmpty from "../../common_components/RenderEmpty";
-import RenderFlatListHeader from "@/common_components/RenderFlatListHeader";
+import RenderLoading from "./components/RenderLoading";
+import RenderEmpty from "./components/RenderEmpty";
+import RenderFlatListHeader from "@/screens/Auctions/components/RenderFlatListHeader";
+import FilterModal from "./components/FilterModal";
 
 const AuctionsScreen = ({ navigation, route }) => {
   // -------------------- Redux State --------------------
@@ -77,6 +78,7 @@ const AuctionsScreen = ({ navigation, route }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
 
   // -------------------- Refs --------------------
   const appState = useRef(AppState.currentState);
@@ -277,6 +279,7 @@ const AuctionsScreen = ({ navigation, route }) => {
             <RenderFlatListHeader
               selectedCategory={selectedCategory}
               setSelectedCategory={(category) => setSelectedCategory(category)}
+              showModal={() => setIsFilterVisible(true)}
             />
           }
           ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
@@ -292,6 +295,13 @@ const AuctionsScreen = ({ navigation, route }) => {
           onRefresh={handleRefresh}
         />
       )}
+      <FilterModal
+        visible={isFilterVisible}
+        onClose={() => setIsFilterVisible(false)}
+        onSubmit={(filters) => {
+          console.log(filters); // Apply filtering logic here
+        }}
+      />
     </SafeAreaView>
   );
 };

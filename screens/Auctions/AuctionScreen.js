@@ -405,6 +405,7 @@ import Thumbnail from "@/common_components/Thumbnail";
 import { useSelector } from "react-redux";
 import { getAuction, watchAuction } from "@/state/reducers/auctionsSlice";
 import { getUserInfo } from "@/state/reducers/userSlice";
+import RatingModal from "./components/RatingModal";
 
 const AuctionScreen = ({ navigation, route }) => {
   // -------------------- Navigation Parameters --------------------
@@ -421,6 +422,7 @@ const AuctionScreen = ({ navigation, route }) => {
     auction.watchers?.includes(user.userId) ? "heart" : "heart-o"
   );
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(true); // trigger this when auction is won
 
   // -------------------- Debugs --------------------
   console.log("auction receive: ", auction);
@@ -467,6 +469,12 @@ const AuctionScreen = ({ navigation, route }) => {
 
   const handleOverviewPress = useCallback(() => setSelectedTab("Overview"), []);
   const handleBidsPress = useCallback(() => setSelectedTab("Bids"), []);
+
+  const handleRatingSubmit = ({ rating, feedback }) => {
+    console.log("User Rating:", rating);
+    console.log("Feedback:", feedback);
+    // Send to backend
+  };
 
   // Navigate to chat screen
   const _navigateToChat = (userId) => {
@@ -755,6 +763,15 @@ const AuctionScreen = ({ navigation, route }) => {
         <ReportModal
           show={showReportModal}
           onClose={() => setShowReportModal(false)}
+        />
+      )}
+
+      {showRatingModal && (
+        <RatingModal
+          visible={showRatingModal}
+          onClose={() => setShowRatingModal(false)}
+          onSubmit={handleRatingSubmit}
+          auction={auction}
         />
       )}
     </ScrollView>
