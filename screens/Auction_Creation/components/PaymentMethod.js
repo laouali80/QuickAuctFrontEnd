@@ -6,14 +6,14 @@ import { COLORS } from "@/constants/COLORS";
 const PaymentMethodSelector = ({ selectedMethods, setSelectedMethods }) => {
   const paymentMethods = [
     {
-      id: "cash",
+      id: "Cash",
       name: "Cash",
       icon: require("../../../assets/icons/nairaNote.svg"),
       // imageUrl: "https://i.ibb.co/vjQCN4y/Visa-Card.png",
       imageStyle: { width: 80, height: 50 },
     },
     {
-      id: "bank_transfer",
+      id: "Bank Transfer",
       name: "Bank Transfer",
       icon: require("../../../assets/icons/BankTransfer.svg"),
       // imageUrl: "https://i.ibb.co/vdbBkgT/mastercard.jpg",
@@ -29,21 +29,21 @@ const PaymentMethodSelector = ({ selectedMethods, setSelectedMethods }) => {
     },
 
     {
-      id: "apple_pay",
+      id: "Apple Pay",
       name: "Apple Pay",
       icon: require("../../../assets/icons/Apple.svg"),
       // imageUrl: "https://i.ibb.co/KVF3mr1/paypal.png",
       imageStyle: { width: 100, height: 50 },
     },
     {
-      id: "debit_card",
+      id: "Debit Card",
       name: "Debit Card",
       icon: require("../../../assets/icons/DebitCard.svg"),
       // imageUrl: "https://i.ibb.co/wQnrX86/American-Express.jpg",
       imageStyle: { width: 150, height: 50 },
     },
     {
-      id: "others",
+      id: "Others",
       name: "Others",
       // icon: require("../../assets/icons/nairaNote.svg"),
       // imageUrl: "https://i.ibb.co/wQnrX86/American-Express.jpg",

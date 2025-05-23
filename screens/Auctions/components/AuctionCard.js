@@ -19,11 +19,12 @@ const AuctionCard = ({ auction }) => {
   const navigation = useNavigation();
   const user = useSelector(getUserInfo);
   const [like, setLike] = useState(
-    auction.watchers.includes(user.userId) ? "heart" : "heart-o"
+    auction?.watchers?.includes(user.userId) ? "heart" : "heart-o"
   );
 
   // console.log("user: ", user.userId);
-  // console.log("get watchers: ", auction);
+  // console.log("auction: ", auction);
+  // console.log(" reach auction card: ");
 
   const handleLike = () => {
     if (like === "heart-o") {
@@ -36,8 +37,8 @@ const AuctionCard = ({ auction }) => {
   };
 
   useEffect(() => {
-    setLike(auction.watchers.includes(user.userId) ? "heart" : "heart-o");
-  }, [auction.watchers]);
+    setLike(auction?.watchers?.includes(user.userId) ? "heart" : "heart-o");
+  }, [auction?.watchers]);
 
   // console.log("auction receive: ", auction.title, auction.images[0].image);
   const _navigate = () => {
@@ -46,8 +47,8 @@ const AuctionCard = ({ auction }) => {
 
   const RequestBid = () => {
     placeBid({
-      auction_id: auction.id,
-      current_price: parseInt(auction.current_price),
+      auction_id: auction?.id,
+      current_price: parseInt(auction?.current_price),
     });
   };
   return (
@@ -68,7 +69,7 @@ const AuctionCard = ({ auction }) => {
       {/* Image and Like Button */}
       <View>
         <Thumbnail
-          url={auction.images[0].image}
+          url={auction?.images[0].image}
           // url={auction.images[0]}
           width={120}
           height={100}
@@ -101,7 +102,7 @@ const AuctionCard = ({ auction }) => {
         numberOfLines={1} // Prevent text overflow
         ellipsizeMode="tail"
       >
-        {auction.title}
+        {auction?.title}
       </Text>
 
       {/* Bids */}
@@ -109,7 +110,7 @@ const AuctionCard = ({ auction }) => {
         style={{ alignItems: "center", backgroundColor: COLORS.primary }}
         className=" py-1 px-2"
       >
-        <Text style={{ color: "white" }}>Bids: {auction.bids.length}</Text>
+        <Text style={{ color: "white" }}>Bids: {auction?.bids.length}</Text>
       </View>
 
       {/* Ending Time (Fixed Width Container) */}
@@ -125,7 +126,7 @@ const AuctionCard = ({ auction }) => {
           style={{ color: COLORS.primary }}
           numberOfLines={1} // Prevent text overflow
         >
-          Ends in {auction.timeLeft}
+          Ends in {auction?.timeLeft}
         </Text>
       </View>
 
@@ -139,7 +140,7 @@ const AuctionCard = ({ auction }) => {
       >
         <Text style={{ color: COLORS.silverIcon }}>Current Bid</Text>
         <Text style={{ color: COLORS.primary, fontWeight: "bold" }}>
-          ${auction.current_price}
+          ${auction?.current_price}
         </Text>
       </View>
 
@@ -156,7 +157,7 @@ const AuctionCard = ({ auction }) => {
             Bid Increment
           </Text>
           <Text style={{ color: COLORS.primary, fontWeight: "600" }}>
-            ${auction.bid_increment}
+            ${auction?.bid_increment}
           </Text>
         </View>
 

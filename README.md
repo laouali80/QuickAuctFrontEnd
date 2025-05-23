@@ -217,3 +217,11 @@ return (
 
 icons
 https://fontawesome.com/v4/icons/
+
+logo
+https://logo.com/
+https://looka.com/
+logomaker.com
+
+vzero ai
+bolt ai

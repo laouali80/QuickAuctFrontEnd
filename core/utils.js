@@ -18,8 +18,12 @@ function log() {
 function thumbnail(url) {
   "Help to upload Imaged by urls.";
 
-  if (!url) {
-    return errorPic;
+  // Accepts either a static image (require) or a relative/absolute URL string.
+  if (!url) return errorPic;
+
+  if (typeof url === "number") {
+    // Handle local static images like require("...")
+    return url;
   }
 
   return {
