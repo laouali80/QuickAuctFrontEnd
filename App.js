@@ -15,7 +15,6 @@ import ProfileScreen from "./screens/Profile/ProfileScreen";
 import { useEffect, useState } from "react";
 import SplashScreen from "./screens/Welcomes/SplashScreen";
 import { Provider, useDispatch, useSelector } from "react-redux";
-import AuctionOverviewScreen from "./screens/Auctions/AuctionOverviewScreen";
 import AuctionBidsScreen from "./screens/Auctions/AuctionBidsScreen";
 // import AuctionScreen from "./screens/Auctions/AuctionScreen";
 import { store, persistor } from "./state/store";
@@ -109,10 +108,6 @@ function AppContent() {
                   <Stack.Screen
                     name="AuctionBids"
                     component={AuctionBidsScreen}
-                  />
-                  <Stack.Screen
-                    name="AuctionOverview"
-                    component={AuctionOverviewScreen}
                   />
 
                   {/* Auction Creation */}

@@ -61,6 +61,10 @@ import RenderLoading from "./components/RenderLoading";
 import RenderEmpty from "./components/RenderEmpty";
 import RenderFlatListHeader from "@/screens/Auctions/components/RenderFlatListHeader";
 import FilterModal from "./components/FilterModal";
+import {
+  fetchAndSetCurrentLocation,
+  handleRefresh,
+} from "./handlers/auctionsScreenHandlers";
 
 const AuctionsScreen = ({ navigation, route }) => {
   // -------------------- Redux State --------------------
@@ -90,10 +94,13 @@ const AuctionsScreen = ({ navigation, route }) => {
 
   // const logStoredAccessToken = async () => {
   //   const token = await secure.getCredentials();
-  //   console.log("store Credentials: ", token);
+  //   console.log("store Crcccedentials: ", token);
   // };
 
   // logStoredAccessToken();
+
+  // console.log("auctions: ", auctions);
+  // console.log("  auctions card: ");
 
   // -------------------- Scroll Animation Setup --------------------
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -151,7 +158,7 @@ const AuctionsScreen = ({ navigation, route }) => {
   useLayoutEffect(() => {
     Platform.OS === "web"
       ? dispatch(setLocation({ location: "Yola, Adamawa", token: tokens }))
-      : fetchAndSetCurrentLocation();
+      : fetchAndSetCurrentLocation(user, dispatch, setErrorMsg);
   }, []);
 
   // Initialize sockets, cleanup on unmount
@@ -207,12 +214,6 @@ const AuctionsScreen = ({ navigation, route }) => {
 
   // -------------------- Handlers --------------------
 
-  const handleRefresh = () => {
-    setRefreshing(true);
-    dispatch(fetchAuctions({ page: 1, category: selectedCategory }));
-    setRefreshing(false);
-  };
-
   const handleLoadMore = useLoadMore({
     isLoading,
     setIsLoading,
@@ -220,37 +221,6 @@ const AuctionsScreen = ({ navigation, route }) => {
     isCooldownRef,
     Action: loadMore,
   });
-
-  const fetchAndSetCurrentLocation = async () => {
-    try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-        timeout: 15000,
-      });
-
-      let reverseGeoCode = await Location.reverseGeocodeAsync(location.coords);
-      if (!reverseGeoCode?.length) {
-        setErrorMsg("Could not determine your location");
-        return;
-      }
-
-      const { city, region } = reverseGeoCode[0];
-      const stringLocation = `${city || "Unknown"}, ${region || "Unknown"}`;
-
-      if (user.location !== stringLocation) {
-        dispatch(setLocation({ location: stringLocation }));
-      }
-    } catch (error) {
-      console.error("Location error:", error);
-      setErrorMsg("Failed to get location: " + error.message);
-    }
-  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -264,37 +234,41 @@ const AuctionsScreen = ({ navigation, route }) => {
         <Header />
       </Animated.View>
 
-      {auctionsList === null ? (
+      {/* {auctionsList === null ? (
         <RenderLoading />
       ) : auctionsList.length === 0 ? (
         <RenderEmpty />
-      ) : (
-        <Animated.FlatList
-          data={auctionsList}
-          keyExtractor={(item) => item.id.toString()}
-          numColumns={2}
-          columnWrapperStyle={styles.columnWrapper}
-          contentContainerStyle={styles.listContent}
-          ListHeaderComponent={
-            <RenderFlatListHeader
-              selectedCategory={selectedCategory}
-              setSelectedCategory={(category) => setSelectedCategory(category)}
-              showModal={() => setIsFilterVisible(true)}
-            />
-          }
-          ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
-          renderItem={({ item }) => <AuctionCard auction={item} />}
-          showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={onScroll}
-          onScrollEndDrag={onScrollEnd}
-          onMomentumScrollEnd={onScrollEnd}
-          onEndReached={handleLoadMore}
-          useNativeDriver={true}
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-        />
-      )}
+      ) : ( */}
+      <Animated.FlatList
+        // data={auctionsList}
+        data={auctions}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={2}
+        columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={styles.listContent}
+        ListHeaderComponent={
+          <RenderFlatListHeader
+            selectedCategory={selectedCategory}
+            setSelectedCategory={(category) => setSelectedCategory(category)}
+            showModal={() => setIsFilterVisible(true)}
+          />
+        }
+        ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
+        renderItem={({ item }) => <AuctionCard auction={item} />}
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={onScroll}
+        onScrollEndDrag={onScrollEnd}
+        onMomentumScrollEnd={onScrollEnd}
+        onEndReached={handleLoadMore}
+        useNativeDriver={true}
+        refreshing={refreshing}
+        // pull up refresh
+        onRefresh={() =>
+          handleRefresh(setRefreshing, dispatch, selectedCategory)
+        }
+      />
+      {/* )} */}
       <FilterModal
         visible={isFilterVisible}
         onClose={() => setIsFilterVisible(false)}

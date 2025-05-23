@@ -13,7 +13,7 @@ export const auctions = [
       last_name: "test",
       username: "test",
       email: "test@gmail.com",
-      phone_number: "098",
+      phone_number: "09041444411",
       thumbnail: "/media/thumbnails/10f4d8ff7ad72340.jpg",
       latest_location: "Yola, Adamawa",
     },
@@ -28,7 +28,7 @@ export const auctions = [
     created_at: "2025-05-03T16:11:47.221868+01:00",
     updated_at: "2025-05-04T19:15:24.851279+01:00",
     shipping_details: "Delivery",
-    payment_methods: ["cash", "bank_transfer"],
+    payment_methods: ["Cash", "Bank Transfer"],
     item_condition: "new",
     images: [
       {
@@ -111,7 +111,7 @@ export const auctions = [
     created_at: "2025-05-03T16:10:56.258646+01:00",
     updated_at: "2025-05-03T22:06:25.370693+01:00",
     shipping_details: "Pickup",
-    payment_methods: ["bank_transfer"],
+    payment_methods: ["Bank Transfer"],
     item_condition: "used",
     images: [
       {
@@ -158,7 +158,7 @@ export const auctions = [
     created_at: "2025-05-03T16:10:21.728637+01:00",
     updated_at: "2025-05-03T22:06:27.249641+01:00",
     shipping_details: "Pickup",
-    payment_methods: ["cash", "bank_transfer"],
+    payment_methods: ["Cash", "Bank Transfer"],
     item_condition: "new",
     images: [
       {
@@ -205,7 +205,7 @@ export const auctions = [
     created_at: "2025-05-03T16:09:46.578547+01:00",
     updated_at: "2025-05-04T19:34:08.527690+01:00",
     shipping_details: "Delivery",
-    payment_methods: ["cash", "bank_transfer"],
+    payment_methods: ["Cash", "Bank Transfer"],
     item_condition: "new",
     images: [
       {
@@ -288,7 +288,7 @@ export const auctions = [
     created_at: "2025-05-03T16:08:48.839077+01:00",
     updated_at: "2025-05-03T22:06:31.177436+01:00",
     shipping_details: "Pickup",
-    payment_methods: ["cash"],
+    payment_methods: ["Cash"],
     item_condition: "used",
     images: [
       {

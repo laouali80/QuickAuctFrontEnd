@@ -2,8 +2,8 @@ import axios from "axios";
 
 import { Platform } from "react-native";
 import secure from "../storage/secure";
-import { refreshAccessToken } from "./authService";
 import { BaseAddress, Protocol } from "@/constants/config";
+import { refreshAccessToken } from "./authService/refreshToken";
 
 // if using android studio
 // const BaseAddress =
@@ -24,6 +24,7 @@ export const apiRequest = async (
   headers = {},
   overrideTokens = null,
   retry = true
+  // dispatch = null // ✅ new parameter
 ) => {
   try {
     // Skip auth token logic for login or public routes
@@ -63,7 +64,10 @@ export const apiRequest = async (
       error.response.data?.code === "token_not_valid"
     ) {
       console.log("Access token expired. Attempting refresh...");
-      const refreshed = await refreshAccessToken(overrideTokens);
+      const refreshed = await refreshAccessToken(
+        overrideTokens,
+        (dispatch = null)
+      );
 
       if (refreshed) {
         return apiRequest(
@@ -73,18 +77,19 @@ export const apiRequest = async (
           headers,
           refreshedTokens === true ? null : refreshedTokens, // fallback to secureStore
           false
+          // null
         ); // Retry once
       }
     }
     if (error.response) {
-      console.error("API Request Error:", error.response.data);
-      console.error("Status:", error.response.status);
+      // console.error("API Request Error:", error.response.data);
+      // console.error("Status:", error.response.status);
     } else if (error.request) {
-      console.error("No response received:", error.request);
+      // console.error("No response received:", error.request);
     } else {
-      console.error("General Error:", error.message);
+      // console.error("General Error:", error.message);
     }
-    console.log("Error config: ", error.config);
+    // console.log("Error config: ", error.config);
     return null; // Prevent crashes by returning null
   }
 };
