@@ -11,7 +11,6 @@ const persistConfig = {
   key: "root",
   // storage,
   storage: AsyncStorage,
-  // whitelist: ["userReducer"], // ✅ persist only the user slic
 };
 
 //  Combine reducers
