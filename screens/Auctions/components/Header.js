@@ -21,7 +21,7 @@ const Header = () => {
   // console.log("from header: ", user);
   useEffect(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-  }, [user.latest_location]);
+  }, [user?.latest_location]);
 
   const _navigate = () => {
     // console.log("reach");
@@ -34,7 +34,7 @@ const Header = () => {
         <View style={styles.location}>
           <EvilIcons name="location" size={24} color={COLORS.primary} />
           <Text style={styles.locationText} numberOfLines={1}>
-            {user.latest_location || "Locating..."}
+            {user?.latest_location || "Locating..."}
             {/* {"Locating..."} */}
           </Text>
         </View>

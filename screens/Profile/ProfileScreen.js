@@ -50,7 +50,7 @@ export default function ProfileScreen() {
               resizeMode="cover"
             /> */}
             <Thumbnail
-              url={user.thumbnail}
+              url={user?.thumbnail}
               width={100}
               height={100}
               // borderRadius={90}
