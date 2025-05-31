@@ -3,7 +3,7 @@ import axios from "axios";
 import { Platform } from "react-native";
 import secure from "../storage/secure";
 import { BaseAddress, Protocol } from "@/constants/config";
-import { refreshAccessToken } from "./authService/refreshToken";
+import { resetTokens, silentLogin } from "@/state/reducers/userSlice";
 
 // if using android studio
 // const BaseAddress =
@@ -29,6 +29,13 @@ export const apiRequest = async (
   try {
     // Skip auth token logic for login or public routes
     const isAuthRoute = url.includes("/login") || url.includes("/register");
+
+    console.log(
+      "overrideTokens and retry: ",
+      typeof overrideTokens,
+      " ",
+      retry
+    );
 
     // If no token then no need for Bearer token authorization
     const token = !isAuthRoute
@@ -69,29 +76,111 @@ export const apiRequest = async (
         (dispatch = null)
       );
 
+      // console.log("overrideTokens: ", overrideTokens);
+
       if (refreshed) {
         return apiRequest(
           url,
           data,
           method,
           headers,
-          refreshedTokens === true ? null : refreshedTokens, // fallback to secureStore
+          overrideTokens !== null ? refreshed : null, // fallback to secureStore
           false
           // null
         ); // Retry once
       }
     }
     if (error.response) {
-      // console.error("API Request Error:", error.response.data);
-      // console.error("Status:", error.response.status);
+      console.error("API Request Error:", error.response.data);
+      console.error("Status:", error.response.status);
     } else if (error.request) {
-      // console.error("No response received:", error.request);
+      console.error("No response received:", error.request);
     } else {
-      // console.error("General Error:", error.message);
+      console.error("General Error:", error.message);
     }
-    // console.log("Error config: ", error.config);
+    console.log("Error config: ", error.config);
     return null; // Prevent crashes by returning null
   }
 };
 
 export default apiRequest;
+
+export const refreshAccessToken = async (overrideTokens = null, dispatch) => {
+  try {
+    const refreshToken = overrideTokens
+      ? overrideTokens.refresh
+      : await secure.getRefreshToken();
+
+    // console.log("receive overrideTokens: ", overrideTokens);
+
+    if (!refreshToken) throw new Error("No refresh token found");
+
+    const response = await api({
+      url: "users/auth/jwt/token/refresh/",
+      method: "POST",
+      data: {
+        refresh: refreshToken,
+      },
+    });
+    // console.log("response: ", response?.data.data);
+
+    const tokens = response?.data?.data;
+    if (tokens?.access && tokens?.refresh) {
+      console.log("inside tokens: ", tokens?.access && tokens?.refresh);
+
+      await secure.saveUserSession(tokens.access, tokens.refresh);
+
+      // to update Redux state if available
+      resetTokens(tokens);
+    } else {
+      throw new Error("Missing tokens in response");
+    }
+
+    console.log(overrideTokens ? "Web Refresh Token" : "Mobile Refresh Token");
+
+    return overrideTokens ? tokens : true;
+  } catch (err) {
+    console.warn("Refresh token failed, attempting silent login...");
+    return await attemptSilentLogin();
+  }
+};
+
+export const attemptSilentLogin = async () => {
+  try {
+    // const credsRaw = await secure.getCredentials();
+    const credsRaw = { email: "test@gmail.com", password: "test1234" };
+
+    if (!credsRaw) return false;
+
+    // const creds = JSON.parse(credsRaw);
+
+    const response = await api({
+      url: "users/auth/login/",
+      method: "POST",
+      data: credsRaw,
+    });
+
+    const { tokens } = response.data.data;
+
+    // console.log("tokens silent: ", tokens);
+
+    if (tokens?.access && tokens?.refresh) {
+      await secure.saveUserSession(tokens.access, tokens.refresh);
+
+      // // to update Redux state if available
+      silentLogin(response.data.data);
+    } else {
+      throw new Error("Missing tokens in response");
+    }
+
+    console.log(
+      Platform.OS === "web" ? "Web Silent login" : "Mobile Silent login"
+    );
+
+    return Platform.OS === "web" ? tokens : true;
+  } catch (err) {
+    console.error("Silent login failed:", err);
+    await secure.clearUserSession();
+    return false;
+  }
+};

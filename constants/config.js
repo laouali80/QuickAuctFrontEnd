@@ -2,6 +2,6 @@ export const DEVELOPMENT = false;
 
 export const BaseAddress = DEVELOPMENT
   ? "localhost:8000"
-  : "quick-auct-backend.vercel.app";
+  : "quickauctbackend.onrender.com";
 
 export const Protocol = DEVELOPMENT ? "http" : "https";

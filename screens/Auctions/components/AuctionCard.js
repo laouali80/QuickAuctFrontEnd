@@ -19,7 +19,7 @@ const AuctionCard = ({ auction }) => {
   const navigation = useNavigation();
   const user = useSelector(getUserInfo);
   const [like, setLike] = useState(
-    auction?.watchers?.includes(user.userId) ? "heart" : "heart-o"
+    auction?.watchers?.includes(user?.userId) ? "heart" : "heart-o"
   );
 
   // console.log("user: ", user.userId);
@@ -37,7 +37,7 @@ const AuctionCard = ({ auction }) => {
   };
 
   useEffect(() => {
-    setLike(auction?.watchers?.includes(user.userId) ? "heart" : "heart-o");
+    setLike(auction?.watchers?.includes(user?.userId) ? "heart" : "heart-o");
   }, [auction?.watchers]);
 
   // console.log("auction receive: ", auction.title, auction.images[0].image);
