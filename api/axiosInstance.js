@@ -30,12 +30,12 @@ export const apiRequest = async (
     // Skip auth token logic for login or public routes
     const isAuthRoute = url.includes("/login") || url.includes("/register");
 
-    console.log(
-      "overrideTokens and retry: ",
-      typeof overrideTokens,
-      " ",
-      retry
-    );
+    // console.log(
+    //   "overrideTokens and retry: ",
+    //   typeof overrideTokens,
+    //   " ",
+    //   retry
+    // );
 
     // If no token then no need for Bearer token authorization
     const token = !isAuthRoute
@@ -98,8 +98,8 @@ export const apiRequest = async (
     } else {
       console.error("General Error:", error.message);
     }
-    console.log("Error config: ", error.config);
-    return null; // Prevent crashes by returning null
+    // console.log("Error config: ", error.config);
+    return error?.response?.data; // Prevent crashes by returning null
   }
 };
 

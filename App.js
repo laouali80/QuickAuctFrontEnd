@@ -36,6 +36,8 @@ import CreationScreen from "./screens/Auction_Creation/CreationScreen";
 import AuctionScreen from "./screens/Auctions/AuctionScreen";
 // import NotificationScreen from "./screens/Notification/NotificationsScreen";
 import NotificationsScreen from "./screens/Notification/NotificationsScreen";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { showToast, ToastProvider } from "./animation/CustomToast/ToastManager";
 
 const Stack = createNativeStackNavigator();
 
@@ -69,70 +71,111 @@ function AppContent() {
 
   return (
     <SafeAreaProvider>
-      <GluestackUIProvider config={config} mode={isDarkMode ? "dark" : "light"}>
-        <NavigationContainer theme={LightTheme}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1 }}
-            keyboardVerticalOffset={Platform.OS === "ios" ? -64 : 0}
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <ToastProvider>
+          <GluestackUIProvider
+            config={config}
+            mode={isDarkMode ? "dark" : "light"}
           >
-            <StatusBar barStyle={statusBarStyle} translucent />
-            {/* <View className="bg-blue-600">
+            <NavigationContainer theme={LightTheme}>
+              <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={Platform.OS === "ios" ? -64 : 0}
+              >
+                <StatusBar barStyle={statusBarStyle} translucent />
+                {/* <View className="bg-blue-600">
               <Text className="text-2xl text-blue-600">test</Text>
             </View> */}
 
-            <Stack.Navigator>
-              {!initialized ? (
-                <>
-                  <Stack.Screen name="Splash" component={SplashScreen} />
-                </>
-              ) : !authenticated ? (
-                <>
-                  <Stack.Screen
-                    name="GetStarted"
-                    component={GetStartedScreen}
-                  />
-                  <Stack.Screen name="OTP" component={OTPScreen} />
-                </>
-              ) : (
-                <>
-                  <Stack.Screen name="Home" component={HomeScreen} />
-                  <Stack.Screen name="Search" component={SearchScreen} />
+                <Stack.Navigator>
+                  {!initialized ? (
+                    <>
+                      <Stack.Screen name="Splash" component={SplashScreen} />
+                    </>
+                  ) : !authenticated ? (
+                    <>
+                      <Stack.Screen
+                        name="GetStarted"
+                        component={GetStartedScreen}
+                      />
+                      <Stack.Screen name="OTP" component={OTPScreen} />
+                    </>
+                  ) : (
+                    <>
+                      <Stack.Screen name="Home" component={HomeScreen} />
+                      <Stack.Screen name="Search" component={SearchScreen} />
 
-                  {/* Auction */}
-                  <Stack.Screen name="Auction" component={AuctionScreen} />
-                  {/* <Stack.Screen
+                      {/* Auction */}
+                      <Stack.Screen name="Auction" component={AuctionScreen} />
+                      {/* <Stack.Screen
                     name="Auction"
                     component={ProductDetailScreen}
                   /> */}
-                  <Stack.Screen
-                    name="AuctionBids"
-                    component={AuctionBidsScreen}
-                  />
+                      <Stack.Screen
+                        name="AuctionBids"
+                        component={AuctionBidsScreen}
+                      />
 
-                  {/* Auction Creation */}
-                  <Stack.Screen
-                    name="AuctionCreation"
-                    component={CreationScreen}
-                  />
+                      {/* Auction Creation */}
+                      <Stack.Screen
+                        name="AuctionCreation"
+                        component={CreationScreen}
+                      />
 
-                  <Stack.Screen name="Chat" component={ChatScreen} />
+                      <Stack.Screen name="Chat" component={ChatScreen} />
 
-                  <Stack.Screen name="Chats" component={ChatsScreen} />
-                  <Stack.Screen name="Profile" component={ProfileScreen} />
-                  <Stack.Screen
-                    name="Notifications"
-                    component={NotificationsScreen}
-                  />
-                </>
-              )}
-            </Stack.Navigator>
-          </KeyboardAvoidingView>
-        </NavigationContainer>
-      </GluestackUIProvider>
+                      <Stack.Screen name="Chats" component={ChatsScreen} />
+                      <Stack.Screen name="Profile" component={ProfileScreen} />
+                      <Stack.Screen
+                        name="Notifications"
+                        component={NotificationsScreen}
+                      />
+                    </>
+                  )}
+                </Stack.Navigator>
+              </KeyboardAvoidingView>
+            </NavigationContainer>
+          </GluestackUIProvider>
+        </ToastProvider>
+      </GestureHandlerRootView>
     </SafeAreaProvider>
   );
 }
+
+// function AppContent() {
+//   return (
+//     <GestureHandlerRootView style={{ flex: 1 }}>
+//       <ToastProvider>
+//         <View
+//           style={{
+//             flex: 1,
+//             justifyContent: "center",
+//             alignItems: "center",
+//           }}
+//         >
+//           <TouchableOpacity
+//             onPress={() => {
+//               showToast({
+//                 text: "work Message",
+//                 duration: 2000,
+//                 type: "error",
+//               });
+//             }}
+//             style={{
+//               height: 50,
+//               width: "90%",
+//               borderColor: "black",
+//               borderWidth: 1,
+//             }}
+//           >
+//             <Text>Success</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </ToastProvider>
+//     </GestureHandlerRootView>
+//   );
+// }
 
 export default function App() {
   return (

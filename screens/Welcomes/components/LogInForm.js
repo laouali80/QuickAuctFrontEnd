@@ -11,7 +11,7 @@ import {
 import { VStack } from "@/components/ui/vstack";
 import { AlertCircleIcon, EyeIcon, EyeOffIcon } from "@/components/ui/icon";
 // import {  EyeIcon, EyeOffIcon } from "@/components/ui/icon";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { Keyboard, Platform, Pressable } from "react-native";
@@ -20,10 +20,17 @@ import OrDivider from "../../../common_components/OrDivider";
 import SocialsButton from "./SocialsButton";
 import api, { apiRequest, login } from "@/api/axiosInstance";
 import utils from "@/core/utils";
-import { useDispatch } from "react-redux";
-import { logInUser } from "@/state/reducers/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  clearMessage,
+  getMessage,
+  getStatus,
+  logInUser,
+  setAuthenticated,
+} from "@/state/reducers/userSlice";
 import secure from "@/storage/secure";
 import { persistor } from "@/state/store";
+import { showToast } from "@/animation/CustomToast/ToastManager";
 
 const LogInForm = () => {
   const [email, setEmail] = useState("");
@@ -31,8 +38,6 @@ const LogInForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isInvalid, setIsInvalid] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  const dispatch = useDispatch(); // Get dispatch function
 
   // Email validation regex
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -72,6 +77,27 @@ const LogInForm = () => {
   //   console.log(errMessage);
   //   // throw new Error(errMessage.detail);
   // };
+  const dispatch = useDispatch(); // Get dispatch function
+  const loginMssg = useSelector(getMessage);
+  const loginStatus = useSelector(getStatus);
+
+  useEffect(() => {
+    if (!loginMssg || !loginStatus) return;
+    if (loginMssg) {
+      showToast({
+        text: loginMssg,
+        duration: 2000,
+        type: loginStatus,
+      });
+    }
+    if (loginStatus === "success") {
+      setTimeout(() => {
+        dispatch(setAuthenticated(true)); // separate action to update auth state
+      }, 2000); // wait for toast to show before navigating
+    }
+
+    dispatch(clearMessage());
+  }, [loginMssg, loginStatus]);
 
   const handleSubmit = async () => {
     if (validateForm()) {
