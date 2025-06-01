@@ -10,7 +10,7 @@ const initialState = {
   tokens: null,
   authenticated: false,
   initialized: false,
-  error: null,
+  message: null,
   status: null,
 };
 
@@ -23,14 +23,21 @@ export const logInUser = createAsyncThunk(
       await secure.saveUserCredentials(data.email, data.password);
       // console.log("data: ", data);
 
-      await secure.saveUserCredentials(data.email, data.password);
       const response = await apiRequest("users/auth/login/", data, "POST");
 
       // console.log("Redux state:", userSlice.getState());
       utils.log("Login Response:", response);
 
-      const tokens = response?.data?.tokens;
-      const user = response?.data?.user;
+      if (response?.status !== "success") {
+        throw {
+          message: response.message || "Login failed",
+          status: response.status || "error",
+          statusCode: response.statusCode || 500,
+        };
+      }
+
+      const { status, message } = response;
+      const { tokens, user } = response.data;
 
       if (tokens?.access && tokens?.refresh) {
         await secure.saveUserSession(tokens.access, tokens.refresh);
@@ -38,19 +45,19 @@ export const logInUser = createAsyncThunk(
         throw new Error("Missing tokens in response");
       }
 
-      return { tokens, user };
+      return { status, message, tokens, tokens, user };
     } catch (err) {
       await secure.clearUserSession();
 
       // Log actual error if available
-      // utils.log("Login error:", err?.response?.data || err.message);
-      // utils.log("Login error:", err);
+      // console.log("Login error:", err?.response?.data || err.message);
+      utils.log("catch error:", err.status);
 
       // Normalize error message
-      const message =
-        err?.response?.data?.detail || err?.message || "Login failed";
+      // const message =
+      //   err?.response?.data?.detail || err?.message || "Login failed";
 
-      return rejectWithValue(message);
+      return rejectWithValue(err);
     }
   }
 );
@@ -171,7 +178,7 @@ const userSlice = createSlice({
       state.user = {};
       state.tokens = "";
       state.authenticated = false;
-      state.error = null;
+      state.message = null;
       state.status = null;
       state.initialized = false;
     },
@@ -188,7 +195,14 @@ const userSlice = createSlice({
       state.authenticated = true;
       state.initialized = true;
       state.status = "fulfilled";
-      state.error = null;
+      state.message = null;
+    },
+    clearMessage(state) {
+      state.message = null;
+      state.status = null;
+    },
+    setAuthenticated(state) {
+      state.authenticated = true;
     },
   },
   extraReducers: (builder) => {
@@ -198,26 +212,16 @@ const userSlice = createSlice({
         state.status = "pending";
       })
       .addCase(logInUser.fulfilled, (state, action) => {
-        try {
-          // console.log("🟡 Tokens received:", action.payload.tokens);
-          // console.log("🟡 User received:", action.payload.user);
-          // console.log("🟡 Tokens type:", typeof action.payload.tokens);
-          // console.log("🟡 User type:", typeof action.payload.user);
-          state.user = action.payload.user;
-          state.tokens = action.payload.tokens;
-          state.authenticated = true;
-          state.initialized = true;
-          state.status = "fulfilled";
-          state.error = null;
-        } catch (err) {
-          console.error("Failed to set login state:", err);
-          // state.status = "rejected";
-          // state.error = "Error updating login state";
-        }
+        state.user = action.payload.user;
+        state.tokens = action.payload.tokens;
+        // state.authenticated = true;
+        state.initialized = true;
+        state.status = action.payload.status;
+        state.message = action.payload.message;
       })
       .addCase(logInUser.rejected, (state, action) => {
-        state.status = "rejected";
-        state.error = action.payload;
+        state.status = action?.payload?.status || "rejected";
+        state.message = action.payload?.message || "Login failed";
       })
 
       // SignUp Cases
@@ -229,11 +233,11 @@ const userSlice = createSlice({
         state.tokens = action.payload.tokens;
         state.authenticated = true;
         state.status = "fulfilled";
-        state.error = null;
+        state.message = null;
       })
       .addCase(signUpUser.rejected, (state, action) => {
-        state.status = "rejected";
-        state.error = action.payload;
+        state.status = action?.payload?.status || "rejected";
+        state.message = action.payload?.message || "Registration failed";
       })
 
       // Update Location
@@ -246,11 +250,11 @@ const userSlice = createSlice({
         state.tokens = action.payload.tokens;
         state.authenticated = true;
         state.status = "fulfilled";
-        state.error = null;
+        state.message = null;
       })
       .addCase(setLocation.rejected, (state, action) => {
-        state.status = "rejected";
-        state.error = action.payload;
+        state.status = action?.payload?.status || "rejected";
+        state.message = action.payload?.message || "Failed to geo Locate";
       });
   },
 });
@@ -260,8 +264,16 @@ export const getAuthentication = (state) => state.user.authenticated;
 export const getInitialized = (state) => state.user.initialized;
 export const getUserInfo = (state) => state.user.user;
 export const getTokens = (state) => state.user.tokens;
+export const getMessage = (state) => state.user.message;
+export const getStatus = (state) => state.user.status;
 
 // Export Actions & Reducer
-export const { logOutUser, updateThumbnail, resetTokens, silentLogin } =
-  userSlice.actions;
+export const {
+  logOutUser,
+  updateThumbnail,
+  resetTokens,
+  silentLogin,
+  clearMessage,
+  setAuthenticated,
+} = userSlice.actions;
 export default userSlice.reducer;

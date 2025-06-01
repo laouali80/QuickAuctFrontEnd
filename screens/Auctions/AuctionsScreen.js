@@ -155,11 +155,11 @@ const AuctionsScreen = ({ navigation, route }) => {
   }, [selectedCategory.key]);
 
   // Get location and set on mount
-  useLayoutEffect(() => {
-    Platform.OS === "web"
-      ? dispatch(setLocation({ location: "Yola, Adamawa", token: tokens }))
-      : fetchAndSetCurrentLocation(user, dispatch, setErrorMsg);
-  }, []);
+  // useLayoutEffect(() => {
+  //   Platform.OS === "web"
+  //     ? dispatch(setLocation({ location: "Yola, Adamawa", token: tokens }))
+  //     : fetchAndSetCurrentLocation(user, dispatch, setErrorMsg);
+  // }, []);
 
   // Initialize sockets, cleanup on unmount
   useEffect(() => {
