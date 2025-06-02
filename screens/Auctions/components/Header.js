@@ -28,11 +28,16 @@ const Header = () => {
     navigation.navigate("Notifications");
   };
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} className="px-3 py-3">
       {/* Location and Notification */}
       <View style={styles.topBar}>
         <View style={styles.location}>
-          <EvilIcons name="location" size={24} color={COLORS.primary} />
+          <EvilIcons
+            name="location"
+            size={24}
+            color={COLORS.primary}
+            className={!user?.latest_location ? "animate-pulse" : ""}
+          />
           <Text style={styles.locationText} numberOfLines={1}>
             {user?.latest_location || "Locating..."}
             {/* {"Locating..."} */}

@@ -346,6 +346,9 @@ const AuctionScreen = ({ navigation, route }) => {
           visible={showReportModal}
           onClose={() => setShowReportModal(false)}
           onSubmit={(data) => {
+            data["auctionId"] = auction.id;
+            data["offender"] = auction.seller.userId;
+
             console.log("Report Submitted:", data);
             // Send to backend here
           }}
