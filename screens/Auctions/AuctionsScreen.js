@@ -240,8 +240,8 @@ const AuctionsScreen = ({ navigation, route }) => {
         <RenderEmpty />
       ) : ( */}
       <Animated.FlatList
-        // data={auctionsList}
-        data={auctions}
+        data={auctionsList}
+        // data={auctions}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         columnWrapperStyle={styles.columnWrapper}

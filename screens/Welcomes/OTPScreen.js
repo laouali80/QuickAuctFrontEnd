@@ -5,16 +5,31 @@ import {
   TextInput,
   View,
   TouchableOpacity,
+  ScrollView,
+  useColorScheme,
 } from "react-native";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button, ButtonText } from "@/components/ui/button";
 import { EditIcon, Icon, RefreshCwIcon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
 import { useNavigation } from "@react-navigation/native";
 import SubmitButton from "@/common_components/SubmitButton";
-import { useDispatch } from "react-redux";
-import { OTPValidation, signUpUser } from "@/state/reducers/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  clearMessage,
+  EmailVerification,
+  getMessage,
+  getStatus,
+  OTPValidation,
+  setAuthenticated,
+  signUpUser,
+} from "@/state/reducers/userSlice";
+import { COLORS } from "@/constants/COLORS";
+import { useDebounce } from "@/hooks/useDebouce";
+import { MaterialIcons } from "@expo/vector-icons";
+import OTPModal from "./components/OTPModal";
+import { showToast } from "@/animation/CustomToast/ToastManager";
 
 const OTPScreen = ({ route }) => {
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -23,8 +38,47 @@ const OTPScreen = ({ route }) => {
   const inputRefs = useRef([]);
   const navigation = useNavigation();
   const dispatch = useDispatch(); // Get dispatch function
-
+  const colorScheme = useColorScheme();
   const formData = route.params;
+  const BottomModalRef = useRef();
+
+  const signupMssg = useSelector(getMessage);
+  const signupStatus = useSelector(getStatus);
+
+  useEffect(() => {
+    if (!signupMssg || !signupStatus) return;
+    if (signupMssg) {
+      showToast({
+        text: signupMssg,
+        duration: 2000,
+        type: signupStatus,
+      });
+    }
+    if (
+      signupStatus === "success" &&
+      signupMssg === "Successful Registration"
+    ) {
+      setTimeout(() => {
+        dispatch(setAuthenticated(true)); // separate action to update auth state
+      }, 2000); // wait for toast to show before navigating
+    } else if (signupMssg === "Invalid OTP") {
+      BottomModalRef.current?.open();
+    }
+
+    dispatch(clearMessage());
+  }, [signupMssg, signupStatus]);
+
+  useDebounce(
+    () => {
+      const isComplete = otp.every((val) => val !== "");
+      if (isComplete) {
+        // console.log("complet");
+        verifyOTP();
+      }
+    },
+    500,
+    [otp]
+  );
 
   const handleChange = (text, index) => {
     if (text.length > 1) return;
@@ -36,9 +90,14 @@ const OTPScreen = ({ route }) => {
     }
   };
 
-  console.log("Form submitted:", formData);
+  // console.log("Form submitted:", formData);
 
   const resetTimer = () => {
+    dispatch(
+      EmailVerification({
+        email: formData.email.toLowerCase(),
+      })
+    );
     setKey((prevKey) => prevKey + 1);
     setIsPlaying(false);
     setTimeout(() => setIsPlaying(true), 100); // Restart animation
@@ -46,22 +105,20 @@ const OTPScreen = ({ route }) => {
 
   const verifyOTP = () => {
     const fullOtp = otp.toString().replace(/,/g, "");
-    // console.log("formData: ", formData);
+    // console.log("fullOtp: ", fullOtp);
     dispatch(OTPValidation({ otp: fullOtp }))
       .unwrap()
       .then(() => {
         // OTP verified, proceed to register user
-        dispatch(
-          signUpUser({
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            username: formData.username,
-            email: formData.email.toLowerCase(),
-            phone_number: formData.phoneNumber,
-            password: formData.password,
-            aggrement: formData.termsAccepted,
-          })
-        );
+        console.log("now create acount........");
+        setTimeout(() => {
+          dispatch(
+            signUpUser({
+              email: formData.email.toLowerCase(),
+              ...formData,
+            })
+          );
+        }, 3000);
       })
       .catch((err) => {
         console.log("OTP validation failed:", err);
@@ -70,7 +127,7 @@ const OTPScreen = ({ route }) => {
   };
 
   return (
-    <View className="flex-1 justify-between px-5">
+    <ScrollView className="flex-1 justify-between px-5">
       <View className="justify-center items-center flex-1">
         <Image
           source={require("../../assets/icons/OTPImag.png")}
@@ -81,13 +138,13 @@ const OTPScreen = ({ route }) => {
           We have sent a one-time password (OTP) to your registered email.
           Please enter it below to continue.
         </Text>
-        <Text className="text-2xl font-semibold my-5">testuser@gmail.com</Text>
+        <Text className="text-2xl font-semibold mt-5">{formData.email}</Text>
 
         <Button
           size="lg"
-          className="w-1/2 bg-white border border-indigo-600 self-center mt-6 rounded-full"
+          className="w-min-[50%] bg-white border border-outline-200 self-center mt-3 rounded-full"
         >
-          <Icon as={EditIcon} size="md" />
+          <Icon as={EditIcon} size="md" color={COLORS.red} />
           <ButtonText
             className="text-gray-700"
             onPress={() => navigation.goBack()}
@@ -97,13 +154,13 @@ const OTPScreen = ({ route }) => {
         </Button>
 
         {/* OTP Inputs */}
-        <HStack space="xl" className="mt-8 py-6">
+        <HStack space="xl" className="py-6">
           {otp.map((digit, index) => (
             <TextInput
               key={index}
               ref={(ref) => (inputRefs.current[index] = ref)}
-              className="rounded-lg font-semibold text-center"
-              style={styles.input}
+              className="rounded-full font-semibold text-center"
+              style={[styles.input, { color: "#262627" }]}
               textContentType="oneTimeCode"
               keyboardType="numeric"
               maxLength={1}
@@ -114,18 +171,18 @@ const OTPScreen = ({ route }) => {
           ))}
         </HStack>
 
-        <SubmitButton
+        {/* <SubmitButton
           handleSubmit={verifyOTP}
           text="Log In"
           // isDisabled={!email || !password}
-        />
+        /> */}
 
         {/* Countdown Timer & Resend Button */}
         <View className="items-center mt-6">
           <CountdownCircleTimer
             key={key}
             isPlaying={isPlaying}
-            duration={900} // 30 seconds
+            duration={10} // 30 seconds
             colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
             colorsTime={[20, 10, 5, 0]}
             onComplete={() => ({ shouldRepeat: false })}
@@ -133,29 +190,42 @@ const OTPScreen = ({ route }) => {
             {({ remainingTime, color }) => {
               const minutes = Math.floor(remainingTime / 60);
               const seconds = remainingTime % 60;
-              return (
+              return remainingTime > 0 ? (
                 <Text style={{ color, fontSize: 24, textAlign: "center" }}>
                   {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
                   {"\n"}
                   remaining
                 </Text>
+              ) : (
+                <TouchableOpacity
+                  onPress={resetTimer}
+                  className="flex-row items-center mt-4"
+                >
+                  <MaterialIcons
+                    name="refresh"
+                    size={24}
+                    color={COLORS.primary}
+                  />
+                  <Text className="text-indigo-600 font-semibold ml-2">
+                    Send Again
+                  </Text>
+                </TouchableOpacity>
               );
             }}
           </CountdownCircleTimer>
 
           {/* Resend OTP Button */}
-          <TouchableOpacity
-            onPress={resetTimer}
-            className="flex-row items-center mt-4"
-          >
-            <Icon as={RefreshCwIcon} size="md" className="text-indigo-600" />
-            <Text className="text-indigo-600 font-semibold ml-2">
-              Send Again
-            </Text>
-          </TouchableOpacity>
         </View>
+
+        <OTPModal
+          ref={BottomModalRef}
+          tryAgain={() => {
+            BottomModalRef.current?.close();
+            resetTimer();
+          }}
+        />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

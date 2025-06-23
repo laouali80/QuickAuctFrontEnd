@@ -26,12 +26,13 @@ import {
   handleLike,
   handleRatingSubmit,
   makeCall,
+  submitReport,
 } from "./handlers/auctionHandlers";
 import Icon from "react-native-vector-icons/FontAwesome";
 import OverviewTab from "./OverviewTab";
 import renderThumbnail from "./components/renderThumbnail";
-import { useSelector } from "react-redux";
-import { getUserInfo } from "@/state/reducers/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { getMessage, getStatus, getUserInfo } from "@/state/reducers/userSlice";
 import SubmitButton from "@/common_components/SubmitButton";
 
 const { width } = Dimensions.get("window");
@@ -51,18 +52,18 @@ const AuctionScreen = ({ navigation, route }) => {
   const [like, setLike] = useState("heart-o");
   const [showReportModal, setShowReportModal] = useState(false);
   const [showRatingModal, setShowRatingModal] = useState(true); // trigger this when auction is won
-  const images = auction.images
-    .filter((img) => img && img.image)
-    .map((img) => img.image);
+  // const images = auction.images
+  //   .filter((img) => img && img.image)
+  //   .map((img) => img.image);
 
   // mock images
-  // const images = [
-  //   require("../../assets/auctions/auct1.jpg"),
-  //   require("../../assets/auctions/auct2.jpg"),
-  //   require("../../assets/auctions/auct3.jpg"),
-  // ];
+  const images = [
+    require("../../assets/auctions/auct1.jpg"),
+    // require("../../assets/auctions/auct2.jpg"),
+    // require("../../assets/auctions/auct3.jpg"),
+  ];
 
-  // console.log(images);
+  // console.log("response: ", utils.thumbnail(images[currentImageIndex]));
 
   // // -------------------- Debugs --------------------
   // console.log("auction receive: ", auction?.timeLeft);
@@ -108,6 +109,28 @@ const AuctionScreen = ({ navigation, route }) => {
     }
   }, [auction?.watchers, user.userId]);
 
+  const dispatch = useDispatch(); // Get dispatch function
+  const ReportMssg = useSelector(getMessage);
+  const ReportStatus = useSelector(getStatus);
+
+  useEffect(() => {
+    if (!ReportMssg || !ReportStatus) return;
+    if (ReportMssg) {
+      showToast({
+        text: ReportMssg,
+        duration: 2000,
+        type: ReportStatus,
+      });
+    }
+    if (ReportStatus === "success") {
+      setTimeout(() => {
+        dispatch(setAuthenticated(true)); // separate action to update auth state
+      }, 2000); // wait for toast to show before navigating
+    }
+
+    dispatch(clearMessage());
+  }, [ReportMssg, ReportStatus]);
+
   // // -------------------- Render --------------------
 
   // const renderThumbnail = ({ item, index }) => (
@@ -129,34 +152,35 @@ const AuctionScreen = ({ navigation, route }) => {
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Image Carousel */}
         <View>
-          {/* <Image
-            source={{ uri: images[currentImageIndex] }}
-            style={styles.mainImage}
-          /> */}
           <Image
             source={utils.thumbnail(images[currentImageIndex])}
             style={styles.mainImage}
           />
-          <View style={styles.pagination}>
-            <Text style={styles.paginationText}>
-              {currentImageIndex + 1} / {images.length}
-            </Text>
+          <View className="flex">
+            <View style={styles.pagination}>
+              <Text style={styles.paginationText}>
+                {currentImageIndex + 1} / {images.length}
+              </Text>
+            </View>
+            <View className="flex-1">
+              <FlatList
+                data={images}
+                renderItem={({ item, index }) =>
+                  renderThumbnail({
+                    item,
+                    index,
+                    currentImageIndex,
+                    setCurrentImageIndex,
+                  })
+                }
+                keyExtractor={(item, index) => index.toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.thumbnailList}
+                style={{ alignSelf: "center" }} // This helps center the whole list container
+              />
+            </View>
           </View>
-          <FlatList
-            data={images}
-            renderItem={({ item, index }) =>
-              renderThumbnail({
-                item,
-                index,
-                currentImageIndex,
-                setCurrentImageIndex,
-              })
-            }
-            keyExtractor={(item, index) => index.toString()}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.thumbnailList}
-          />
         </View>
 
         {/* Auction Info */}
@@ -345,10 +369,7 @@ const AuctionScreen = ({ navigation, route }) => {
         <ReportModal
           visible={showReportModal}
           onClose={() => setShowReportModal(false)}
-          onSubmit={(data) => {
-            console.log("Report Submitted:", data);
-            // Send to backend here
-          }}
+          onSubmit={(data) => submitReport({ ...data, auction_id: auction.id })}
         />
       )}
 
@@ -379,7 +400,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   paginationText: { color: "#fff", fontSize: 12 },
-  thumbnailList: { paddingHorizontal: 10, paddingTop: 10 },
+  thumbnailList: {
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    gap: 8,
+    flexDirection: "row",
+    justifyContent: "center", // center items horizontally
+    alignItems: "center", // center items vertically
+  },
   thumbnail: {
     width: 64,
     height: 48,
@@ -389,10 +417,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "transparent",
   },
-  thumbnailActive: {
-    borderColor: "#22c55e",
-  },
-  thumbnailImage: { width: "100%", height: "100%", resizeMode: "cover" },
+
   row: {
     flexDirection: "row",
     justifyContent: "space-between",

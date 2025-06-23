@@ -17,7 +17,7 @@ const GetStartedTabs = () => {
   return (
     <VStack className="flex-1 rounded-t-lg">
       {/* Tab Switcher */}
-      <HStack className=" mx-6 mt-6 items-center justify-between">
+      <HStack className=" mx-2 mt-4 items-center justify-between">
         <HStack className="rounded-full w-full p-1.5 items-center bg-background-100 border border-outline-200">
           <TouchableOpacity
             className={`rounded-full flex-1 justify-center items-center px-3 py-1.5 ${

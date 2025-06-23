@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/form-control";
 import { VStack } from "@/components/ui/vstack";
 import { EyeIcon, EyeOffIcon, CheckIcon } from "@/components/ui/icon";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import {
@@ -21,54 +21,92 @@ import SubmitButton from "@/common_components/SubmitButton";
 import OrDivider from "@/common_components/OrDivider";
 import SocialsButton from "./SocialsButton";
 import api from "@/api/axiosInstance";
-import { useDispatch } from "react-redux";
-import { EmailVerification, SignUpUser } from "@/state/reducers/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  clearMessage,
+  EmailVerification,
+  getMessage,
+  getStatus,
+  SignUpUser,
+} from "@/state/reducers/userSlice";
 import { useNavigation } from "@react-navigation/native";
 import { persistor } from "@/state/store";
 import secure from "@/storage/secure";
+import CustomInputField from "@/common_components/CustomInputField";
+import { showToast } from "@/animation/CustomToast/ToastManager";
 
 const SignUpForm = () => {
   const navigation = useNavigation();
 
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    username: "",
     email: "",
-    phoneNumber: "",
     password: "",
-    confirmPassword: "",
-    termsAccepted: false,
+    aggrement: false,
   });
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showTermsConditions, setShowTermsConditions] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [termsError, setTermsError] = useState("");
 
   const dispatch = useDispatch(); // Get dispatch function
+
+  const emailVerifMssg = useSelector(getMessage);
+  const emailVerifStatus = useSelector(getStatus);
+
+  useEffect(() => {
+    if (!emailVerifMssg || !emailVerifStatus) return;
+    if (emailVerifMssg) {
+      showToast({
+        text: emailVerifMssg,
+        duration: 2000,
+        type: emailVerifStatus,
+      });
+    }
+    // console.log("email: ", emailVerifMssg, emailVerifStatus);
+    if (emailVerifStatus === "success") {
+      setTimeout(() => {
+        navigation.navigate("OTP", formData);
+      }, 2000); // wait for toast to show before navigating
+    }
+
+    dispatch(clearMessage());
+  }, [emailVerifMssg, emailVerifStatus]);
 
   const handleChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   const validateForm = () => {
-    let newErrors = {};
+    let isValid = true;
 
-    if (!formData.firstName) newErrors.firstName = "First Name is required.";
-    if (!formData.lastName) newErrors.lastName = "Last Name is required.";
-    if (!formData.username) newErrors.username = "Username is required.";
-    if (!formData.email.includes("@"))
-      newErrors.email = "Invalid email address.";
-    if (formData.password.length < 6)
-      newErrors.password = "Password must be at least 6 characters.";
-    if (formData.confirmPassword !== formData.password)
-      newErrors.confirmPassword = "Passwords do not match.";
-    if (!formData.termsAccepted)
-      newErrors.termsAccepted = "You must accept the terms.";
+    if (!emailRegex.test(formData.email)) {
+      setEmailError("Invalid email address");
+      isValid = false;
+    } else {
+      setEmailError("");
+    }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (formData.password.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+      isValid = false;
+    } else {
+      setPasswordError("");
+    }
+
+    if (!formData.aggrement) {
+      setTermsError("You must accept the terms.");
+      isValid = false;
+    } else {
+      setTermsError("");
+    }
+
+    return isValid;
   };
 
   const handleSubmit = async () => {
@@ -78,13 +116,8 @@ const SignUpForm = () => {
       dispatch(
         EmailVerification({
           email: formData.email.toLowerCase(),
-          first_name: formData.firstName,
         })
       );
-
-      navigation.navigate("OTP", formData);
-
-      // Make a request
     }
   };
 
@@ -99,100 +132,60 @@ const SignUpForm = () => {
 
   return renderView(
     <VStack className="px-8 py-4">
-      <FormControl size="md" className="gap-y-4">
-        {[
-          { label: "First Name", name: "firstName" },
-          { label: "Last Name", name: "lastName" },
-          { label: "Username", name: "username" },
-          {
-            label: "Email",
-            name: "email",
-            props: { keyboardType: "email-address" },
-          },
-          {
-            label: "Phone Number",
-            name: "phoneNumber",
-            props: { keyboardType: "phone-pad" },
-          },
-        ].map(({ label, name, props }) => (
-          <VStack space="xs" key={name}>
-            <Text className="text-typography-500">{label}</Text>
-            <Input className="min-w-[250px]">
-              <InputField
-                type="text"
-                value={formData[name]}
-                onChangeText={(text) => handleChange(name, text)}
-                {...props}
-              />
-            </Input>
-            {errors[name] && (
-              <FormControlErrorText>{errors[name]}</FormControlErrorText>
-            )}
-          </VStack>
-        ))}
+      <FormControl
+        isInvalid={!!emailError || !!passwordError}
+        size="md"
+        className="gap-y-4"
+      >
+        {/* Email Field */}
+        <VStack space="xs">
+          <CustomInputField
+            label="Email"
+            type="text"
+            value={formData.email}
+            onChangeText={(text) => handleChange("email", text)}
+            placeholder="Enter your email"
+            autoCapitalize="none"
+            isInvalid={!!emailError}
+            errorMessage={emailError}
+          />
+        </VStack>
 
-        {/* Password Fields */}
-        {[
-          { label: "Password", name: "password", show: showPassword },
-          {
-            label: "Confirm Password",
-            name: "confirmPassword",
-            show: showConfirmPassword,
-          },
-        ].map(({ label, name, show }) => (
-          <VStack space="xs" key={name}>
-            <FormControlLabel>
-              <FormControlLabelText>{label}</FormControlLabelText>
-            </FormControlLabel>
-            <Input className="text-center">
-              <InputField
-                type={show ? "text" : "password"}
-                value={formData[name]}
-                onChangeText={(text) => handleChange(name, text)}
-                autoCapitalize="none"
-                autoFocus={false}
-              />
-              <InputSlot
-                className="pr-3"
-                onPress={() => {
-                  if (name === "password") {
-                    setShowPassword((prev) => !prev);
-                  } else {
-                    setShowConfirmPassword((prev) => !prev);
-                  }
-                }}
-              >
-                <InputIcon as={show ? EyeIcon : EyeOffIcon} />
-              </InputSlot>
-            </Input>
-            {errors[name] && (
-              <FormControlErrorText>{errors[name]}</FormControlErrorText>
-            )}
-          </VStack>
-        ))}
+        {/* Password Field */}
+        <VStack space="xs">
+          <CustomInputField
+            label="Password"
+            type="password"
+            value={formData.password}
+            onChangeText={(text) => handleChange("password", text)}
+            placeholder="Enter your password"
+            autoCapitalize="none"
+            showTogglePassword={true}
+            showPassword={showPassword}
+            setShowPassword={setShowPassword}
+            isInvalid={!!passwordError}
+            errorMessage={passwordError}
+            helperMessage="Password must be at least 6 characters."
+          />
+        </VStack>
 
         {/* Terms Checkbox */}
         <HStack space="xs">
           <Checkbox
             size="md"
-            isChecked={formData.termsAccepted}
-            onChange={() =>
-              handleChange("termsAccepted", !formData.termsAccepted)
-            }
+            isChecked={formData.aggrement}
+            onChange={() => handleChange("aggrement", !formData.aggrement)}
           >
             <CheckboxIndicator>
               <CheckboxIcon as={CheckIcon} />
             </CheckboxIndicator>
           </Checkbox>
           <Pressable onPress={() => setShowTermsConditions(true)}>
-            <Text>
+            <Text style={{ color: "#262627", fontWeight: "bold" }}>
               I agree to{" "}
               <Text className="text-blue-600">terms and conditions</Text>
             </Text>
           </Pressable>
-          {errors.termsAccepted && (
-            <FormControlErrorText>{errors.termsAccepted}</FormControlErrorText>
-          )}
         </HStack>
       </FormControl>
 
@@ -201,15 +194,13 @@ const SignUpForm = () => {
         handleSubmit={handleSubmit}
         text="Sign Up"
         isDisabled={
-          !formData.firstName ||
-          !formData.lastName ||
-          !formData.username ||
           !formData.email ||
-          !formData.phoneNumber ||
           !formData.password ||
-          !formData.confirmPassword ||
-          !formData.termsAccepted
+          !formData.aggrement ||
+          emailVerifStatus === "pending"
         }
+        textColor="white"
+        showSpinner={emailVerifStatus === "pending" ? true : false}
       />
 
       {/* OR Divider */}

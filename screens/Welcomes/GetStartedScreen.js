@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   PlatformColor,
   Platform,
+  Image,
 } from "react-native";
 
 import GetStartedTabs from "@/screens/Welcomes/components/GetStartedTabs";
@@ -21,7 +22,10 @@ const GetStartedScreen = ({ navigation }) => {
   }, [navigation]);
 
   return (
-    <SafeAreaView className="flex-1" style={{ flex: 1 }}>
+    <SafeAreaView
+      className="flex-1"
+      style={{ flex: 1, backgroundColor: "#259e47" }}
+    >
       {/* Top Section */}
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -33,28 +37,38 @@ const GetStartedScreen = ({ navigation }) => {
           contentContainerStyle={{ flexGrow: 1 }}
         >
           <View
-            className="h-[30%] bg-[#259e47] py-4 px-6"
-            style={{ backgroundColor: COLORS.primary }}
+            className="h-max-[30%] py-4 px-6"
+            style={{ backgroundColor: "#259e47" }} // keep your green
           >
-            <Text
-              style={styles.title}
-              className="text-white text-xl font-semibold "
-            >
-              QuickAuct
-            </Text>
-            <Text
-              style={styles.title}
-              className="text-white text-3xl font-bold mt-4 mb-2"
-            >
+            <View className="flex-row items-center space-x-2 mb-4">
+              <Image
+                source={require("../../assets/icons/shield.png")}
+                style={{ width: 20, height: 20, marginBottom: 10 }}
+                resizeMode="contain"
+              />
+
+              <Text
+                className="text-white text-lg font-semibold"
+                style={{ marginBottom: 10 }}
+              >
+                QuickAuct
+              </Text>
+            </View>
+
+            <Text className="text-white text-3xl font-bold mb-2">
               Get Started now
             </Text>
-            <Text style={styles.title} className="text-lg text-white">
-              Create an account or login to view auctions
+
+            <Text className="text-white text-base">
+              Create an account or log in to view auctions
             </Text>
           </View>
 
           {/* forms */}
-          <View className="h-[60%] flex-1 py-5 px-2 justify-center items-center rounded-t-lg  ">
+          <View
+            className="h-[60%] flex-1 py-2 px-2 justify-center items-center rounded-t-lg"
+            style={{ backgroundColor: "white" }}
+          >
             <GetStartedTabs />
           </View>
         </ScrollView>

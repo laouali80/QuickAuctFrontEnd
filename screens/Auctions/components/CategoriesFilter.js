@@ -60,7 +60,7 @@ export default CategoriesFilter;
 
 const styles = StyleSheet.create({
   categoriesContainer: {
-    marginTop: 8,
+    marginTop: 20,
   },
   categoriesTitle: {
     fontSize: 22,

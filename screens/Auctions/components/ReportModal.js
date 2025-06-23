@@ -18,6 +18,7 @@ const ReportModal = ({ visible, onClose, onSubmit }) => {
 
   const handleReport = () => {
     if (!reason.trim()) return alert("Please provide a reason.");
+    if (!description.trim()) return alert("Please provide a description.");
     onSubmit({ reason, description });
     setReason("");
     setDescription("");
@@ -62,7 +63,7 @@ const ReportModal = ({ visible, onClose, onSubmit }) => {
 
           {/* Submit Button */}
           <TouchableOpacity style={styles.submitBtn} onPress={handleReport}>
-            <Text style={styles.submitText}>Report Post</Text>
+            <Text style={styles.submitText}>Submit</Text>
           </TouchableOpacity>
         </View>
       </View>

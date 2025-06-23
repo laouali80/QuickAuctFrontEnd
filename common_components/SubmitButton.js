@@ -17,7 +17,21 @@ const SubmitButton = ({
       isDisabled={isDisabled}
     >
       {showSpinner ? (
-        <ActivityIndicator size="small" color="#fff" />
+        <ButtonText
+          style={{
+            color: textColor,
+            alignItems: "center",
+            flexDirection: "row",
+            justifyContent: "center",
+          }}
+        >
+          {text}{" "}
+          <ActivityIndicator
+            size="small"
+            color="#fff"
+            style={{ marginLeft: 8 }}
+          />
+        </ButtonText>
       ) : (
         <ButtonText style={{ color: textColor }}>{text}</ButtonText>
       )}
