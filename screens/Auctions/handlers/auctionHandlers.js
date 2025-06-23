@@ -38,3 +38,9 @@ export const handleLike = (like, setLike, auction) => {
     watchAuction({ auction_id: auction?.id });
   }
 };
+
+// Submit Report
+export const submitReport = (data) => {
+  console.log("Report Submitted:", data);
+  // Send to backend here
+};

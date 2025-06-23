@@ -45,13 +45,13 @@ export const logInUser = createAsyncThunk(
         throw new Error("Missing tokens in response");
       }
 
-      return { status, message, tokens, tokens, user };
+      return { status, message, tokens, user };
     } catch (err) {
       await secure.clearUserSession();
 
       // Log actual error if available
       // console.log("Login error:", err?.response?.data || err.message);
-      utils.log("catch error:", err.status);
+      // utils.log("catch error:", err.status);
 
       // Normalize error message
       // const message =
@@ -75,26 +75,28 @@ export const signUpUser = createAsyncThunk(
       utils.log("Sign Up Response:", response);
       // secure.storeUserSession("accessToken", response.tokens.access);
 
-      const tokens = response?.data?.tokens;
+      if (response?.status !== "success") {
+        throw {
+          message: response.message || "Login failed",
+          status: response.status || "error",
+          statusCode: response.statusCode || 500,
+        };
+      }
+
+      const { status, message } = response;
+      const { tokens, user } = response.data;
+
       if (tokens?.access && tokens?.refresh) {
         await secure.saveUserSession(tokens.access, tokens.refresh);
       } else {
         throw new Error("Missing tokens in response");
       }
 
-      return response.data;
+      return { status, message, tokens, tokens, user };
     } catch (err) {
       await secure.clearUserSession();
 
-      // Log actual error if available
-      // utils.log("Login error:", err?.response?.data || err.message);
-      // utils.log("Login error:", err);
-
-      // Normalize error message
-      const message =
-        err?.response?.data?.detail || err?.message || "Sign Up failed";
-
-      return rejectWithValue(message);
+      return rejectWithValue(err);
     }
   }
 );
@@ -104,16 +106,25 @@ export const EmailVerification = createAsyncThunk(
   "user/EmailVerification",
   async (data, { rejectWithValue }) => {
     try {
-      console.log("email verification: ", data);
+      // console.log("email verification: ", data);
       const response = await apiRequest(
         "users/auth/verification/",
         data,
         "POST"
       );
       // console.log(response);
-      return response.data;
+      utils.log("Email Verification Response:", response);
+
+      if (response?.status !== "success") {
+        throw {
+          message: response.message || "Login failed",
+          status: response.status || "error",
+          statusCode: response.statusCode || 500,
+        };
+      }
+      return response;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(err);
     }
   }
 );
@@ -129,11 +140,19 @@ export const OTPValidation = createAsyncThunk(
         data,
         "POST"
       );
-      console.log(response);
+      console.log("OTPValidation: ", response);
+
+      if (response?.status !== "success") {
+        throw {
+          message: response.message || "Login failed",
+          status: response.status || "error",
+          statusCode: response.statusCode || 500,
+        };
+      }
 
       return response;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(err);
     }
   }
 );
@@ -162,6 +181,18 @@ export const setLocation = createAsyncThunk(
       return response.data;
     } catch (err) {
       return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const submitReport = createAsyncThunk(
+  "reports/submitReport",
+  async (reportData, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/report", reportData);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
     }
   }
 );
@@ -214,13 +245,12 @@ const userSlice = createSlice({
       .addCase(logInUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
         state.tokens = action.payload.tokens;
-        // state.authenticated = true;
         state.initialized = true;
         state.status = action.payload.status;
         state.message = action.payload.message;
       })
       .addCase(logInUser.rejected, (state, action) => {
-        state.status = action?.payload?.status || "rejected";
+        state.status = action?.payload?.status || "error";
         state.message = action.payload?.message || "Login failed";
       })
 
@@ -231,13 +261,35 @@ const userSlice = createSlice({
       .addCase(signUpUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
         state.tokens = action.payload.tokens;
-        state.authenticated = true;
-        state.status = "fulfilled";
-        state.message = null;
+        state.initialized = true;
+        state.status = action.payload.status;
+        state.message = action.payload.message;
       })
       .addCase(signUpUser.rejected, (state, action) => {
-        state.status = action?.payload?.status || "rejected";
+        state.status = action?.payload?.status || "error";
         state.message = action.payload?.message || "Registration failed";
+      })
+
+      // EmailVerification Cases
+      .addCase(EmailVerification.pending, (state) => {
+        state.status = "pending";
+      })
+      .addCase(EmailVerification.fulfilled, (state, action) => {
+        state.status = action.payload.status;
+        state.message = action.payload.message;
+      })
+      .addCase(EmailVerification.rejected, (state, action) => {
+        state.status = action?.payload?.status || "error";
+        state.message = action.payload?.message || "Oops! Something went wrong";
+      })
+
+      // OTPValidation Cases
+      .addCase(OTPValidation.pending, (state) => {
+        state.status = "pending";
+      })
+      .addCase(OTPValidation.rejected, (state, action) => {
+        state.status = action?.payload?.status || "error";
+        state.message = action.payload?.message || "Oops! Something went wrong";
       })
 
       // Update Location

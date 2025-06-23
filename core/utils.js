@@ -20,8 +20,10 @@ function thumbnail(url) {
 
   // Accepts either a static image (require) or a relative/absolute URL string.
   if (!url) return errorPic;
+  // console.log("url type: ", typeof require("../assets/auctions/auct1.jpg"));
+  // console.log("url type: ", typeof url);
 
-  if (typeof url === "number") {
+  if (typeof url !== "string") {
     // Handle local static images like require("...")
     return url;
   }

@@ -14,7 +14,7 @@ import { AlertCircleIcon, EyeIcon, EyeOffIcon } from "@/components/ui/icon";
 import React, { useEffect, useState } from "react";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { Keyboard, Platform, Pressable } from "react-native";
+import { Keyboard, Platform, Pressable, useColorScheme } from "react-native";
 import SubmitButton from "../../../common_components/SubmitButton";
 import OrDivider from "../../../common_components/OrDivider";
 import SocialsButton from "./SocialsButton";
@@ -31,30 +31,38 @@ import {
 import secure from "@/storage/secure";
 import { persistor } from "@/state/store";
 import { showToast } from "@/animation/CustomToast/ToastManager";
+import CustomInputField from "@/common_components/CustomInputField";
 
 const LogInForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isInvalid, setIsInvalid] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const colorScheme = useColorScheme();
 
   // Email validation regex
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const validateForm = () => {
+    let isValid = true;
+
     if (!emailRegex.test(email)) {
-      setErrorMessage("Invalid email format");
-      setIsInvalid(true);
-      return false;
-    } else if (password.length < 6) {
-      setErrorMessage("Password must be at least 6 characters");
-      setIsInvalid(true);
-      return false;
+      setEmailError("Invalid email address");
+      isValid = false;
+    } else {
+      setEmailError("");
     }
-    setIsInvalid(false);
-    setErrorMessage("");
-    return true;
+
+    if (password.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+      isValid = false;
+    } else {
+      setPasswordError("");
+    }
+
+    return isValid;
   };
 
   // const login = async (email, password) => {
@@ -119,54 +127,41 @@ const LogInForm = () => {
 
   return renderView(
     <VStack className="px-8 py-4">
-      <FormControl isInvalid={isInvalid} size="md" className="gap-y-4">
+      <FormControl
+        isInvalid={!!emailError || !!passwordError}
+        size="md"
+        className="gap-y-4"
+      >
         {/* Email Field */}
         <VStack space="xs">
-          <Text className="text-typography-500">Email</Text>
-          <Input className="min-w-[250px]">
-            <InputField
-              type="text"
-              value={email}
-              onChangeText={(text) => setEmail(text)}
-              placeholder="Enter your email"
-            />
-          </Input>
+          <CustomInputField
+            label="Email"
+            type="text"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Enter your email"
+            autoCapitalize="none"
+            isInvalid={!!emailError}
+            errorMessage={emailError}
+          />
         </VStack>
 
         {/* Password Field */}
         <VStack space="xs">
-          <FormControlLabel>
-            <FormControlLabelText>Password</FormControlLabelText>
-          </FormControlLabel>
-          <Input className="min-w-[250px]">
-            <InputField
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChangeText={(text) => setPassword(text)}
-              placeholder="Enter your password"
-              autoCapitalize="none"
-              autoFocus={false}
-            />
-            <InputSlot
-              className="pr-3"
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <InputIcon as={showPassword ? EyeIcon : EyeOffIcon} />
-            </InputSlot>
-          </Input>
-
-          {isInvalid && (
-            <FormControlError>
-              <FormControlErrorIcon as={AlertCircleIcon} />
-              <FormControlErrorText>{errorMessage}</FormControlErrorText>
-            </FormControlError>
-          )}
-
-          <FormControlHelper>
-            <FormControlHelperText>
-              Password must be at least 6 characters.
-            </FormControlHelperText>
-          </FormControlHelper>
+          <CustomInputField
+            label="Password"
+            type="password"
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Enter your password"
+            autoCapitalize="none"
+            showTogglePassword={true}
+            showPassword={showPassword}
+            setShowPassword={setShowPassword}
+            isInvalid={!!passwordError}
+            errorMessage={passwordError}
+            helperMessage="Password must be at least 6 characters."
+          />
         </VStack>
       </FormControl>
 
@@ -174,7 +169,9 @@ const LogInForm = () => {
       <SubmitButton
         handleSubmit={handleSubmit}
         text="Log In"
-        isDisabled={!email || !password}
+        textColor="white"
+        isDisabled={!email || !password || loginStatus === "pending"}
+        showSpinner={loginStatus === "pending" ? true : false}
       />
 
       {/* OR Divider */}
