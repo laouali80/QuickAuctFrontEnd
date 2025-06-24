@@ -1,35 +1,66 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React from "react";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
 
-const AddImages = ({ imageUri, showUploadModal }) => {
+const AddImages = ({ imageUri, showUploadModal, removeImg }) => {
+  const imgs = imageUri.filter((img) => img != null);
+
   return (
     <VStack space="md">
       <Text className="text-xl font-semibold ">Add Images</Text>
       <HStack space="sm">
-        {/* Placeholder or Uploaded Image */}
-        {imageUri ? (
-          <Image
-            source={{ uri: imageUri }}
-            style={styles.imagePreview}
-            resizeMode="cover"
-          />
-        ) : (
-          <View style={styles.imagePlaceholder}>
-            <Text style={styles.placeholderText}>Image 1</Text>
-          </View>
-        )}
-
-        {/* Add Image Button */}
-        <TouchableOpacity
-          style={styles.addImageButton}
-          onPress={showUploadModal}
+        {/* Render uploaded images */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingVertical: 10, paddingHorizontal: 5 }}
         >
-          <AntDesign name="plus" size={35} color="white" />
-        </TouchableOpacity>
+          {imgs.map((img, index) => (
+            <View key={index} style={{ position: "relative", marginRight: 10 }}>
+              <Image
+                source={{ uri: img }}
+                style={styles.imagePreview}
+                resizeMode="cover"
+              />
+
+              {index === imgs.length - 1 && (
+                <TouchableOpacity
+                  onPress={() => removeImg(index)}
+                  style={{
+                    position: "absolute",
+                    top: 4,
+                    right: 4,
+                    backgroundColor: "#fff",
+                    borderRadius: 12,
+                    padding: 2,
+                    elevation: 4,
+                  }}
+                >
+                  <MaterialCommunityIcons name="delete" size={18} color="red" />
+                </TouchableOpacity>
+              )}
+            </View>
+          ))}
+          {/* Add button (show if less than 3 images) */}
+          {imgs.length < 3 && (
+            <TouchableOpacity
+              style={styles.addImageButton}
+              onPress={showUploadModal}
+            >
+              <AntDesign name="plus" size={35} color="white" />
+            </TouchableOpacity>
+          )}
+        </ScrollView>
       </HStack>
     </VStack>
   );
