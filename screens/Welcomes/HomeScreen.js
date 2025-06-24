@@ -1,5 +1,5 @@
 // import { StyleSheet, Text, View } from "react-native";
-import React, { useEffect, useLayoutEffect } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import InsightsScreen from "../Insights/InsightsScreen";
 import AuctionsScreen from "../Auctions/AuctionsScreen";
@@ -13,10 +13,24 @@ import IconBadge from "./components/IconBadge";
 import { useSelector } from "react-redux";
 import { getNewAuctions } from "@/state/reducers/auctionsSlice";
 import { getNewChats } from "@/state/reducers/chatsSlice";
+import { getUserInfo } from "@/state/reducers/userSlice";
+import UpdateProfileModal from "./components/UpdateProfModal";
 
 const HomeScreen = ({ navigation }) => {
   const newAuctions = useSelector(getNewAuctions);
   const newChats = useSelector(getNewChats);
+  const user = useSelector(getUserInfo);
+  const isProfileIncomplete =
+    !user.first_name && !user.last_name && !user.phone_number && !user.address;
+  const [isUpdProfModalOpen, setIsUpdProfModalOpen] = useState(false);
+
+  const handleCreationButtonPress = () => {
+    if (isProfileIncomplete) {
+      setIsUpdProfModalOpen(true); // block and ask for update
+    } else {
+      navigation.navigate("AuctionCreation");
+    }
+  };
 
   // console.log("got you guys: ", newAuctions, newChats);
 
@@ -96,53 +110,63 @@ const HomeScreen = ({ navigation }) => {
   };
 
   return (
-    <CurvedBottomBarExpo.Navigator
-      type="DOWN"
-      style={styles.bottomBar}
-      shadowStyle={styles.shawdow}
-      height={55}
-      circleWidth={50}
-      bgColor="white"
-      initialRouteName="Auctions"
-      borderTopLeftRight
-      renderCircle={({ selectedTab, navigate }) => (
-        <Animated.View style={styles.btnCircleUp}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigate("AuctionCreation")}
-          >
-            <Ionicons name="add" size={25} color="white" />
-          </TouchableOpacity>
-        </Animated.View>
-      )}
-      tabBar={renderTabBar}
-    >
-      <CurvedBottomBarExpo.Screen
-        options={{ headerShown: false }}
-        name="Auctions"
-        position="LEFT"
-        component={() => <AuctionsScreen />}
+    <>
+      <CurvedBottomBarExpo.Navigator
+        type="DOWN"
+        style={styles.bottomBar}
+        shadowStyle={styles.shawdow}
+        height={55}
+        circleWidth={50}
+        bgColor="white"
+        initialRouteName="Auctions"
+        borderTopLeftRight
+        renderCircle={({ selectedTab, navigate }) => (
+          <Animated.View style={styles.btnCircleUp}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleCreationButtonPress}
+            >
+              <Ionicons name="add" size={25} color="white" />
+            </TouchableOpacity>
+          </Animated.View>
+        )}
+        tabBar={renderTabBar}
+      >
+        <CurvedBottomBarExpo.Screen
+          options={{ headerShown: false }}
+          name="Auctions"
+          position="LEFT"
+          component={() => <AuctionsScreen />}
+        />
+        <CurvedBottomBarExpo.Screen
+          options={{ headerTitleAlign: "center" }}
+          name="Insights"
+          position="LEFT"
+          component={() => <InsightsScreen />}
+        />
+        <CurvedBottomBarExpo.Screen
+          options={{ headerTitleAlign: "center" }}
+          name="Chats"
+          component={() => <ChatsScreen />}
+          position="RIGHT"
+          // options={{ headerShown: false }}
+        />
+        <CurvedBottomBarExpo.Screen
+          options={{ headerTitleAlign: "center" }}
+          name="Profile"
+          component={() => <ProfileScreen />}
+          position="RIGHT"
+        />
+      </CurvedBottomBarExpo.Navigator>
+      <UpdateProfileModal
+        visible={isUpdProfModalOpen}
+        onClose={() => setIsUpdProfModalOpen(false)}
+        onSubmit={() => {
+          setIsUpdProfModalOpen(false);
+          navigation.navigate("Profile", true);
+        }}
       />
-      <CurvedBottomBarExpo.Screen
-        options={{ headerTitleAlign: "center" }}
-        name="Insights"
-        position="LEFT"
-        component={() => <InsightsScreen />}
-      />
-      <CurvedBottomBarExpo.Screen
-        options={{ headerTitleAlign: "center" }}
-        name="Chats"
-        component={() => <ChatsScreen />}
-        position="RIGHT"
-        // options={{ headerShown: false }}
-      />
-      <CurvedBottomBarExpo.Screen
-        options={{ headerTitleAlign: "center" }}
-        name="Profile"
-        component={() => <ProfileScreen />}
-        position="RIGHT"
-      />
-    </CurvedBottomBarExpo.Navigator>
+    </>
   );
 };
 
