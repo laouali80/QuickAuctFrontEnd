@@ -197,6 +197,45 @@ export const submitReport = createAsyncThunk(
   }
 );
 
+// Async Thunk: Update User
+export const updateUser = createAsyncThunk(
+  "user/UpdateUser",
+  async (data, { rejectWithValue }) => {
+    try {
+      // console.log("reach:  ", data?.token);
+
+      const response = data?.tokens
+        ? await apiRequest("users/update/", data, "PUT", {}, data.tokens)
+        : await apiRequest("users/update/", data, "PUT");
+      utils.log("Update User Response:", response);
+
+      if (response?.status !== "success") {
+        throw {
+          message:
+            response.statusCode === 422
+              ? response.errors.username[0]
+              : response.message || "Update failed",
+          status: response.status || "error",
+          statusCode: response.statusCode || 500,
+        };
+      }
+
+      const { status, message } = response;
+      const { tokens, user } = response.data;
+
+      if (tokens?.access && tokens?.refresh) {
+        await secure.saveUserSession(tokens.access, tokens.refresh);
+      } else {
+        throw new Error("Missing tokens in response");
+      }
+
+      return { status, message, tokens, tokens, user };
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
 // User Slice
 const userSlice = createSlice({
   name: "user",
@@ -307,6 +346,22 @@ const userSlice = createSlice({
       .addCase(setLocation.rejected, (state, action) => {
         state.status = action?.payload?.status || "rejected";
         state.message = action.payload?.message || "Failed to geo Locate";
+      })
+
+      // Update User
+      .addCase(updateUser.pending, (state) => {
+        state.status = "pending";
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        state.tokens = action.payload.tokens;
+        state.initialized = true;
+        state.status = action.payload.status;
+        state.message = action.payload.message;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.status = action?.payload?.status || "error";
+        state.message = action.payload?.message || "Login failed";
       });
   },
 });
