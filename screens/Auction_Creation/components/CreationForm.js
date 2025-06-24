@@ -22,7 +22,7 @@ import SuccessModal from "./SuccessModal";
 const CreationForm = ({ navigation }) => {
   // State declarations
   const [state, setState] = useState({
-    image: null,
+    image: [],
     title: "",
     description: "",
     category: "",
@@ -38,7 +38,7 @@ const CreationForm = ({ navigation }) => {
   const [isFormValid, setIsFormValid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDuration, setSelectedDuration] = useState(null);
-  const [imageUri, setImageUri] = useState(null);
+  const [imageUri, setImageUri] = useState([]);
   const [duration, setDuration] = useState([
     {
       type: "days",
@@ -84,7 +84,8 @@ const CreationForm = ({ navigation }) => {
       payment_methods,
     } = state;
 
-    const isImageValid = image !== null;
+    const isImageValid =
+      Array.isArray(image) && image.some((img) => img !== null);
     const isTitleValid = typeof title === "string" && title.trim().length >= 2;
     const isDescriptionValid =
       typeof description === "string" && description.trim().length >= 2;
@@ -188,6 +189,11 @@ const CreationForm = ({ navigation }) => {
 
   // Image handling
   const uploadImage = async (mode = "camera") => {
+    if (imageUri.length >= 3) {
+      Alert.alert("Limit Reached", "You can only upload up to 3 images.");
+      return;
+    }
+
     let result = {};
     try {
       if (mode === "gallery") {
@@ -211,13 +217,26 @@ const CreationForm = ({ navigation }) => {
 
       if (!result.canceled) {
         const file = result.assets[0];
-        setState((prevState) => ({ ...prevState, image: file }));
-        setImageUri(file.uri);
+        setImageUri((prev) => [...prev, file.uri]); // update image URI list
+        setState((prevState) => ({
+          ...prevState,
+          image: [...prevState.image, file], // store the full file for upload
+        }));
       }
       uploadSheetRef.current?.close();
     } catch (error) {
       console.log("Error uploading image: " + error.message);
     }
+  };
+
+  const handleRemoveImg = (index) => {
+    const updatedImages = [...imageUri];
+    updatedImages.splice(index, 1);
+    setImageUri(updatedImages);
+    setState((prev) => ({
+      ...prev,
+      image: prev.image.filter((_, i) => i !== index),
+    }));
   };
 
   const showUploadModal = () => {
@@ -238,7 +257,7 @@ const CreationForm = ({ navigation }) => {
 
       // Reset form after successful submission
       setState({
-        image: null,
+        image: [],
         title: "",
         description: "",
         category: "",
@@ -249,7 +268,7 @@ const CreationForm = ({ navigation }) => {
         shipping_details: "",
         payment_methods: "",
       });
-      setImageUri(null);
+      setImageUri([]);
       setIsFormValid(false);
       setIsSubmitting(false);
       setSelectedDuration(null);
@@ -270,7 +289,11 @@ const CreationForm = ({ navigation }) => {
     <ScrollView style={{ flex: 1, marginVertical: 20, marginHorizontal: 20 }}>
       <VStack space="md" className="flex-1">
         {/* Auction Images Section */}
-        <AddImages imageUri={imageUri} showUploadModal={showUploadModal} />
+        <AddImages
+          imageUri={imageUri}
+          showUploadModal={showUploadModal}
+          removeImg={handleRemoveImg}
+        />
 
         {/* Auction Title, Description and Category */}
         <VStack space="sm">

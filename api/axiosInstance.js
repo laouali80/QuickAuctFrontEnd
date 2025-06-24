@@ -30,12 +30,7 @@ export const apiRequest = async (
     // Skip auth token logic for login or public routes
     const isAuthRoute = url.includes("/login") || url.includes("/register");
 
-    // console.log(
-    //   "overrideTokens and retry: ",
-    //   typeof overrideTokens,
-    //   " ",
-    //   retry
-    // );
+    // console.log("overrideTokens: ", overrideTokens);
 
     // If no token then no need for Bearer token authorization
     const token = !isAuthRoute

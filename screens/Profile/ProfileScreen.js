@@ -16,8 +16,10 @@ import { useDispatch, useSelector } from "react-redux";
 import EditModal from "./components/EditModal";
 import { fetchUserAuctions } from "@/state/reducers/auctionsSlice";
 import ProfileLogout from "./components/ProfileLogout";
+import ProfileInfoModal from "./components/ProfileInfoModal";
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ route }) {
+  const update = route?.params;
   const user = useSelector(getUserInfo);
   const dispatch = useDispatch();
   const tokens = useSelector(getTokens);
@@ -25,6 +27,9 @@ export default function ProfileScreen() {
   // console.log(user);
   const [activeTab, setActiveTab] = useState("ongoing");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [ispersonInfoModalOpen, setIsPersonInfoModalOpen] = useState(
+    update ? true : false
+  );
   const [editedInfo, setEditedInfo] = useState({
     email: "",
     phone: "",
@@ -60,9 +65,7 @@ export default function ProfileScreen() {
             <Icon name="camera" size={14} color="white" />
           </TouchableOpacity>
         </View>
-        <Text className="mt-3 text-xl font-semibold">
-          {user.first_name} {user.last_name}
-        </Text>
+        <Text className="mt-3 text-xl font-semibold">{user.username}</Text>
         <View className="flex-row items-center mt-1 text-gray-600">
           <Icon name="map-marker-alt" size={14} color="#4B5563" />
           <Text className="text-sm ml-1 text-gray-600">
@@ -76,7 +79,10 @@ export default function ProfileScreen() {
           <Divider />
           <Stat label="Success" value="97%" />
         </View>
-        <TouchableOpacity className="mt-4 px-4 py-2 border border-green-500 rounded-full">
+        <TouchableOpacity
+          className="mt-4 px-4 py-2 border border-green-500 rounded-full"
+          onPress={() => setIsPersonInfoModalOpen(true)}
+        >
           <Text className="text-green-500 text-sm font-medium">
             Edit Profile
           </Text>
@@ -170,6 +176,12 @@ export default function ProfileScreen() {
         editedInfo={personalInfo}
         setEditedInfo={setEditedInfo}
         onCancel={() => setIsEditModalOpen(false)}
+        // onSave={handleSave}
+      />
+
+      <ProfileInfoModal
+        visible={ispersonInfoModalOpen}
+        onCancel={() => setIsPersonInfoModalOpen(false)}
         // onSave={handleSave}
       />
     </ScrollView>

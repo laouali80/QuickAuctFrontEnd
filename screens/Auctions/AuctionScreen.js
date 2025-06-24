@@ -52,16 +52,16 @@ const AuctionScreen = ({ navigation, route }) => {
   const [like, setLike] = useState("heart-o");
   const [showReportModal, setShowReportModal] = useState(false);
   const [showRatingModal, setShowRatingModal] = useState(true); // trigger this when auction is won
-  // const images = auction.images
-  //   .filter((img) => img && img.image)
-  //   .map((img) => img.image);
+  const images = auction.images
+    .filter((img) => img && img.image)
+    .map((img) => img.image);
 
   // mock images
-  const images = [
-    require("../../assets/auctions/auct1.jpg"),
-    // require("../../assets/auctions/auct2.jpg"),
-    // require("../../assets/auctions/auct3.jpg"),
-  ];
+  // const images = [
+  //   require("../../assets/auctions/auct1.jpg"),
+  // require("../../assets/auctions/auct2.jpg"),
+  // require("../../assets/auctions/auct3.jpg"),
+  // ];
 
   // console.log("response: ", utils.thumbnail(images[currentImageIndex]));
 
