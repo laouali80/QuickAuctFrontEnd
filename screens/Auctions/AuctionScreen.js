@@ -34,6 +34,7 @@ import renderThumbnail from "./components/renderThumbnail";
 import { useDispatch, useSelector } from "react-redux";
 import { getMessage, getStatus, getUserInfo } from "@/state/reducers/userSlice";
 import SubmitButton from "@/common_components/SubmitButton";
+import RecentBids from "./components/RecentBids";
 
 const { width } = Dimensions.get("window");
 
@@ -56,6 +57,65 @@ const AuctionScreen = ({ navigation, route }) => {
     .filter((img) => img && img.image)
     .map((img) => img.image);
 
+  // const bids = [
+  //   {
+  //     id: 1,
+  //     bidder: {
+  //       name: "Emma Thompson",
+  //       avatar:
+  //         "https://readdy.ai/api/search-image?query=Professional%20headshot%20of%20a%20young%20woman%20with%20blonde%20hair%2C%20warm%20smile%2C%20natural%20makeup%2C%20business%20casual%20attire%2C%20neutral%20background%2C%20high%20quality%20portrait%2C%20soft%20lighting&width=50&height=50&seq=5&orientation=squarish",
+  //     },
+  //     amount: 6.0,
+  //     timestamp: "2025-06-24T10:30:00",
+  //     isCurrentUser: false,
+  //   },
+  //   {
+  //     id: 2,
+  //     bidder: {
+  //       name: "Michael Chen",
+  //       avatar:
+  //         "https://readdy.ai/api/search-image?query=Professional%20headshot%20of%20an%20Asian%20man%20in%20his%2030s%2C%20wearing%20business%20attire%2C%20confident%20expression%2C%20clean%20background%2C%20high%20quality%20portrait%2C%20studio%20lighting&width=50&height=50&seq=6&orientation=squarish",
+  //     },
+  //     amount: 5.5,
+  //     timestamp: "2025-06-24T09:15:00",
+  //     isCurrentUser: false,
+  //   },
+  //   {
+  //     id: 3,
+  //     bidder: {
+  //       name: "Sarah Miller",
+  //       avatar:
+  //         "https://readdy.ai/api/search-image?query=Professional%20headshot%20of%20a%20woman%20with%20brown%20hair%2C%20professional%20appearance%2C%20natural%20smile%2C%20simple%20background%2C%20high%20quality%20portrait%2C%20soft%20lighting&width=50&height=50&seq=7&orientation=squarish",
+  //     },
+  //     amount: 5.0,
+  //     timestamp: "2025-06-24T08:45:00",
+  //     isCurrentUser: false,
+  //   },
+  //   {
+  //     id: 4,
+  //     bidder: {
+  //       name: "Test Miller",
+  //       avatar:
+  //         "https://readdy.ai/api/search-image?query=Professional%20headshot%20of%20a%20woman%20with%20brown%20hair%2C%20professional%20appearance%2C%20natural%20smile%2C%20simple%20background%2C%20high%20quality%20portrait%2C%20soft%20lighting&width=50&height=50&seq=7&orientation=squarish",
+  //     },
+  //     amount: 2.0,
+  //     timestamp: "2025-06-24T08:45:00",
+  //     isCurrentUser: true,
+  //   },
+  // ];
+  // const myBid = {
+  //   id: 4,
+  //   bidder: {
+  //     name: "Test Miller",
+  //     avatar:
+  //       "https://readdy.ai/api/search-image?query=Professional%20headshot%20of%20a%20woman%20with%20brown%20hair%2C%20professional%20appearance%2C%20natural%20smile%2C%20simple%20background%2C%20high%20quality%20portrait%2C%20soft%20lighting&width=50&height=50&seq=7&orientation=squarish",
+  //   },
+  //   amount: 2.0,
+  //   timestamp: "2025-06-24T08:45:00",
+  //   isCurrentUser: true,
+  // };
+  // const bids = [];
+
   // mock images
   // const images = [
   //   require("../../assets/auctions/auct1.jpg"),
@@ -70,6 +130,7 @@ const AuctionScreen = ({ navigation, route }) => {
 
   // -------------------- Effects --------------------
   // set up Screen header
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: "Auction",
@@ -340,11 +401,7 @@ const AuctionScreen = ({ navigation, route }) => {
         {activeTab === "Overview" && <OverviewTab auction={auction} />}
 
         {activeTab === "Bids" && (
-          <View style={styles.section}>
-            <Text style={styles.description}>
-              No bids have been placed yet.
-            </Text>
-          </View>
+          <RecentBids bids={auction.bids} myBid={auction.user_bid} />
         )}
         {activeTab === "Options" && (
           <View style={styles.section}>

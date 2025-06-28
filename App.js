@@ -15,7 +15,6 @@ import ProfileScreen from "./screens/Profile/ProfileScreen";
 import { useEffect, useState } from "react";
 import SplashScreen from "./screens/Welcomes/SplashScreen";
 import { Provider, useDispatch, useSelector } from "react-redux";
-import AuctionBidsScreen from "./screens/Auctions/AuctionBidsScreen";
 // import AuctionScreen from "./screens/Auctions/AuctionScreen";
 import { store, persistor } from "./state/store";
 import { getAuthentication } from "./state/reducers/userSlice";
@@ -38,6 +37,7 @@ import AuctionScreen from "./screens/Auctions/AuctionScreen";
 import NotificationsScreen from "./screens/Notification/NotificationsScreen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { showToast, ToastProvider } from "./animation/CustomToast/ToastManager";
+import BidHistory from "./screens/Auctions/BidHistoryScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -112,10 +112,7 @@ function AppContent() {
                     name="Auction"
                     component={ProductDetailScreen}
                   /> */}
-                      <Stack.Screen
-                        name="AuctionBids"
-                        component={AuctionBidsScreen}
-                      />
+                      <Stack.Screen name="BidHistory" component={BidHistory} />
 
                       {/* Auction Creation */}
                       <Stack.Screen
