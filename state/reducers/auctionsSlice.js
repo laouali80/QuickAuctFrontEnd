@@ -299,6 +299,14 @@ export const fetchAuctions = (data) => (dispatch) => {
   });
 };
 
+export const deleteAuction = (data) => {
+  console.log("deleteAuction: ", data);
+  sendThroughSocket({
+    source: "delete_auction",
+    data,
+  });
+};
+
 export const fetchCategories = createAsyncThunk(
   "auctions/categories",
   async (_, { rejectWithValue }) => {

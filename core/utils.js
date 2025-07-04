@@ -28,9 +28,12 @@ function thumbnail(url) {
     return url;
   }
 
-  return {
-    uri: "http://" + BaseAddress + url,
-  };
+  return { uri: url };
+  // return DEVELOPMENT
+  //   ? {
+  //       uri: "http://" + BaseAddress + url,
+  //     }
+  //   : { uri: url };
 }
 
 export default { log, thumbnail };

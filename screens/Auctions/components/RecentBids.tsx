@@ -13,6 +13,9 @@ import { BidType } from "@/types/auction/bid.type";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "@/types/navigation/rootStack.type";
 import utils from "@/core/utils";
+import { AuctionType } from "@/types/auction/auction.type";
+import { getUserInfo } from "@/state/reducers/userSlice";
+import { useSelector } from "react-redux";
 
 type NavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -20,15 +23,21 @@ type NavigationProp = NativeStackNavigationProp<
 >;
 
 type RecentBidsProps = {
-  bids: BidType[];
+  auction: AuctionType;
   onSubmitBid: (amount: number) => void;
   myBid: BidType | null;
 };
 
-const RecentBids = ({ bids, myBid, onSubmitBid }: RecentBidsProps) => {
+const RecentBids = ({ auction, myBid, onSubmitBid }: RecentBidsProps) => {
+  const bids = auction.bids;
+  const user = useSelector(getUserInfo);
+
+  const isCurrentUser = auction.seller.userId === user.userId;
+
   const [showBidForm, setShowBidForm] = useState(false);
   const [bidAmount, setBidAmount] = useState("");
   const navigation = useNavigation<NavigationProp>();
+  console.log("bids", bids);
 
   // useMemo helps avoid recalculating unless bids or myBid changes.
   const sortedBids: BidType[] = useMemo(() => {
@@ -125,41 +134,43 @@ const RecentBids = ({ bids, myBid, onSubmitBid }: RecentBidsProps) => {
           </TouchableOpacity>
         )}
 
-        {!showBidForm ? (
-          <TouchableOpacity
-            onPress={() => setShowBidForm(true)}
-            style={styles.primaryBtn}
-          >
-            <Text style={styles.primaryBtnText}>Place a Jump Bid</Text>
-          </TouchableOpacity>
-        ) : (
-          <>
-            <View style={styles.inputWrapper}>
-              <Text style={styles.currency}>₦</Text>
-              <TextInput
-                value={bidAmount}
-                onChangeText={setBidAmount}
-                keyboardType="decimal-pad"
-                style={styles.input}
-                placeholder="Enter bid amount"
-              />
-            </View>
-            <View style={styles.actionsRow}>
-              <TouchableOpacity
-                onPress={handleBidSubmit}
-                style={styles.primaryBtn}
-              >
-                <Text style={styles.primaryBtnText}>Submit Bid</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setShowBidForm(false)}
-                style={styles.secondaryBtn}
-              >
-                <Text style={styles.secondaryBtnText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
+        {!isCurrentUser && !auction.has_ended ? (
+          !showBidForm ? (
+            <TouchableOpacity
+              onPress={() => setShowBidForm(true)}
+              style={styles.primaryBtn}
+            >
+              <Text style={styles.primaryBtnText}>Place a Jump Bid</Text>
+            </TouchableOpacity>
+          ) : (
+            <>
+              <View style={styles.inputWrapper}>
+                <Text style={styles.currency}>₦</Text>
+                <TextInput
+                  value={bidAmount}
+                  onChangeText={setBidAmount}
+                  keyboardType="decimal-pad"
+                  style={styles.input}
+                  placeholder="Enter bid amount"
+                />
+              </View>
+              <View style={styles.actionsRow}>
+                <TouchableOpacity
+                  onPress={handleBidSubmit}
+                  style={styles.primaryBtn}
+                >
+                  <Text style={styles.primaryBtnText}>Submit Bid</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setShowBidForm(false)}
+                  style={styles.secondaryBtn}
+                >
+                  <Text style={styles.secondaryBtnText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )
+        ) : null}
       </View>
     </View>
   );

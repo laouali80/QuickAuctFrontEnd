@@ -104,7 +104,7 @@ export const initializeAuctionSocket = createAsyncThunk(
 
       socket.onmessage = (event) => {
         const parsed = JSON.parse(event.data);
-        // utils.log("received from server: ", parsed);
+        utils.log("received from server: ", parsed);
         const handlers = {
           search: (data) =>
             storeRef?.dispatch({
