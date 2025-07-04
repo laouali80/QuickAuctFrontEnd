@@ -49,6 +49,8 @@ export const logInUser = createAsyncThunk(
     } catch (err) {
       await secure.clearUserSession();
 
+      console.log("login error: ", err);
+
       // Log actual error if available
       // console.log("Login error:", err?.response?.data || err.message);
       // utils.log("catch error:", err.status);

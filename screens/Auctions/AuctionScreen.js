@@ -35,6 +35,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getMessage, getStatus, getUserInfo } from "@/state/reducers/userSlice";
 import SubmitButton from "@/common_components/SubmitButton";
 import RecentBids from "./components/RecentBids";
+import { deleteAuction } from "@/state/reducers/auctionsSlice";
+// import LottieView from "lottie-react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -47,6 +49,8 @@ const AuctionScreen = ({ navigation, route }) => {
   // const auction = useSelector(getAuction(id));
   const user = useSelector(getUserInfo);
 
+  const isCurrentUser = auction.seller.userId === user.userId;
+  // console.log("auction: ", isCurrentUser);
   // -------------------- Local State --------------------
   const [activeTab, setActiveTab] = useState("Overview");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -147,18 +151,19 @@ const AuctionScreen = ({ navigation, route }) => {
           />
         </TouchableOpacity>
       ),
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={() => setShowReportModal(true)}
-          // style={{ paddingRight: 5 }}
-        >
-          <MaterialIcons
-            name="report-gmailerrorred"
-            size={30}
-            color={COLORS.yellow}
-          />
-        </TouchableOpacity>
-      ),
+      headerRight: () =>
+        !isCurrentUser ? (
+          <TouchableOpacity
+            onPress={() => setShowReportModal(true)}
+            // style={{ paddingRight: 5 }}
+          >
+            <MaterialIcons
+              name="report-gmailerrorred"
+              size={30}
+              color={COLORS.yellow}
+            />
+          </TouchableOpacity>
+        ) : null,
     });
   }, [navigation]);
 
@@ -207,6 +212,11 @@ const AuctionScreen = ({ navigation, route }) => {
   //     <Image source={utils.thumbnail(item)} style={styles.thumbnailImage} />
   //   </TouchableOpacity>
   // );
+
+  const handleDelete = () => {
+    deleteAuction({ auction_id: auction.id });
+    navigation.goBack();
+  };
 
   return (
     <View style={styles.container}>
@@ -268,9 +278,13 @@ const AuctionScreen = ({ navigation, route }) => {
             </Text>
             <Text style={styles.categoryTag}>{auction?.category.value}</Text>
           </View>
-          <TouchableOpacity onPress={() => handleLike(like, setLike, auction)}>
-            <FontAwesome name={like} size={24} color={COLORS.primary} />
-          </TouchableOpacity>
+          {!isCurrentUser ? (
+            <TouchableOpacity
+              onPress={() => handleLike(like, setLike, auction)}
+            >
+              <FontAwesome name={like} size={24} color={COLORS.primary} />
+            </TouchableOpacity>
+          ) : null}
         </View>
 
         {/* Seller Info */}
@@ -329,53 +343,55 @@ const AuctionScreen = ({ navigation, route }) => {
         </View>
 
         {/* Call or Chat with Owner */}
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-            marginTop: 16,
-          }}
-        >
-          <View style={{ alignItems: "center" }}>
-            <TouchableOpacity
-              style={{
-                backgroundColor: COLORS.lightPrimary,
-                width: 50,
-                height: 50,
-                borderRadius: 25,
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: 4,
-              }}
-              onPress={() => _navigateToChat(navigation, auction)}
-            >
-              <Ionicons
-                name="chatbox-outline"
-                size={24}
-                color={COLORS.primary}
-              />
-            </TouchableOpacity>
-            <Text style={{ fontSize: 14, fontWeight: "600" }}>Chat</Text>
-          </View>
+        {!isCurrentUser ? (
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-evenly",
+              marginTop: 16,
+            }}
+          >
+            <View style={{ alignItems: "center" }}>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: COLORS.lightPrimary,
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginBottom: 4,
+                }}
+                onPress={() => _navigateToChat(navigation, auction)}
+              >
+                <Ionicons
+                  name="chatbox-outline"
+                  size={24}
+                  color={COLORS.primary}
+                />
+              </TouchableOpacity>
+              <Text style={{ fontSize: 14, fontWeight: "600" }}>Chat</Text>
+            </View>
 
-          <View style={{ alignItems: "center" }}>
-            <TouchableOpacity
-              style={{
-                backgroundColor: COLORS.lightRed,
-                width: 50,
-                height: 50,
-                borderRadius: 25,
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: 4,
-              }}
-              onPress={() => makeCall(auction?.seller?.phone_number)}
-            >
-              <Feather name="phone-call" size={24} color={COLORS.red} />
-            </TouchableOpacity>
-            <Text style={{ fontSize: 14, fontWeight: "600" }}>Call</Text>
+            <View style={{ alignItems: "center" }}>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: COLORS.lightRed,
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginBottom: 4,
+                }}
+                onPress={() => makeCall(auction?.seller?.phone_number)}
+              >
+                <Feather name="phone-call" size={24} color={COLORS.red} />
+              </TouchableOpacity>
+              <Text style={{ fontSize: 14, fontWeight: "600" }}>Call</Text>
+            </View>
           </View>
-        </View>
+        ) : null}
 
         {/* Tabs */}
         <View style={styles.tabsRow}>
@@ -401,7 +417,7 @@ const AuctionScreen = ({ navigation, route }) => {
         {activeTab === "Overview" && <OverviewTab auction={auction} />}
 
         {activeTab === "Bids" && (
-          <RecentBids bids={auction.bids} myBid={auction.user_bid} />
+          <RecentBids auction={auction} myBid={auction.user_bid} />
         )}
         {activeTab === "Options" && (
           <View style={styles.section}>
@@ -412,15 +428,61 @@ const AuctionScreen = ({ navigation, route }) => {
         )}
       </ScrollView>
 
-      {/* Bottom Button */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.bidButton}>
+      {/* <TouchableOpacity style={styles.bidButton} disabled={true}>
           <Text
             style={styles.bidButtonText}
           >{`Bid N${auction.bid_increment}`}</Text>
-          {/* <SubmitButton text={`Bid N${auction.bid_increment}`} /> */}
-        </TouchableOpacity>
-      </View>
+        </TouchableOpacity> */}
+
+      {/* Bottom Button */}
+
+      {isCurrentUser &&
+        (auction.has_ended ? (
+          <View style={{ flexDirection: "row", padding: 16, gap: 10 }}>
+            <TouchableOpacity
+              // onPress={handleEdit}
+              style={{
+                backgroundColor: "#22c55e",
+                paddingVertical: 12,
+                borderRadius: 8,
+                flex: 1,
+                alignItems: "center",
+                marginTop: 10,
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "600" }}>Edit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleDelete}
+              style={{
+                backgroundColor: COLORS.red,
+                paddingVertical: 12,
+                borderRadius: 8,
+                flex: 1,
+                alignItems: "center",
+                marginTop: 10,
+              }}
+            >
+              <Text style={{ color: "#374151", fontWeight: "600" }}>
+                Delete
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.footer}>
+            <SubmitButton text="Close" className="py-4" />
+          </View>
+        ))}
+
+      {!isCurrentUser && (
+        <View style={styles.footer}>
+          <SubmitButton
+            text={`Bid N${auction.bid_increment}`}
+            isDisabled={auction.has_ended}
+            className="py-4"
+          />
+        </View>
+      )}
 
       {showReportModal && (
         <ReportModal
@@ -438,6 +500,11 @@ const AuctionScreen = ({ navigation, route }) => {
           auction={auction}
         />
       )}
+      {/* <LottieView
+        source={require("../../assets/animation/confetti.json")}
+        autoPlay
+        loop
+      /> */}
     </View>
   );
 };

@@ -90,11 +90,12 @@ export const apiRequest = async (
       console.error("Status:", error.response.status);
     } else if (error.request) {
       console.error("No response received:", error.request);
+      // console.error("No response received:", error.message);
     } else {
       console.error("General Error:", error.message);
     }
     // console.log("Error config: ", error.config);
-    return error?.response?.data; // Prevent crashes by returning null
+    return error?.response?.data || error; // Prevent crashes by returning null
   }
 };
 

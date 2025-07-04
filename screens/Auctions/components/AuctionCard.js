@@ -23,7 +23,7 @@ const AuctionCard = ({ auction }) => {
   );
 
   // console.log("user: ", user.userId);
-  // console.log("auction: ", auction);
+  // console.log("auction: ", auction?.images[0].image);
   // console.log(" reach auction card: ");
 
   const handleLike = () => {

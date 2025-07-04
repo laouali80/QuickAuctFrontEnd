@@ -7,6 +7,7 @@ const Thumbnail = ({ url, width, height, borderRadius }) => {
 
   return (
     <Image
+      // source="https://quicauct-mediafiles.s3.us-east-1.amazonaws.com/media/auction_images/10bcce37f255e0af.jpg"
       source={utils.thumbnail(url)}
       style={{
         width: width,
