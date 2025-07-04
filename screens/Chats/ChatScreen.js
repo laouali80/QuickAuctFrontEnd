@@ -22,8 +22,9 @@ import {
   getNextPage,
   messageSend,
   messagesList,
-  messageTyping,
+  messageTyping as sendTypingIndicator,
   setActiveChat,
+  checkMessageTyping,
 } from "@/state/reducers/chatsSlice";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -36,6 +37,7 @@ const ChatScreen = ({ navigation, route }) => {
   // Redux state
   const messages = useSelector(getMessages);
   const messagesNext = useSelector(getNextPage);
+  const isTyping = useSelector(checkMessageTyping);
   const connectionId = route.params.id || null;
   const friend = route.params.friend || route.params.username;
 
@@ -58,6 +60,13 @@ const ChatScreen = ({ navigation, route }) => {
       dispatch(setActiveChat(null));
     };
   }, [friend.username, dispatch]);
+
+  // Reset loading state when messages change
+  useEffect(() => {
+    if (isLoading) {
+      setIsLoading(false);
+    }
+  }, [messagesNext]);
 
   // Improved send message handler
   const onSend = () => {
@@ -88,20 +97,20 @@ const ChatScreen = ({ navigation, route }) => {
     // Only send typing indicator if there's content
     if (value.trim().length > 0) {
       typingTimeoutRef.current = setTimeout(() => {
-        messageTyping(friend.username);
+        sendTypingIndicator(friend.username);
       }, 500);
     }
   };
 
   // Improved pagination handler
   const handleLoadMore = useCallback(() => {
-    if (!isLoading && messagesNext) {
+    // Only load more if we're not already loading, have a next page, and typing indicator is not active
+    if (!isLoading && messagesNext && messagesNext !== null && !isTyping) {
+      console.log("Loading more messages, page:", messagesNext);
       setIsLoading(true);
       dispatch(messagesList(connectionId, messagesNext));
-      // .then(() => setIsLoading(false))
-      // .catch(() => setIsLoading(false));
     }
-  }, [messagesNext, isLoading, dispatch]);
+  }, [messagesNext, isLoading, dispatch, connectionId, isTyping]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -112,7 +121,10 @@ const ChatScreen = ({ navigation, route }) => {
           contentContainerStyle={{ paddingTop: 30 }}
           data={[{ id: -1 }, ...messages]}
           inverted={true}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => {
+            if (item.id === -1) return 'typing-indicator';
+            return item.id.toString();
+          }}
           onEndReachedThreshold={0.5}
           onEndReached={handleLoadMore}
           onScroll={({ nativeEvent }) => {

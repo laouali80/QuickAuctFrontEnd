@@ -174,13 +174,8 @@ export const messagesList =
           overwrite: true,
         })
       );
-    } else {
-      dispatch(
-        chatsSlice.actions.setMessagesNext({
-          messagesNext: null,
-        })
-      );
     }
+    // Don't set messagesNext to null for pagination requests
     socket.send(
       JSON.stringify({
         connectionId,
@@ -308,7 +303,6 @@ const chatsSlice = createSlice({
       if (username !== state.activeChatUsername) return;
       // state.messageTyping = new Date();
       state.messageTyping = new Date().toString();
-      console.log(state.messagesNext);
     },
     setMessagesNext(state, action) {
       state.messagesNext = action.payload.messagesNext;
