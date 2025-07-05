@@ -19,10 +19,12 @@ module.exports = function (api) {
           alias: {
             "@": "./",
             "tailwind.config": "./tailwind.config.js",
-            "react-native-svg": "react-native-svg-web",
+            // "react-native-svg": "react-native-svg-web",
           },
         },
       ],
+      'react-native-reanimated/plugin', // Always keep this plugin LAST
     ],
   };
 };
+// plugins: [],

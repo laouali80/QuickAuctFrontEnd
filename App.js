@@ -51,7 +51,7 @@ const LightTheme = {
 
 function AppContent() {
   const colorScheme = useColorScheme(); // Detects light or dark mode
-  const [initialized, setInitialized] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
   const authenticated = useSelector(getAuthentication);
   console.log(authenticated);
   // const authenticated = true;
@@ -59,15 +59,12 @@ function AppContent() {
   const isDarkMode = colorScheme === "dark";
   const statusBarStyle = isDarkMode ? "light-content" : "dark-content";
 
-  useEffect(() => {
-    // Simulate initial loading (like fonts, themes, etc.)
-    setTimeout(() => {
-      setInitialized(true);
-    }, 500); // delay to mimic async init (you can adjust/remove)
+  const handleSplashFinish = () => {
+    console.log("Splash screen finished, navigating to next screen");
+    setShowSplash(false);
+  };
 
-    console.log("Authenticated:", authenticated);
-  }, [authenticated]);
-  // const [initialized] = useState(true);
+  console.log("Authenticated:", authenticated);
 
   return (
     <SafeAreaProvider>
@@ -89,9 +86,14 @@ function AppContent() {
             </View> */}
 
                 <Stack.Navigator>
-                  {!initialized ? (
+                  {showSplash ? (
                     <>
-                      <Stack.Screen name="Splash" component={SplashScreen} />
+                      <Stack.Screen 
+                        name="Splash" 
+                        options={{ headerShown: false }}
+                      >
+                        {() => <SplashScreen onFinish={handleSplashFinish} />}
+                      </Stack.Screen>
                     </>
                   ) : !authenticated ? (
                     <>
