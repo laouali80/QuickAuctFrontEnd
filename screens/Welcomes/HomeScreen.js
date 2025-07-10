@@ -120,6 +120,7 @@ const HomeScreen = ({ navigation }) => {
         bgColor="white"
         initialRouteName="Auctions"
         borderTopLeftRight
+        
         renderCircle={({ selectedTab, navigate }) => (
           <Animated.View style={styles.btnCircleUp}>
             <TouchableOpacity

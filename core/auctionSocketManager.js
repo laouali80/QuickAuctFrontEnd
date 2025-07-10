@@ -71,6 +71,16 @@ function responseSalesAuctions(data) {
   });
 }
 
+function responseDeleteAuction(data) {
+  const state = storeRef.getState();
+  const currentUserId = state.user.user?.userId; // adjust path if different
+  console.log("responseDeleteAuction: ", { ...data, currentUserId });
+  // storeRef?.dispatch({
+  //   type: "auctions/auction_deleted",
+  //   payload: { ...data, currentUserId },
+  // });
+}
+
 export const initializeAuctionSocket = createAsyncThunk(
   "auctions/connection",
   async (tokens, { dispatch, rejectWithValue }) => {
@@ -118,6 +128,7 @@ export const initializeAuctionSocket = createAsyncThunk(
           likesAuctions: responseLikesAuctions,
           bidsAuctions: responseBidsAuctions,
           salesAuctions: responseSalesAuctions,
+          delete_auction: responseDeleteAuction,
         };
 
         if (handlers[parsed.source]) {

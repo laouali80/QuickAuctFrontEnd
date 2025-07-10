@@ -18,8 +18,14 @@ import ItemCondition from "./ItemCondition";
 import UploadPictModel from "./UploadPictModel";
 import { useDebounce } from "@/hooks/useDebouce";
 import SuccessModal from "./SuccessModal";
+import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { Alert } from "react-native";
 
-const CreationForm = ({ navigation }) => {
+const CreationForm = () => {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  
   // State declarations
   const [state, setState] = useState({
     image: [],
@@ -61,12 +67,12 @@ const CreationForm = ({ navigation }) => {
   const uploadSheetRef = useRef();
 
   // Navigation setup
-  // useLayoutEffect(() => {
-  //   navigation.setOptions({
-  //     headerTitle: "Create an Auction",
-  //     headerTitleAlign: "center",
-  //   });
-  // }, [navigation]);
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: "Create an Auction",
+      headerTitleAlign: "center",
+    });
+  }, [navigation]);
 
   // Form validation
 
@@ -252,9 +258,31 @@ const CreationForm = ({ navigation }) => {
 
     setIsSubmitting(true);
     try {
-      // console.log("Submitting auction data:", state);
-      createAuction(state); //  Don't dispatch
-
+      console.log("Submitting auction data:", state);
+      
+      // Clean the state to remove non-serializable File objects
+      const serializableState = {
+        ...state,
+        image: state.image.map(img => {
+          // Handle different image object structures from ImagePicker
+          const imageData = {
+            uri: img.uri,
+            fileName: img.fileName || img.name || `image_${Date.now()}.jpg`,
+            type: img.type || img.mimeType || 'image/jpeg',
+            size: img.size || img.fileSize || 0
+          };
+          
+          // Log the image data for debugging
+          console.log("Serialized image data:", imageData);
+          
+          return imageData;
+        })
+      };
+      
+      const result = await dispatch(createAuction(serializableState)).unwrap();
+      
+      console.log("Auction created successfully:", result);
+      
       // Reset form after successful submission
       setState({
         image: [],
@@ -266,7 +294,7 @@ const CreationForm = ({ navigation }) => {
         end_time: [],
         item_condition: "",
         shipping_details: "",
-        payment_methods: "",
+        payment_methods: [],
       });
       setImageUri([]);
       setIsFormValid(false);
@@ -274,15 +302,18 @@ const CreationForm = ({ navigation }) => {
       setSelectedDuration(null);
       setShowSuccessModal(true);
 
-      // Navigate back or show success message
-      // navigation.goBack();
-      // Alternatively show success alert:
-      // Alert.alert("Success", "Your auction has been posted successfully!");
     } catch (error) {
-      console.error("Submission failed", error);
+      console.error("Auction creation failed:", error);
+      Alert.alert("Error", error.message || "Failed to create auction. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSuccessClose = () => {
+    console.log('Success modal closed, navigating to Home');
+    setShowSuccessModal(false);
+    navigation.navigate("Home");
   };
 
   return (
@@ -369,10 +400,7 @@ const CreationForm = ({ navigation }) => {
 
       <SuccessModal
         visible={showSuccessModal}
-        onClose={() => {
-          setShowSuccessModal(false);
-          navigation.navigate("Auctions"); // or your home route
-        }}
+        onClose={handleSuccessClose}
       />
     </ScrollView>
   );

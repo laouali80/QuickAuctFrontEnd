@@ -15,6 +15,9 @@ const initialState = {
   salesAuctions: [],
   categories: [],
   error: null,
+  totalAuctions: 0,
+  message: null,
+  status: null,
 };
 
 const addTimeLeft = (auction) => {
@@ -40,6 +43,8 @@ const auctionsSlice = createSlice({
     },
     setSocketDisconnected(state) {
       state.isConnected = false;
+      state.message = "Network disconnected. Please check your connection.";
+      state.status = "error";
     },
     setSearchList(state, action) {
       // utils.log("setSearchList payload: ", action.payload);
@@ -74,6 +79,8 @@ const auctionsSlice = createSlice({
       // Check if seller exists and isn't the current user
       if (seller?.userId && seller.userId !== currentUserId) {
         state.newAuctions = (state.newAuctions || 0) + 1;
+      } else {
+        state.totalAuctions = (state.totalAuctions || 0) + 1;
       }
     },
     updateTime(state) {
@@ -88,9 +95,25 @@ const auctionsSlice = createSlice({
       );
     },
     auction_deleted(state, action) {
+      const { auction_id, sellerId, currentUserId, message, status } =
+        action.payload;
       state.auctions = state.auctions.filter(
-        (auction) => auction.id !== action.payload
+        (auction) => auction.id !== auction_id
       );
+      state.likesAuctions = state.auctions.filter(
+        (auction) => auction.id !== auction_id
+      );
+      state.bidsAuctions = state.auctions.filter(
+        (auction) => auction.id !== auction_id
+      );
+      state.salesAuctions = state.auctions.filter(
+        (auction) => auction.id !== auction_id
+      );
+      if (sellerId === currentUserId) {
+        state.totalAuctions = state.totalAuctions - 1;
+        state.message = message;
+        state.status = status;
+      }
     },
     auction_updated(state, action) {
       const updatedAuction = action.payload;
@@ -178,6 +201,10 @@ const auctionsSlice = createSlice({
       state.salesAuctions = unique;
       state.NextPage = nextPage;
     },
+    clearAuctionMessage(state) {
+      state.message = null;
+      state.status = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -195,6 +222,21 @@ const auctionsSlice = createSlice({
       .addCase(fetchCategories.rejected, (state, action) => {
         // state.status = "rejected";
         state.error = action.payload;
+      })
+      // Create Auction Cases
+      .addCase(createAuction.pending, (state) => {
+        state.status = "pending";
+        state.error = null;
+      })
+      .addCase(createAuction.fulfilled, (state, action) => {
+        state.status = "fulfilled";
+        state.error = null;
+        // You can add the new auction to the list if needed
+        // state.auctions.unshift(addTimeLeft(action.payload.data));
+      })
+      .addCase(createAuction.rejected, (state, action) => {
+        state.status = "rejected";
+        state.error = action.payload;
       });
   },
 });
@@ -211,14 +253,23 @@ export const searchAuctions = (query) => (dispatch, getState) => {
   }
 };
 
-export const createAuction = (data) => {
-  // console.log("data: ", data);
+export const createAuction = createAsyncThunk(
+  "auctions/create",
+  async (data, { rejectWithValue }) => {
+    try {
+      // Send through WebSocket
+      sendThroughSocket({
+        source: "create_auction",
+        data,
+      });
 
-  sendThroughSocket({
-    source: "create_auction",
-    data,
-  });
-};
+      // Return success response
+      return { success: true, data };
+    } catch (err) {
+      return rejectWithValue(err.message || "Failed to create auction");
+    }
+  }
+);
 
 export const placeBid = (data) => {
   // console.log("data: ", data);
@@ -355,12 +406,16 @@ export const getLikesAuctions = (state) => state.auctions.likesAuctions;
 export const getBidsAuctions = (state) => state.auctions.bidsAuctions;
 export const getSalesAuctions = (state) => state.auctions.salesAuctions;
 export const getCategories = (state) => state.auctions.categories;
+export const getTotalAuctions = (state) => state.auctions.totalAuctions;
+export const getAuctionMessage = (state) => state.auctions.message;
+export const getAuctionStatus = (state) => state.auctions.status;
 
 export const {
   setSocketConnected,
   setSocketDisconnected,
   setSearchList,
   updateTime,
+  clearAuctionMessage,
 } = auctionsSlice.actions;
 
 export default auctionsSlice.reducer;

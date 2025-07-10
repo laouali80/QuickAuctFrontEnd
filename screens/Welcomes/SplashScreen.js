@@ -15,7 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 
 const { width, height } = Dimensions.get('window')
 
-export default function SplashScreen() {
+export default function SplashScreen({ onFinish }) {
   const [loading, setLoading] = useState(true)
   const [progress, setProgress] = useState(0)
   const opacity = useSharedValue(1)
@@ -48,6 +48,18 @@ export default function SplashScreen() {
       withTiming(0, { duration: 1000 })
     ), -1)
   }, [])
+
+  // Trigger onFinish once splash is done
+useEffect(() => {
+  if (!loading) {
+    const timeout = setTimeout(() => {
+      onFinish?.()
+    }, 500) // ensure fade out finishes before navigating
+
+    return () => clearTimeout(timeout)
+  }
+}, [loading])
+
 
   const logoStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: logoBounce.value }],

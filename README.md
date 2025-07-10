@@ -229,3 +229,7 @@ bolt ai
 toast
 https://www.youtube.com/watch?v=6OkKgCPADoU
 https://www.youtube.com/watch?v=uHlB4w4gTHY
+
+
+google plsy store
+https://www.youtube.com/watch?v=7DQbbTQpUjQ&list=PLk8gdrb2DmCjsRsDIwMBJdf350qKMiJ8R&index=1
