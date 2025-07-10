@@ -1,7 +1,8 @@
+import { COLORS } from "@/constants/COLORS";
 import React from "react";
 import { Modal, View, Text, Pressable, StyleSheet } from "react-native";
 
-const UpdateProfileModal = ({ visible, onClose, onSubmit }) => {
+const DeleteModal = ({ visible, onClose, onSubmit }) => {
   return (
     <Modal animationType="fade" transparent visible={visible}>
       <View style={styles.overlay}>
@@ -12,17 +13,17 @@ const UpdateProfileModal = ({ visible, onClose, onSubmit }) => {
           </Pressable>
 
           {/* Title */}
-          <Text style={styles.title}>Profile Update</Text>
+          <Text style={styles.title}>Delete Auction!</Text>
 
           {/* Info Text */}
           <Text style={styles.subtitle}>
-            Please update your profile information before creating an auction.
-            😊
+            Do you really want to delete this auction? This action cannot be
+            undone.
           </Text>
 
           {/* Submit */}
           <Pressable style={styles.submitBtn} onPress={onSubmit}>
-            <Text style={styles.submitText}>Update Now</Text>
+            <Text style={styles.submitText}>Delete</Text>
           </Pressable>
         </View>
       </View>
@@ -30,7 +31,7 @@ const UpdateProfileModal = ({ visible, onClose, onSubmit }) => {
   );
 };
 
-export default UpdateProfileModal;
+export default DeleteModal;
 
 const styles = StyleSheet.create({
   overlay: {
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   submitBtn: {
-    backgroundColor: "#259e47",
+    backgroundColor: COLORS.red,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 10,

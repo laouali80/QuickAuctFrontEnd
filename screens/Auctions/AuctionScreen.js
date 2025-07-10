@@ -35,7 +35,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { getMessage, getStatus, getUserInfo } from "@/state/reducers/userSlice";
 import SubmitButton from "@/common_components/SubmitButton";
 import RecentBids from "./components/RecentBids";
-import { deleteAuction } from "@/state/reducers/auctionsSlice";
+import {
+  clearAuctionMessage,
+  deleteAuction,
+  getAuctionMessage,
+  getAuctionStatus,
+} from "@/state/reducers/auctionsSlice";
+import DeleteModal from "./components/DeleteModal";
 // import LottieView from "lottie-react-native";
 
 const { width } = Dimensions.get("window");
@@ -56,7 +62,8 @@ const AuctionScreen = ({ navigation, route }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [like, setLike] = useState("heart-o");
   const [showReportModal, setShowReportModal] = useState(false);
-  const [showRatingModal, setShowRatingModal] = useState(true); // trigger this when auction is won
+  const [showRatingModal, setShowRatingModal] = useState(false); // trigger this when auction is won
+  const [showDeleteModal, setDeleteModal] = useState(false); // trigger this when auction is won
   const images = auction.images
     .filter((img) => img && img.image)
     .map((img) => img.image);
@@ -197,6 +204,26 @@ const AuctionScreen = ({ navigation, route }) => {
     dispatch(clearMessage());
   }, [ReportMssg, ReportStatus]);
 
+  const AuctionMssg = useSelector(getAuctionMessage);
+  const AuctionStatus = useSelector(getAuctionStatus);
+
+  useEffect(() => {
+    if (!AuctionMssg || !AuctionStatus) return;
+    if (AuctionMssg) {
+      showToast({
+        text: AuctionMssg,
+        duration: 2000,
+        type: AuctionStatus,
+      });
+    }
+    if (AuctionStatus === "success") {
+      setTimeout(() => {
+        navigation.navigate("Home", { screen: "Insights" }); // separate action to update auth state
+      }, 2000); // wait for toast to show before navigating
+    }
+
+    dispatch(clearAuctionMessage());
+  }, [AuctionMssg, AuctionStatus]);
   // // -------------------- Render --------------------
 
   // const renderThumbnail = ({ item, index }) => (
@@ -215,7 +242,7 @@ const AuctionScreen = ({ navigation, route }) => {
 
   const handleDelete = () => {
     deleteAuction({ auction_id: auction.id });
-    navigation.goBack();
+    setDeleteModal(false);
   };
 
   return (
@@ -453,7 +480,7 @@ const AuctionScreen = ({ navigation, route }) => {
               <Text style={{ color: "white", fontWeight: "600" }}>Edit</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={handleDelete}
+              onPress={() => setDeleteModal(true)}
               style={{
                 backgroundColor: COLORS.red,
                 paddingVertical: 12,
@@ -498,6 +525,13 @@ const AuctionScreen = ({ navigation, route }) => {
           onClose={() => setShowRatingModal(false)}
           onSubmit={handleRatingSubmit}
           auction={auction}
+        />
+      )}
+      {showDeleteModal && (
+        <DeleteModal
+          visible={showDeleteModal}
+          onClose={() => setDeleteModal(false)}
+          onSubmit={handleDelete}
         />
       )}
       {/* <LottieView

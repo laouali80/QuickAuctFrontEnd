@@ -1,9 +1,14 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import apiRequest from "@/api/axiosInstance";
 import utils from "@/core/utils";
 import secure from "@/storage/secure";
 import { Platform } from "react-native";
 // import secure from "@/core/secure";
+
+// Helper function to avoid circular dependency
+const makeApiRequest = async (url, data, method = "GET", headers = {}) => {
+  const { apiRequest } = await import("@/api/axiosInstance");
+  return apiRequest(url, data, method, headers);
+};
 
 const initialState = {
   user: null,
@@ -23,7 +28,7 @@ export const logInUser = createAsyncThunk(
       await secure.saveUserCredentials(data.email, data.password);
       // console.log("data: ", data);
 
-      const response = await apiRequest("users/auth/login/", data, "POST");
+      const response = await makeApiRequest("users/auth/login/", data, "POST");
 
       // console.log("Redux state:", userSlice.getState());
       utils.log("Login Response:", response);
@@ -72,7 +77,7 @@ export const signUpUser = createAsyncThunk(
       // Optionally save credentials (if needed for re-login or biometric auth)
       await secure.saveUserCredentials(data.email, data.password);
 
-      const response = await apiRequest("users/auth/register/", data, "POST");
+      const response = await makeApiRequest("users/auth/register/", data, "POST");
       // const response = await apiRequest("users/");
       utils.log("Sign Up Response:", response);
       // secure.storeUserSession("accessToken", response.tokens.access);
@@ -109,7 +114,7 @@ export const EmailVerification = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       // console.log("email verification: ", data);
-      const response = await apiRequest(
+      const response = await makeApiRequest(
         "users/auth/verification/",
         data,
         "POST"
@@ -137,7 +142,7 @@ export const OTPValidation = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       console.log("otp validation: ", data);
-      const response = await apiRequest(
+      const response = await makeApiRequest(
         "users/auth/otpValidation/",
         data,
         "POST"
@@ -168,8 +173,8 @@ export const setLocation = createAsyncThunk(
       console.log("Latest Location: ", data);
       const response =
         Platform.OS === "web"
-          ? await apiRequest("users/location/", data, "POST", {}, data.token)
-          : await apiRequest("users/location/", data, "POST");
+          ? await makeApiRequest("users/location/", data, "POST", {}, data.token)
+          : await makeApiRequest("users/location/", data, "POST");
 
       console.log("location response", response);
 
@@ -191,7 +196,7 @@ export const submitReport = createAsyncThunk(
   "reports/submitReport",
   async (reportData, { rejectWithValue }) => {
     try {
-      const response = await api.post("/report", reportData);
+      const response = await makeApiRequest("/report", reportData, "POST");
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response.data);

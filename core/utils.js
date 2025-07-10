@@ -1,6 +1,13 @@
 import { Platform } from "react-native";
 import errorPic from "../assets/errors/error.jpg";
 import { BaseAddress } from "@/constants/config";
+import { ENVIRONMENT } from "@env";
+
+// const DEVELOPMENT = process.env.DEVELOPMENT;
+// const apiUrl = process.env.REACT_APP_API_URL;
+
+console.log(ENVIRONMENT);
+// console.log(`API URL: ${apiUrl}`);
 
 function log() {
   // Much beter console.log function that formats/indents
@@ -28,12 +35,12 @@ function thumbnail(url) {
     return url;
   }
 
-  return { uri: url };
-  // return DEVELOPMENT
-  //   ? {
-  //       uri: "http://" + BaseAddress + url,
-  //     }
-  //   : { uri: url };
+  // return { uri: url };
+  return ENVIRONMENT === 'DEVELOPMENT'
+    ? {
+        uri: "http://" + BaseAddress + url,
+      }
+    : { uri: url };
 }
 
 export default { log, thumbnail };
