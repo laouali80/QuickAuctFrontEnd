@@ -45,6 +45,7 @@ import {
   getAuctionsList,
   getAuctNextPage,
   getCategories,
+  getTotalAuctions,
   loadMore,
   updateTime,
 } from "@/state/reducers/auctionsSlice";
@@ -73,6 +74,9 @@ const AuctionsScreen = ({ navigation, route }) => {
   const auctionsList = useSelector(getAuctionsList);
   const NextPage = useSelector(getAuctNextPage);
   const user = useSelector(getUserInfo);
+  const Total_auctions = useSelector(getTotalAuctions);
+
+  // console.log('Total Auctions: ',Total_auctions)
 
   // -------------------- Local State --------------------
   const [selectedCategory, setSelectedCategory] = useState({

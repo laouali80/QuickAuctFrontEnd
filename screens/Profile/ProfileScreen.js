@@ -73,11 +73,11 @@ export default function ProfileScreen({ route }) {
           </Text>
         </View>
         <View className="flex-row items-center mt-4 space-x-4">
-          <Stat label="Rating" value="4.9" />
-          <Divider />
+          {/* <Stat label="Rating" value="4.9" />
+          <Divider /> */}
           <Stat label="Auctions" value="42" />
-          <Divider />
-          <Stat label="Success" value="97%" />
+          {/* <Divider />
+          <Stat label="Success" value="97%" /> */}
         </View>
         <TouchableOpacity
           className="mt-4 px-4 py-2 border border-green-500 rounded-full"

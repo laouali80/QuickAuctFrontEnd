@@ -40,8 +40,10 @@ import {
   deleteAuction,
   getAuctionMessage,
   getAuctionStatus,
+  updateTime,
 } from "@/state/reducers/auctionsSlice";
 import DeleteModal from "./components/DeleteModal";
+import { showToast } from "@/animation/CustomToast/ToastManager";
 // import LottieView from "lottie-react-native";
 
 const { width } = Dimensions.get("window");
@@ -50,11 +52,13 @@ const AuctionScreen = ({ navigation, route }) => {
   // -------------------- Navigation Parameters --------------------
   // const { id } = route.params;
   const auction = route.params;
+  console.log('auction: ', auction);
+  
 
   // -------------------- Redux State --------------------
   // const auction = useSelector(getAuction(id));
   const user = useSelector(getUserInfo);
-
+  const dispatch = useDispatch(); // Get dispatch function
   const isCurrentUser = auction.seller.userId === user.userId;
   // console.log("auction: ", isCurrentUser);
   // -------------------- Local State --------------------
@@ -142,6 +146,12 @@ const AuctionScreen = ({ navigation, route }) => {
   // -------------------- Effects --------------------
   // set up Screen header
 
+  // Timer for auction time updates
+  useEffect(() => {
+    const interval = setInterval(() => dispatch(updateTime()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: "Auction",
@@ -182,7 +192,7 @@ const AuctionScreen = ({ navigation, route }) => {
     }
   }, [auction?.watchers, user.userId]);
 
-  const dispatch = useDispatch(); // Get dispatch function
+  
   const ReportMssg = useSelector(getMessage);
   const ReportStatus = useSelector(getStatus);
 
@@ -206,6 +216,8 @@ const AuctionScreen = ({ navigation, route }) => {
 
   const AuctionMssg = useSelector(getAuctionMessage);
   const AuctionStatus = useSelector(getAuctionStatus);
+
+  // console.log("auction scre: ", AuctionMssg, AuctionStatus);
 
   useEffect(() => {
     if (!AuctionMssg || !AuctionStatus) return;
@@ -422,7 +434,7 @@ const AuctionScreen = ({ navigation, route }) => {
 
         {/* Tabs */}
         <View style={styles.tabsRow}>
-          {["Overview", "Bids", "Options"].map((tab) => (
+          {["Overview", "Bids"].map((tab) => (
             <TouchableOpacity
               key={tab}
               onPress={() => setActiveTab(tab)}
@@ -445,13 +457,6 @@ const AuctionScreen = ({ navigation, route }) => {
 
         {activeTab === "Bids" && (
           <RecentBids auction={auction} myBid={auction.user_bid} />
-        )}
-        {activeTab === "Options" && (
-          <View style={styles.section}>
-            <Text style={styles.description}>
-              Additional options for this product.
-            </Text>
-          </View>
         )}
       </ScrollView>
 

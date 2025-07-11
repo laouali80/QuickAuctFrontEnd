@@ -205,12 +205,17 @@ const auctionsSlice = createSlice({
       state.message = null;
       state.status = null;
     },
+    proccesingError(state, payload) {
+      console.log("reach proccesingError: ");
+      state.message = payload.message;
+      state.status = payload.status;
+    },
   },
   extraReducers: (builder) => {
     builder
       // Categories Cases
       .addCase(fetchCategories.pending, (state) => {
-        state.status = "pending";
+        // state.status = "pending";
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
         // console.log("reach");
