@@ -178,7 +178,7 @@ export const initializeAuctionSocket = createAsyncThunk(
           try {
             const parsed = JSON.parse(event.data);
             const handlers = {
-              auctionsList: handleAuctionsList,
+              // auctionsList: handleAuctionsList,
               new_auction: handleNewAuction,
               new_bid: handleNewBid,
               search: handleSearchResults,
@@ -461,11 +461,11 @@ export const fetchCategories = createAsyncThunk(
 // Improved selectors with memoization
 export const selectIsConnected = (state) => state.auctions.isConnected;
 export const selectConnectionError = (state) => state.auctions.connectionError;
-export const selectAuctionsList = (listType = 'all') => (state) => {
-  const list = state.auctions.lists[listType];
-  return list.ids.map(id => state.auctions.auctions[id]).filter(Boolean);
-};
-export const selectAuction = (id) => (state) => state.auctions.auctions[id];
+// export const selectAuctionsList = (listType = 'all') => (state) => {
+//   const list = state.auctions.lists[listType];
+//   return list.ids.map(id => state.auctions.auctions[id]).filter(Boolean);
+// };
+// export const selectAuction = (id) => (state) => state.auctions.auctions[id];
 export const selectCategories = (state) => state.auctions.categories;
 export const selectLoading = (type) => (state) => state.auctions.loading[type];
 export const selectError = (type) => (state) => state.auctions.errors[type];

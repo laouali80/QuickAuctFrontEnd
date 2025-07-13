@@ -1,11 +1,14 @@
 import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { sales } from "@/mockData/sales";
 import SaleCard from "@/screens/Insights/components/SaleCard";
 import {
   fetchSalesAuctions,
+  getAuctionsList,
   getAuctNextPage,
   getSalesAuctions,
+  selectAuctionsList,
+  updateTime,
 } from "@/state/reducers/auctionsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useLoadMore } from "@/hooks/useLoadMore";
@@ -14,11 +17,12 @@ import { EmptyState } from "@/common_components/EmptyState";
 const Sales = () => {
   const dispatch = useDispatch();
   const NextPage = useSelector(getAuctNextPage);
-  const salesAuctions = useSelector(getSalesAuctions);
+  const salesAuctions = useSelector(getAuctionsList(listType='sales'));
   const [isLoading, setIsLoading] = useState(false);
   const isCooldownRef = useRef(false);
 
   // console.log("salesAuctions: ", salesAuctions);
+
   // Improved pagination handler
   const handleLoadMore = useLoadMore({
     isLoading,
@@ -27,6 +31,8 @@ const Sales = () => {
     isCooldownRef,
     Action: fetchSalesAuctions,
   });
+
+
 
   // Show loading indicator
   if (salesAuctions === null) {

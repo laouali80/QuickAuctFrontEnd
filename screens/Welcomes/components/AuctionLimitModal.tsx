@@ -1,7 +1,13 @@
 import React from "react";
 import { Modal, View, Text, Pressable, StyleSheet } from "react-native";
 
-const UpdateProfileModal = ({ visible, onClose, onSubmit }) => {
+interface AuctionLimitModalProps {
+  visible: boolean;
+  onClose: () => void;
+  onGoToProfile: () => void;
+}
+
+const AuctionLimitModal: React.FC<AuctionLimitModalProps> = ({ visible, onClose, onGoToProfile }) => {
   return (
     <Modal animationType="fade" transparent visible={visible}>
       <View style={styles.overlay}>
@@ -12,17 +18,17 @@ const UpdateProfileModal = ({ visible, onClose, onSubmit }) => {
           </Pressable>
 
           {/* Title */}
-          <Text style={styles.title}>Profile Update</Text>
+          <Text style={styles.title}>Auction Limit Reached</Text>
 
           {/* Info Text */}
           <Text style={styles.subtitle}>
-            Please update your profile information before creating an auction.
-            😊
+            You have reached your auction limit of 10.{"\n"}
+            To create a new auction, please delete an existing one from your profile.
           </Text>
 
-          {/* Submit */}
-          <Pressable style={styles.submitBtn} onPress={onSubmit}>
-            <Text style={styles.submitText}>Update Now</Text>
+          {/* Go to Profile */}
+          <Pressable style={styles.submitBtn} onPress={onGoToProfile}>
+            <Text style={styles.submitText}>Go to Profile</Text>
           </Pressable>
         </View>
       </View>
@@ -30,7 +36,7 @@ const UpdateProfileModal = ({ visible, onClose, onSubmit }) => {
   );
 };
 
-export default UpdateProfileModal;
+export default AuctionLimitModal;
 
 const styles = StyleSheet.create({
   overlay: {

@@ -38,10 +38,15 @@ import RecentBids from "./components/RecentBids";
 import {
   clearAuctionMessage,
   deleteAuction,
+  getAuction,
   getAuctionMessage,
   getAuctionStatus,
+  placeBid,
+  selectAuction,
+  updateTime,
 } from "@/state/reducers/auctionsSlice";
 import DeleteModal from "./components/DeleteModal";
+import { showToast } from "@/animation/CustomToast/ToastManager";
 // import LottieView from "lottie-react-native";
 
 const { width } = Dimensions.get("window");
@@ -49,13 +54,19 @@ const { width } = Dimensions.get("window");
 const AuctionScreen = ({ navigation, route }) => {
   // -------------------- Navigation Parameters --------------------
   // const { id } = route.params;
-  const auction = route.params;
+  // const auction = route.params;
+  const { id, listType  } = route.params;
+
+  
 
   // -------------------- Redux State --------------------
-  // const auction = useSelector(getAuction(id));
+  const auction = useSelector(getAuction(id, listType));
   const user = useSelector(getUserInfo);
-
-  const isCurrentUser = auction.seller.userId === user.userId;
+  console.log('auction: ', auction);
+  const dispatch = useDispatch(); // Get dispatch function
+  const isCurrentUser = auction?.seller?.userId === user?.userId;
+  
+  
   // console.log("auction: ", isCurrentUser);
   // -------------------- Local State --------------------
   const [activeTab, setActiveTab] = useState("Overview");
@@ -142,6 +153,12 @@ const AuctionScreen = ({ navigation, route }) => {
   // -------------------- Effects --------------------
   // set up Screen header
 
+  // Timer for auction time updates
+  useEffect(() => {
+    const interval = setInterval(() => dispatch(updateTime({ listType: 'all' })), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: "Auction",
@@ -182,7 +199,7 @@ const AuctionScreen = ({ navigation, route }) => {
     }
   }, [auction?.watchers, user.userId]);
 
-  const dispatch = useDispatch(); // Get dispatch function
+  
   const ReportMssg = useSelector(getMessage);
   const ReportStatus = useSelector(getStatus);
 
@@ -206,6 +223,8 @@ const AuctionScreen = ({ navigation, route }) => {
 
   const AuctionMssg = useSelector(getAuctionMessage);
   const AuctionStatus = useSelector(getAuctionStatus);
+
+  // console.log("auction scre: ", AuctionMssg, AuctionStatus);
 
   useEffect(() => {
     if (!AuctionMssg || !AuctionStatus) return;
@@ -243,6 +262,14 @@ const AuctionScreen = ({ navigation, route }) => {
   const handleDelete = () => {
     deleteAuction({ auction_id: auction.id });
     setDeleteModal(false);
+  };
+
+  const handleSubmitBid = (amount) => {
+    // Send bid through WebSocket
+    placeBid({
+      auction_id: auction.id,
+      amount: amount,
+    });
   };
 
   return (
@@ -422,7 +449,7 @@ const AuctionScreen = ({ navigation, route }) => {
 
         {/* Tabs */}
         <View style={styles.tabsRow}>
-          {["Overview", "Bids", "Options"].map((tab) => (
+          {["Overview", "Bids"].map((tab) => (
             <TouchableOpacity
               key={tab}
               onPress={() => setActiveTab(tab)}
@@ -444,14 +471,11 @@ const AuctionScreen = ({ navigation, route }) => {
         {activeTab === "Overview" && <OverviewTab auction={auction} />}
 
         {activeTab === "Bids" && (
-          <RecentBids auction={auction} myBid={auction.user_bid} />
-        )}
-        {activeTab === "Options" && (
-          <View style={styles.section}>
-            <Text style={styles.description}>
-              Additional options for this product.
-            </Text>
-          </View>
+          <RecentBids 
+            auction={auction} 
+            myBid={auction.user_bid} 
+            onSubmitBid={handleSubmitBid}
+          />
         )}
       </ScrollView>
 
@@ -507,6 +531,7 @@ const AuctionScreen = ({ navigation, route }) => {
             text={`Bid N${auction.bid_increment}`}
             isDisabled={auction.has_ended}
             className="py-4"
+            handleSubmit={() => handleSubmitBid(parseFloat(auction.bid_increment))}
           />
         </View>
       )}

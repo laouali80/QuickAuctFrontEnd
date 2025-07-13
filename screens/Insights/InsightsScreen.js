@@ -5,7 +5,7 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import Bids from "./components/Bids";
@@ -16,6 +16,8 @@ import {
   fetchBidsAuctions,
   fetchLikesAuctions,
   fetchSalesAuctions,
+  loadMoreAuctions,
+  updateTime,
 } from "@/state/reducers/auctionsSlice";
 import { useDispatch } from "react-redux";
 
@@ -26,19 +28,30 @@ const InsightsScreen = () => {
   const activeBg = colorScheme === "dark" ? "bg-gray-800" : "bg-white";
 
   const handleBidsPress = useCallback(() => {
-    dispatch(fetchBidsAuctions({ page: 1 }));
+    dispatch(loadMoreAuctions( {listType:'bids', page: 1 }));
     setSelectedTab("Bids");
   }, []);
   const handleSalesPress = useCallback(() => {
     // console.log("sales...");
-    dispatch(fetchSalesAuctions({ page: 1 }));
+    dispatch(loadMoreAuctions( {listType:'sales',page: 1 }));
     setSelectedTab("Sales");
   }, []);
   const handleLikesPress = useCallback(() => {
-    console.log("reach here");
-    dispatch(fetchLikesAuctions({ page: 1 }));
+    // console.log("reach here");
+    dispatch(loadMoreAuctions( {listType:'likes',page: 1} ));
     setSelectedTab("Likes");
   }, []);
+
+  useLayoutEffect(() => {
+    // console.log('reach useLa')
+    dispatch(loadMoreAuctions({listType:'bids', page:1} ));
+  }, []);
+
+    // Timer for auction time updates
+    useEffect(() => {
+      const interval = setInterval(() => dispatch(updateTime({ listType: selectedTab ==='Bids'?'bids':selectedTab ==='Sales'?'sales':'Likes' })), 1000);
+      return () => clearInterval(interval);
+    }, [selectedTab]);
 
   return (
     <VStack className="flex-1 bg-white">

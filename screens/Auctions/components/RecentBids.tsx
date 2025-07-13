@@ -32,7 +32,7 @@ const RecentBids = ({ auction, myBid, onSubmitBid }: RecentBidsProps) => {
   const bids = auction.bids;
   const user = useSelector(getUserInfo);
 
-  const isCurrentUser = auction.seller.userId === user.userId;
+  const isSeller = auction.seller.userId === user.userId;
 
   const [showBidForm, setShowBidForm] = useState(false);
   const [bidAmount, setBidAmount] = useState("");
@@ -100,7 +100,7 @@ const RecentBids = ({ auction, myBid, onSubmitBid }: RecentBidsProps) => {
                   <View>
                     <Text style={styles.bidderName}>
                       {item.bidder.name}
-                      {item.isCurrentUser && (
+                      {item.isCurrentUser && !isSeller && (
                         <Text style={styles.youTag}> (You)</Text>
                       )}
                     </Text>
@@ -134,7 +134,7 @@ const RecentBids = ({ auction, myBid, onSubmitBid }: RecentBidsProps) => {
           </TouchableOpacity>
         )}
 
-        {!isCurrentUser && !auction.has_ended ? (
+        {!isSeller && !auction.has_ended ? (
           !showBidForm ? (
             <TouchableOpacity
               onPress={() => setShowBidForm(true)}

@@ -15,7 +15,7 @@ import Thumbnail from "@/common_components/Thumbnail";
 const LikeCard = ({ auction }) => {
   const navigation = useNavigation();
   const _navigate = () => {
-    navigation.navigate("Auction", auction);
+    navigation.navigate("Auction", {id:auction.id, listType:'likes'});
   };
   return (
     <TouchableOpacity

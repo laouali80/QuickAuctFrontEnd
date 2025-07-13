@@ -11,23 +11,34 @@ import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
 import IconBadge from "./components/IconBadge";
 import { useSelector } from "react-redux";
-import { getNewAuctions } from "@/state/reducers/auctionsSlice";
+import { getNewAuctions, getTotalAuctions } from "@/state/reducers/auctionsSlice";
 import { getNewChats } from "@/state/reducers/chatsSlice";
 import { getUserInfo } from "@/state/reducers/userSlice";
 import UpdateProfileModal from "./components/UpdateProfModal";
+import AuctionLimitModal from "./components/AuctionLimitModal";
 
 const HomeScreen = ({ navigation }) => {
   const newAuctions = useSelector(getNewAuctions);
   const newChats = useSelector(getNewChats);
   const user = useSelector(getUserInfo);
+  const Total_auctions = useSelector(getTotalAuctions);
+  // const Total_auctions = 10;
+  
+  console.log('Total Auctions from home: ',Total_auctions)
+
   const isProfileIncomplete =
     !user.first_name && !user.last_name && !user.phone_number && !user.address;
   const [isUpdProfModalOpen, setIsUpdProfModalOpen] = useState(false);
+  const [isAuctLimitModalOpen, setIsAuctLimitModalOpen] = useState(false);
 
   const handleCreationButtonPress = () => {
     if (isProfileIncomplete) {
       setIsUpdProfModalOpen(true); // block and ask for update
-    } else {
+    } 
+    else if (Total_auctions === 10){
+setIsAuctLimitModalOpen(true)
+    }
+    else {
       navigation.navigate("AuctionCreation");
     }
   };
@@ -165,6 +176,14 @@ const HomeScreen = ({ navigation }) => {
         onSubmit={() => {
           setIsUpdProfModalOpen(false);
           navigation.navigate("Profile", true);
+        }}
+      />
+      <AuctionLimitModal
+        visible={isAuctLimitModalOpen}
+        onClose={() => setIsAuctLimitModalOpen(false)}
+        onGoToProfile={() => {
+          setIsAuctLimitModalOpen(false);
+          navigation.navigate("Home", { screen: "Profile" });
         }}
       />
     </>

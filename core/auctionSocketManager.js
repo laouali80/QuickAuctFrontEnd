@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import utils from "./utils";
+import utils, { formatAuctionTime } from "./utils";
 import { BaseAddress, DEVELOPMENT } from "@/constants/config";
 
 // core/socketManager.js
@@ -36,7 +36,7 @@ function responseNewAuction(data) {
 function responseNewBid(data) {
   // console.log(data);
   storeRef?.dispatch({
-    type: "auctions/auction_updated",
+    type: "auctions/updateAuction",
     payload: data,
   });
 }
@@ -44,7 +44,7 @@ function responseNewBid(data) {
 function responseWatcher(data) {
   // console.log(data);
   storeRef?.dispatch({
-    type: "auctions/auction_updated",
+    type: "auctions/updateAuction",
     payload: data,
   });
 }
@@ -81,9 +81,42 @@ function responseDeleteAuction(data) {
   // });
 }
 
+function responseProccessingError(data){
+  const state = storeRef.getState();
+  const currentUserId = state.user.user?.userId; // adjust path if different
+storeRef?.dispatch({
+    type: "auctions/proccesingError",
+    payload: { ...data, currentUserId },
+  });
+}
+
+export const addTimeLeft = (auction) => {
+  return {
+    ...auction,
+    timeLeft: formatAuctionTime(auction.end_time),
+  };
+};
+// WebSocket message handlers
+const handleAuctionsList = (data, dispatch) => {
+  // console.log('handleAuctionsList: ', data);
+  
+  const { auctions, nextPage, loaded, listType = 'all' } = data;
+  const processedAuctions = auctions.map(addTimeLeft);
+  
+  
+  storeRef?.dispatch({
+    type: "auctions/setAuctionsList",
+    payload:{
+    auctions: processedAuctions,
+    nextPage,
+    loaded,
+    listType
+  }});
+};
+
 export const initializeAuctionSocket = createAsyncThunk(
   "auctions/connection",
-  async (tokens, { dispatch, rejectWithValue }) => {
+  async (tokens, { dispatch, getState, rejectWithValue }) => {
     try {
       if (socket) {
         socket.close();
@@ -114,21 +147,26 @@ export const initializeAuctionSocket = createAsyncThunk(
 
       socket.onmessage = (event) => {
         const parsed = JSON.parse(event.data);
-        utils.log("received from server: ", parsed);
+        // utils.log("received from server: ", parsed);
         const handlers = {
           search: (data) =>
             storeRef?.dispatch({
               type: "auctions/setSearchList",
               payload: data,
             }),
-          auctionsList: responseAuctionsList,
+          // auctionsList: responseAuctionsList,
+          auctionsList: handleAuctionsList,
           new_auction: responseNewAuction,
           new_bid: responseNewBid,
           watcher: responseWatcher,
-          likesAuctions: responseLikesAuctions,
-          bidsAuctions: responseBidsAuctions,
-          salesAuctions: responseSalesAuctions,
+          likesAuctions: (data) => handleAuctionsList({ ...data, listType: 'likes' }, dispatch),
+          bidsAuctions: (data) => handleAuctionsList({ ...data, listType: 'bids' }, dispatch),
+          salesAuctions: (data) => handleAuctionsList({ ...data, listType: 'sales' }, dispatch),
+          // likesAuctions: responseLikesAuctions,
+          // bidsAuctions: responseBidsAuctions,
+          // salesAuctions: responseSalesAuctions,
           delete_auction: responseDeleteAuction,
+          proccessing_error: responseProccessingError,
         };
 
         if (handlers[parsed.source]) {

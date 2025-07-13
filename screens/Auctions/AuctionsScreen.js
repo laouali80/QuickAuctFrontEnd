@@ -45,7 +45,9 @@ import {
   getAuctionsList,
   getAuctNextPage,
   getCategories,
+  getTotalAuctions,
   loadMore,
+  selectAuctionsList,
   updateTime,
 } from "@/state/reducers/auctionsSlice";
 import * as Location from "expo-location";
@@ -65,14 +67,24 @@ import {
   fetchAndSetCurrentLocation,
   handleRefresh,
 } from "./handlers/auctionsScreenHandlers";
+import { useNavigation } from "@react-navigation/native";
 
-const AuctionsScreen = ({ navigation, route }) => {
+
+
+const AuctionsScreen = ({  route }) => {
+  const navigation = useNavigation();
   // -------------------- Redux State --------------------
   const dispatch = useDispatch();
   const tokens = useSelector(getTokens);
-  const auctionsList = useSelector(getAuctionsList);
+  // selectAuctionsList = (listType = 'all')
+  
+  const auctionsList = useSelector(getAuctionsList(listType = 'all'));
+
   const NextPage = useSelector(getAuctNextPage);
   const user = useSelector(getUserInfo);
+  const Total_auctions = useSelector(getTotalAuctions);
+
+  // console.log('Total Auctions: ',Total_auctions)
 
   // -------------------- Local State --------------------
   const [selectedCategory, setSelectedCategory] = useState({
@@ -99,7 +111,7 @@ const AuctionsScreen = ({ navigation, route }) => {
 
   // logStoredAccessToken();
 
-  // console.log("auctions: ", auctions);
+  // console.log("auctions: ", auctionsList);
   // console.log("  auctions card: ");
 
   // -------------------- Scroll Animation Setup --------------------
@@ -176,7 +188,7 @@ const AuctionsScreen = ({ navigation, route }) => {
 
   // Timer for auction time updates
   useEffect(() => {
-    const interval = setInterval(() => dispatch(updateTime()), 1000);
+    const interval = setInterval(() => dispatch(updateTime({ listType: 'all' })), 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -211,6 +223,7 @@ const AuctionsScreen = ({ navigation, route }) => {
       lastActiveRef.current = now;
     }, [])
   );
+
 
   // -------------------- Handlers --------------------
 
