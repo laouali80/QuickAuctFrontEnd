@@ -18,6 +18,7 @@ import { getUserInfo } from "@/state/reducers/userSlice";
 const AuctionCard = ({ auction }) => {
   const navigation = useNavigation();
   const user = useSelector(getUserInfo);
+  
   const [like, setLike] = useState(
     auction?.watchers?.includes(user?.userId) ? "heart" : "heart-o"
   );
@@ -42,7 +43,7 @@ const AuctionCard = ({ auction }) => {
 
   // console.log("auction receive: ", auction.title, auction.images[0].image);
   const _navigate = () => {
-    navigation.navigate("Auction", auction);
+    navigation.navigate("Auction", {id: auction.id, listType:'all'});
   };
 
   const RequestBid = () => {

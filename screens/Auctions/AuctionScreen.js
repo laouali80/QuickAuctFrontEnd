@@ -38,8 +38,11 @@ import RecentBids from "./components/RecentBids";
 import {
   clearAuctionMessage,
   deleteAuction,
+  getAuction,
   getAuctionMessage,
   getAuctionStatus,
+  placeBid,
+  selectAuction,
   updateTime,
 } from "@/state/reducers/auctionsSlice";
 import DeleteModal from "./components/DeleteModal";
@@ -51,15 +54,19 @@ const { width } = Dimensions.get("window");
 const AuctionScreen = ({ navigation, route }) => {
   // -------------------- Navigation Parameters --------------------
   // const { id } = route.params;
-  const auction = route.params;
-  console.log('auction: ', auction);
+  // const auction = route.params;
+  const { id, listType  } = route.params;
+
   
 
   // -------------------- Redux State --------------------
-  // const auction = useSelector(getAuction(id));
+  const auction = useSelector(getAuction(id, listType));
   const user = useSelector(getUserInfo);
+  console.log('auction: ', auction);
   const dispatch = useDispatch(); // Get dispatch function
-  const isCurrentUser = auction.seller.userId === user.userId;
+  const isCurrentUser = auction?.seller?.userId === user?.userId;
+  
+  
   // console.log("auction: ", isCurrentUser);
   // -------------------- Local State --------------------
   const [activeTab, setActiveTab] = useState("Overview");
@@ -148,7 +155,7 @@ const AuctionScreen = ({ navigation, route }) => {
 
   // Timer for auction time updates
   useEffect(() => {
-    const interval = setInterval(() => dispatch(updateTime()), 1000);
+    const interval = setInterval(() => dispatch(updateTime({ listType: 'all' })), 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -255,6 +262,14 @@ const AuctionScreen = ({ navigation, route }) => {
   const handleDelete = () => {
     deleteAuction({ auction_id: auction.id });
     setDeleteModal(false);
+  };
+
+  const handleSubmitBid = (amount) => {
+    // Send bid through WebSocket
+    placeBid({
+      auction_id: auction.id,
+      amount: amount,
+    });
   };
 
   return (
@@ -456,7 +471,11 @@ const AuctionScreen = ({ navigation, route }) => {
         {activeTab === "Overview" && <OverviewTab auction={auction} />}
 
         {activeTab === "Bids" && (
-          <RecentBids auction={auction} myBid={auction.user_bid} />
+          <RecentBids 
+            auction={auction} 
+            myBid={auction.user_bid} 
+            onSubmitBid={handleSubmitBid}
+          />
         )}
       </ScrollView>
 
@@ -512,6 +531,7 @@ const AuctionScreen = ({ navigation, route }) => {
             text={`Bid N${auction.bid_increment}`}
             isDisabled={auction.has_ended}
             className="py-4"
+            handleSubmit={() => handleSubmitBid(parseFloat(auction.bid_increment))}
           />
         </View>
       )}

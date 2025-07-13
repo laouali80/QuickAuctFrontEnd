@@ -11,7 +11,7 @@ const BidCard = ({ auction }) => {
   const user = useSelector(getUserInfo);
   const navigation = useNavigation();
   const _navigate = () => {
-    navigation.navigate("Auction", auction);
+    navigation.navigate("Auction", {id:auction.id, listType:'likes'});
   };
 
   const userBid = auction.bids.find((bid) => bid.bidder.userId === user.userId);

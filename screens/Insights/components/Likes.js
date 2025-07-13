@@ -5,8 +5,10 @@ import LikeCard from "@/screens/Insights/components/LikeCard";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchLikesAuctions,
+  getAuctionsList,
   getAuctNextPage,
   getLikesAuctions,
+  selectAuctionsList,
 } from "@/state/reducers/auctionsSlice";
 import { useLoadMore } from "@/hooks/useLoadMore";
 import { EmptyState } from "@/common_components/EmptyState";
@@ -14,11 +16,11 @@ import { EmptyState } from "@/common_components/EmptyState";
 const Likes = () => {
   const dispatch = useDispatch();
   const NextPage = useSelector(getAuctNextPage);
-  const likesAuctions = useSelector(getLikesAuctions);
+  const likesAuctions = useSelector(getAuctionsList(listType='likes'));
   const [isLoading, setIsLoading] = useState(false);
   const isCooldownRef = useRef(false);
 
-  // console.log("likesAuctions: ", likesAuctions);
+  console.log("likesAuctions: ", likesAuctions);
 
   // Improved pagination handler
   // const handleLoadMore = useCallback(() => {
