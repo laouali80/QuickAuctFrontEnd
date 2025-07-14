@@ -73,11 +73,11 @@ export default function ProfileScreen({ route }) {
           </Text>
         </View>
         <View className="flex-row items-center mt-4 space-x-4">
-          {/* <Stat label="Rating" value="4.9" />
-          <Divider /> */}
+          {/* <Stat label="Rating" value="4.9" /> */}
+          <Divider />
           <Stat label="Auctions" value="42" />
-          {/* <Divider />
-          <Stat label="Success" value="97%" /> */}
+          <Divider />
+          {/* <Stat label="Success" value="97%" /> */}
         </View>
         <TouchableOpacity
           className="mt-4 px-4 py-2 border border-green-500 rounded-full"
@@ -96,7 +96,7 @@ export default function ProfileScreen({ route }) {
           <Text className="text-green-500 text-sm">See All</Text>
         </View>
         <View className="flex-row border-b border-gray-200 mb-4">
-          {["ongoing", "completed", "drafts"].map((tab) => (
+          {["ongoing", "closed", "completed"].map((tab) => (
             <TouchableOpacity
               key={tab}
               className={`px-4 py-2 ${

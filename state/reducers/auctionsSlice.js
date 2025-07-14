@@ -28,8 +28,14 @@ const initialState = {
     likes: { auctions: {}, pagination: { next: null, hasMore: true } },
     bids: { auctions: {}, pagination: { next: null, hasMore: true } },
     sales: { auctions: {}, pagination: { next: null, hasMore: true } },
+    ongoing: { auctions: {}, pagination: { next: null, hasMore: true } },
+    closed: { auctions: {}, pagination: { next: null, hasMore: true } },
+    completed: { auctions: {}, pagination: { next: null, hasMore: true } },
     search: { auctions: {}, query: '' }
   },
+
+
+  
 
   // Connection state
   isConnected: false,
