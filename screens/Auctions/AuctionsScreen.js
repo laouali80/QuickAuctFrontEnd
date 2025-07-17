@@ -2,30 +2,15 @@ import {
   ActivityIndicator,
   Animated,
   AppState,
-  FlatList,
-  Platform,
-  RefreshControl,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
-  Text,
-  View,
 } from "react-native";
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/screens/Auctions/components/Header";
 import { COLORS } from "@/constants/COLORS";
 import { auctions } from "@/mockData/auctions";
 import AuctionCard from "@/screens/Auctions/components/AuctionCard";
-import {
-  initializeChatSocket,
-  ChatSocketClose,
-} from "@/state/reducers/chatsSlice";
+
 import { useDispatch, useSelector } from "react-redux";
 import {
   getTokens,
@@ -36,7 +21,6 @@ import utils from "@/core/utils";
 import {
   AuctionSocketClose,
   initializeAuctionSocket,
-  setStore,
 } from "@/core/auctionSocketManager";
 import { store } from "@/state/store";
 import {
@@ -68,17 +52,20 @@ import {
   handleRefresh,
 } from "./handlers/auctionsScreenHandlers";
 import { useNavigation } from "@react-navigation/native";
+import {
+  ChatSocketClose,
+  initializeChatSocket,
+} from "@/core/chatSocketManager";
+import { setStore } from "@/core/storeRef";
 
-
-
-const AuctionsScreen = ({  route }) => {
+const AuctionsScreen = ({ route }) => {
   const navigation = useNavigation();
   // -------------------- Redux State --------------------
   const dispatch = useDispatch();
   const tokens = useSelector(getTokens);
   // selectAuctionsList = (listType = 'all')
-  
-  const auctionsList = useSelector(getAuctionsList(listType = 'all'));
+
+  const auctionsList = useSelector(getAuctionsList((listType = "all")));
 
   const NextPage = useSelector(getAuctNextPage);
   const user = useSelector(getUserInfo);
@@ -188,7 +175,10 @@ const AuctionsScreen = ({  route }) => {
 
   // Timer for auction time updates
   useEffect(() => {
-    const interval = setInterval(() => dispatch(updateTime({ listType: 'all' })), 1000);
+    const interval = setInterval(
+      () => dispatch(updateTime({ listType: "all" })),
+      1000
+    );
     return () => clearInterval(interval);
   }, []);
 
@@ -223,7 +213,6 @@ const AuctionsScreen = ({  route }) => {
       lastActiveRef.current = now;
     }, [])
   );
-
 
   // -------------------- Handlers --------------------
 
