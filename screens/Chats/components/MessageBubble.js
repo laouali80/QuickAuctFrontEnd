@@ -6,12 +6,12 @@ import utils from "@/core/utils";
 import { useSelector } from "react-redux";
 import { checkMessageTyping } from "@/state/reducers/chatsSlice";
 
-const MessageBubble = ({ index, message, friend }) => {
+const MessageBubble = ({ index, message, friend, connectionId }) => {
   // utils.log("MessageBubble: ", message);
 
   const [showTyping, setShowTyping] = useState(false);
 
-  const messageTyping = useSelector(checkMessageTyping);
+  const messageTyping = useSelector(checkMessageTyping(connectionId));
   // console.log(messageTyping);
 
   useEffect(() => {
