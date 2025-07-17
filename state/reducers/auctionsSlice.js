@@ -17,25 +17,25 @@ const initialState = {
 
   // Organized lists for different views
   auctions: {
-    all: { auctions: {
-      // auctionId: {
-    //   id, title, description, current_bid, end_time, seller, etc.
-    //   timeLeft: formatted_time,
-    //   lastUpdated: timestamp,
-    //   status: 'active' | 'ending' | 'ended' | 'sold'
-    // }
-    }, pagination: { next: null, hasMore: true } },
+    all: {
+      auctions: {
+        // auctionId: {
+        //   id, title, description, current_bid, end_time, seller, etc.
+        //   timeLeft: formatted_time,
+        //   lastUpdated: timestamp,
+        //   status: 'active' | 'ending' | 'ended' | 'sold'
+        // }
+      },
+      pagination: { next: null, hasMore: true },
+    },
     likes: { auctions: {}, pagination: { next: null, hasMore: true } },
     bids: { auctions: {}, pagination: { next: null, hasMore: true } },
     sales: { auctions: {}, pagination: { next: null, hasMore: true } },
     ongoing: { auctions: {}, pagination: { next: null, hasMore: true } },
     closed: { auctions: {}, pagination: { next: null, hasMore: true } },
     completed: { auctions: {}, pagination: { next: null, hasMore: true } },
-    search: { auctions: {}, query: '' }
+    search: { auctions: {}, query: "" },
   },
-
-
-  
 
   // Connection state
   isConnected: false,
@@ -47,7 +47,7 @@ const initialState = {
   totalAuctions: 0,
   message: null,
   status: null,
-  
+
   // Pagination for current view
   pagination: { next: null, hasMore: true },
 };
@@ -61,7 +61,6 @@ const addTimeLeft = (auction) => {
 };
 
 const updateAuctionTime = (auction) => {
-  
   return addTimeLeft(auction);
 };
 
@@ -91,39 +90,44 @@ const auctionsSlice = createSlice({
 
     setAuctionsList(state, action) {
       // console.log("payload: ",action.payload)
-      const { auctions, nextPage, loaded, listType = 'all' } = action.payload;
-      
+      const { auctions, nextPage, loaded, listType = "all" } = action.payload;
+
       // Get the target list
       const targetList = state.auctions[listType];
       if (!targetList) {
         console.warn(`List type '${listType}' not found in state.auctions`);
         return;
       }
-      
+
       // Convert new auctions to objects with timeLeft
       const newAuctionsWithTime = {};
-      auctions.forEach(auction => {
+      auctions.forEach((auction) => {
         newAuctionsWithTime[auction.id] = addTimeLeft(auction);
       });
-      
+
       // Merge with existing auctions based on loaded flag
       if (loaded) {
         // Append new auctions to existing ones (for pagination)
         // New auctions will override existing ones if they have the same ID
-        targetList.auctions = { ...targetList.auctions, ...newAuctionsWithTime };
+        targetList.auctions = {
+          ...targetList.auctions,
+          ...newAuctionsWithTime,
+        };
       } else {
         // Prepend new auctions to existing ones (for refresh/new data)
         // Existing auctions will override new ones if they have the same ID
-        targetList.auctions = { ...newAuctionsWithTime, ...targetList.auctions };
+        targetList.auctions = {
+          ...newAuctionsWithTime,
+          ...targetList.auctions,
+        };
       }
-      
+
       // Update pagination for the specific list
       targetList.pagination = { next: nextPage, hasMore: !!nextPage };
-      
+
       // Also update the global NextPage for backward compatibility
       state.NextPage = nextPage;
     },
-
 
     addNewAuction(state, action) {
       const { seller, currentUserId } = action.payload;
@@ -136,12 +140,12 @@ const auctionsSlice = createSlice({
       }
     },
     updateTime(state, action) {
-      const listType = action.payload?.listType || 'all';
-      
+      const listType = action.payload?.listType || "all";
+
       // Update time only for the specified list type
       const list = state.auctions[listType];
       if (list && list.auctions) {
-        Object.keys(list.auctions).forEach(auctionId => {
+        Object.keys(list.auctions).forEach((auctionId) => {
           const auction = list.auctions[auctionId];
           if (auction && auction?.timeLeft !== "Completed") {
             list.auctions[auctionId] = updateAuctionTime(auction);
@@ -183,9 +187,9 @@ const auctionsSlice = createSlice({
     // },
     updateAuction(state, action) {
       const updatedAuction = action.payload;
-      
+
       // Update the auction in all list types where it exists
-      Object.keys(state.auctions).forEach(listType => {
+      Object.keys(state.auctions).forEach((listType) => {
         const list = state.auctions[listType];
         if (list && list.auctions && list.auctions[updatedAuction.id]) {
           // Update the auction with new data and recalculate time
@@ -194,12 +198,12 @@ const auctionsSlice = createSlice({
       });
     },
     clearAuctions(state, action) {
-      const listType = action.payload?.listType || 'all';
-      
+      const listType = action.payload?.listType || "all";
+
       // Clear specific list type or all lists
-      if (listType === 'all') {
+      if (listType === "all") {
         // Clear all list types
-        Object.keys(state.auctions).forEach(key => {
+        Object.keys(state.auctions).forEach((key) => {
           if (state.auctions[key].auctions) {
             state.auctions[key].auctions = {};
             state.auctions[key].pagination = { next: null, hasMore: true };
@@ -212,7 +216,7 @@ const auctionsSlice = createSlice({
           state.auctions[listType].pagination = { next: null, hasMore: true };
         }
       }
-      
+
       // Reset global pagination for backward compatibility
       state.pagination = { next: null, hasMore: true };
       state.NextPage = null;
@@ -389,7 +393,7 @@ export const watchAuction = (data) => {
 
 export const refresh = () => (dispatch) => {
   // clear old
-  dispatch(auctionsSlice.actions.clearAuctions({ listType: 'all' }));
+  dispatch(auctionsSlice.actions.clearAuctions({ listType: "all" }));
 
   sendThroughSocket({
     source: "FetchAuctionsList",
@@ -405,27 +409,28 @@ export const refresh = () => (dispatch) => {
 // };
 
 export const loadMoreAuctions = (data) => (dispatch) => {
-  console.log("Request data: ",data)
-  if (data.page === 1) dispatch(auctionsSlice.actions.clearAuctions({ listType: data.listType }));
+  console.log("Request data: ", data);
+  if (data.page === 1)
+    dispatch(auctionsSlice.actions.clearAuctions({ listType: data.listType }));
 
-  
   const sources = {
     all: "FetchAuctionsListByCategory",
     likes: "likesAuctions",
     bids: "bidsAuctions",
-    sales: "salesAuctions"
+    sales: "salesAuctions",
   };
-  
+
   sendThroughSocket({
     source: sources[data.listType],
-    data: data
+    data: data,
   });
 };
 
 export const fetchLikesAuctions = (data) => (dispatch) => {
   console.log("fetchLikesAuctions: ", data);
 
-  if (data.page === 1) dispatch(auctionsSlice.actions.clearAuctions({ listType: 'likes' }));
+  if (data.page === 1)
+    dispatch(auctionsSlice.actions.clearAuctions({ listType: "likes" }));
 
   sendThroughSocket({
     source: "likesAuctions",
@@ -436,7 +441,8 @@ export const fetchLikesAuctions = (data) => (dispatch) => {
 export const fetchBidsAuctions = (data) => (dispatch) => {
   console.log("fetchBidsAuctions: ", data);
 
-  if (data.page === 1) dispatch(auctionsSlice.actions.clearAuctions({ listType: 'bids' }));
+  if (data.page === 1)
+    dispatch(auctionsSlice.actions.clearAuctions({ listType: "bids" }));
 
   sendThroughSocket({
     source: "bidsAuctions",
@@ -447,7 +453,8 @@ export const fetchBidsAuctions = (data) => (dispatch) => {
 export const fetchSalesAuctions = (data) => (dispatch) => {
   // console.log("fetchSalesAuctions: ", data);
 
-  if (data.page === 1) dispatch(auctionsSlice.actions.clearAuctions({ listType: 'sales' }));
+  if (data.page === 1)
+    dispatch(auctionsSlice.actions.clearAuctions({ listType: "sales" }));
 
   sendThroughSocket({
     source: "salesAuctions",
@@ -458,7 +465,8 @@ export const fetchSalesAuctions = (data) => (dispatch) => {
 export const fetchAuctions = (data) => (dispatch) => {
   // console.log("fetchSalesAuctions: ", data);
 
-  if (data.page === 1) dispatch(auctionsSlice.actions.clearAuctions({ listType: 'all' }));
+  if (data.page === 1)
+    dispatch(auctionsSlice.actions.clearAuctions({ listType: "all" }));
 
   sendThroughSocket({
     source: "FetchAuctionsListByCategory",
@@ -514,30 +522,38 @@ export const fetchUserAuctions = createAsyncThunk(
 // Selectors
 export const getSearchList = (state) => state.auctions.searchList;
 // export const getAuctionsList = (state) => state.auctions.auctions;
-export const getAuctionsList = (listType = 'all') => (state) => {
-  const list = state.auctions.auctions[listType];
-  return list ? Object.values(list.auctions) : [];
-};
+export const getAuctionsList =
+  (listType = "all") =>
+  (state) => {
+    const list = state.auctions.auctions[listType];
+    return list ? Object.values(list.auctions) : [];
+  };
 
 // export const getSaveAuctionsList = (listType = 'all') => (state) => {
 //   const list = state.auctions.auctions[listType];
 //   return list ? list.auctions : {};
 // };
 
-export const selectAuction = (id, listType = 'all') => (state) => {
-  const list = state.auctions.auctions[listType];
-  return list ? list.auctions[id] : undefined;
-};
+export const selectAuction =
+  (id, listType = "all") =>
+  (state) => {
+    const list = state.auctions.auctions[listType];
+    return list ? list.auctions[id] : undefined;
+  };
 
 export const getNewAuctions = (state) => state.auctions.newAuctions;
-export const getAuction = (id, listType = 'all') => (state) => {
-  const list = state.auctions.auctions[listType];
-  return list ? list.auctions[id] : undefined;
-};
-export const getAuctNextPage = (listType = 'all') => (state) => {
-  const list = state.auctions.auctions[listType];
-  return list ? list.pagination.next : null;
-};
+export const getAuction =
+  (id, listType = "all") =>
+  (state) => {
+    const list = state.auctions.auctions[listType];
+    return list ? list.auctions[id] : undefined;
+  };
+export const getAuctNextPage =
+  (listType = "all") =>
+  (state) => {
+    const list = state.auctions.auctions[listType];
+    return list ? list.pagination.next : null;
+  };
 export const getLikesAuctions = (state) => state.auctions.likesAuctions;
 export const getBidsAuctions = (state) => state.auctions.bidsAuctions;
 export const getSalesAuctions = (state) => state.auctions.salesAuctions;
