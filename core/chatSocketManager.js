@@ -12,7 +12,7 @@ let chatSocket = null;
 //  Socket receive message handlers
 
 function responseConversationsList(data, dispatch) {
-  console.log("✅ Received setConversations from new setup:", data);
+  // console.log("✅ Received setConversations from new setup:", data);
 
   getStore()?.dispatch({
     type: "chats/setConversations",
@@ -24,7 +24,7 @@ function responseConversationsList(data, dispatch) {
 }
 
 function responseChatMessages(data, dispatch) {
-  console.log("responseChatMessagess: ", data.data);
+  // console.log("responseChatMessagess: ", data);
   // dispatch(
   //   chatsSlice.actions.setChatMessages({
   //     messages: message.data.messages,
@@ -36,8 +36,8 @@ function responseChatMessages(data, dispatch) {
   getStore()?.dispatch({
     type: "chats/setChatMessages",
     payload: {
-      ...data.data,
-      mode: data.data.currentPage === 1 ? "replace" : "prepend", // or use your own logic
+      ...data,
+      mode: data.currentPage === 1 ? "replace" : "prepend", // or use your own logic
     },
   });
 
@@ -49,6 +49,71 @@ function responseChatMessages(data, dispatch) {
   // );
 }
 
+function responseMessageSend(data) {
+  // console.log("responseMessageSend: ", data);
+  // addMessageToConversation
+  // const username = message.data.friend.username;
+  // const currentState = getState();
+
+  // Update chat preview and move to top
+  // dispatch(
+  //   chatsSlice.actions.updateChatPreview({
+  //     username,
+  //     preview: message.data.message.content,
+  //     timestamp: message.data.message.created,
+  //   })
+  // );
+
+  // Update conversation
+
+  getStore()?.dispatch({
+    type: "chats/addMessageToConversation",
+    payload: {
+      connectionId: data.connectionId,
+      message: data.message,
+      isNew: true,
+    },
+  });
+
+  // // Only add to messagesList if it's the active chat
+  // if (username === currentState.chats.activeChatUsername) {
+  //   dispatch(
+  //     chatsSlice.actions.pushMessage({
+  //       message: message.data.message,
+  //       // overwrite: false,
+  //     })
+  //   );
+
+  //   // Reset pagination state for this chat
+  //   dispatch(
+  //     chatsSlice.actions.setMessagesNext({
+  //       messagesNext: null,
+  //     })
+  //   );
+  // }
+}
+
+const responseTypingIndicator = (data) => {
+  // console.log("responseTypingIndicator: ", data);
+  const { connectionId, username } = data;
+  const state = getStore().getState();
+  const activeChatId = state.chats?.activeChatId; // adjust path if different
+
+  // const state = getState();
+
+  // Only show typing for active chat
+  if (connectionId === activeChatId) {
+    getStore()?.dispatch({
+      type: "chats/setTypingIndicator",
+      payload: {
+        connectionId,
+        username,
+        timestamp: new Date().toString(),
+      },
+    });
+  }
+};
+
 // ----------------------------------
 // WebSocket Thunk with improved error handling and reconnection
 // ----------------------------------
@@ -59,7 +124,6 @@ export const initializeChatSocket = createAsyncThunk(
       chatSocket = new WebSocket(
         `${SocketProtocol}://${BaseAddress}/ws/chat/?tokens=${tokens.access}`
       );
-      console.log("getStore(): ", getStore());
       return new Promise((resolve, reject) => {
         chatSocket.onopen = () => {
           console.log("🔌 Chat WebSocket connected");
@@ -91,10 +155,8 @@ export const initializeChatSocket = createAsyncThunk(
               // thumbnail: responseThumbnail, // this 'thumbnail' key will call the responseThumbnail function
               conversationsList: responseConversationsList,
               fetchChatMessages: responseChatMessages,
-              // message_typing: (message) =>
-              //   responseMessageTyping(message, dispatch, getState),
-              // message_send: (message) =>
-              //   responseMessageSend(message, dispatch, getState),
+              typingIndicator: responseTypingIndicator,
+              message_send: responseMessageSend,
 
               // chatsList: handleChatsList,
               // messagesList: handleMessagesList,

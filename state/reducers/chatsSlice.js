@@ -52,7 +52,7 @@ const initialState = {
   chatsList: [],
   messagesList: [], // Store messages per conversation btw 2 users
   activeChatUsername: null, // Track which chat is currently open
-  messageTyping: null,
+  // messageTyping: null,
   messagesNext: null,
   newChats: 0,
 };
@@ -62,26 +62,33 @@ let socket = null;
 
 const addMessageToConversationUtil = (conversation, message, isNew = false) => {
   // Prevent duplicates
-  const existingIndex = conversation.messages.findIndex(
+  const existingIndex = conversation.chats.messages.findIndex(
     (m) => m.id === message.id
   );
-  if (existingIndex !== -1) {
-    // Update existing message (for status updates)
-    conversation.messages[existingIndex] = {
-      ...conversation.messages[existingIndex],
-      ...message,
-    };
-    return conversation;
-  }
+
+  // if (existingIndex !== -1) {
+  //   // Update existing message (for status updates)
+  //   conversation.messages[existingIndex] = {
+  //     ...conversation.messages[existingIndex],
+  //     ...message,
+  //   };
+  //   return conversation;
+  // }
 
   // Add new message
   const updatedMessages = isNew
-    ? [message, ...conversation.messages]
-    : [...conversation.messages, message];
+    ? [message, ...conversation.chats.messages]
+    : [...conversation.chats.messages, message];
 
   return {
     ...conversation,
-    messages: updatedMessages.slice(0, 1000), // Limit to 1000 messages per conversation
+    chats: {
+      messages: updatedMessages,
+      pagination: conversation.chats.pagination,
+    },
+    typing: { username: null, timestamp: null },
+    last_message_content: message.content,
+    last_updated: new Date().toISOString(),
     unreadCount: isNew
       ? conversation.unreadCount + 1
       : conversation.unreadCount,
@@ -92,74 +99,10 @@ const addMessageToConversationUtil = (conversation, message, isNew = false) => {
 //  Socket receive message handlers
 // ----------------------------------
 
-function responseConversationsList(message, dispatch) {
-  console.log("✅ Received setConversations:", message.data);
-  dispatch(chatsSlice.actions.setConversations(message.data));
-}
-
 function responseThumbnail(message, dispatch) {
   console.log("responseThumbnail: ", message);
 
   dispatch(updateThumbnail(message.data));
-}
-
-function responseChatMessages(data, dispatch) {
-  console.log("responseChatMessagess: ", data.data);
-  // dispatch(
-  //   chatsSlice.actions.setChatMessages({
-  //     messages: message.data.messages,
-  //     messagesNext: message.data.next,
-  //     overwrite: false,
-  //   })
-  // );
-  dispatch(
-    chatsSlice.actions.setChatMessages({
-      ...data.data,
-      mode: data.data.currentPage === 1 ? "replace" : "prepend", // or use your own logic
-    })
-  );
-}
-
-function responseMessageSend(message, dispatch, getState) {
-  const username = message.data.friend.username;
-  const currentState = getState();
-
-  // Update chat preview and move to top
-  dispatch(
-    chatsSlice.actions.updateChatPreview({
-      username,
-      preview: message.data.message.content,
-      timestamp: message.data.message.created,
-    })
-  );
-
-  // Update conversation
-  dispatch(
-    chatsSlice.actions.addMessageToConversation({
-      connectionId,
-      message: newMessage,
-      isNew: true,
-    })
-  );
-
-  // console.log("curent state: ", currentState);
-
-  // Only add to messagesList if it's the active chat
-  if (username === currentState.chats.activeChatUsername) {
-    dispatch(
-      chatsSlice.actions.pushMessage({
-        message: message.data.message,
-        // overwrite: false,
-      })
-    );
-
-    // Reset pagination state for this chat
-    dispatch(
-      chatsSlice.actions.setMessagesNext({
-        messagesNext: null,
-      })
-    );
-  }
 }
 
 function responseMessageTyping(message, dispatch, getState) {
@@ -207,47 +150,41 @@ export const fetchChats = (data) => (dispatch) => {
     data,
     source: "fetchChatMessages",
   });
-
-  // Don't set messagesNext to null for pagination requests
-  // socket.send(
-  //   JSON.stringify({
-  //     data,
-  //     source: "fetchChatMessages",
-  //   })
-  // );
 };
 
 // Send message
-export const messageSend = ({ connectionId, content }) => {
-  // console.log("message Send: ", { connectionId, content });
+export const messageSend = (data) => {
+  // console.log("message Send: ", data);
 
-  const messageData = JSON.stringify({
-    connectionId,
-    content,
+  sendChatDataThroughSocket({
+    data,
     source: "message_send",
   });
-
-  if (socket && socket.readyState === WebSocket.OPEN) {
-    socket.send(messageData);
-  } else {
-    throw new Error("WebSocket is not connected");
-  }
 };
 
 // typing a message
-export const messageTyping = (username) => {
-  const messageData = JSON.stringify({
-    username,
+// export const messageTyping = (username) => {
+//   const messageData = JSON.stringify({
+//     username,
+//     source: "message_typing",
+//   });
+//   // console.log("typing: ", username);
+
+//   if (socket && socket.readyState === WebSocket.OPEN) {
+//     // console.log("typing: ", username);
+//     socket.send(messageData);
+//   } else {
+//     throw new Error("WebSocket is not connected");
+//   }
+// };
+
+export const sendTypingIndicator = (data) => {
+  // console.log("typing: ", data);
+
+  sendChatDataThroughSocket({
+    data,
     source: "message_typing",
   });
-  // console.log("typing: ", username);
-
-  if (socket && socket.readyState === WebSocket.OPEN) {
-    // console.log("typing: ", username);
-    socket.send(messageData);
-  } else {
-    throw new Error("WebSocket is not connected");
-  }
 };
 
 // export const chatsList =
@@ -272,14 +209,14 @@ const chatsSlice = createSlice({
   initialState,
   reducers: {
     setWebSocketConnected(state) {
-      console.log("WebSocket Connected");
+      // console.log("WebSocket Connected");
       state.isConnected = true;
     },
     setWebSocketDisconnected(state) {
       state.isConnected = false;
     },
     setConversations(state, action) {
-      console.log("✅ chatsList reducer triggered with:", action.payload);
+      // console.log("✅ chatsList reducer triggered with:", action.payload);
       const { data, pagination } = action.payload;
 
       // Convert new conversations to objects with
@@ -363,8 +300,17 @@ const chatsSlice = createSlice({
       state.messagesList = [message, ...(state.messagesList || [])];
       state.messageTyping = null;
     },
+    // setActiveChat(state, action) {
+    //   state.activeChatUsername = action.payload;
+    // },
+
     setActiveChat(state, action) {
-      state.activeChatUsername = action.payload;
+      state.activeChatId = action.payload;
+      // Mark messages as read when opening chat
+      if (action.payload && state.conversations[action.payload]) {
+        state.conversations[action.payload].lastRead = new Date().toISOString();
+        state.conversations[action.payload].unreadCount = 0;
+      }
     },
 
     addMessageToConversation(state, action) {
@@ -379,18 +325,24 @@ const chatsSlice = createSlice({
         message,
         isNew
       );
-
-      state.conversations[connectionId] = updatedConversation;
+      // Remove the old entry and re-insert at the top
+      const { [connectionId]: removed, ...rest } = state.conversations;
+      state.conversations = {
+        [connectionId]: updatedConversation,
+        ...rest,
+      };
     },
 
-    setMessageTyping(state, action) {
-      const username = action.payload.username;
-      // console.log(action.payload);
+    setTypingIndicator(state, action) {
+      const { connectionId, username, timestamp } = action.payload;
 
-      if (username !== state.activeChatUsername) return;
-      // state.messageTyping = new Date();
-      state.messageTyping = new Date().toString();
+      if (!state.conversations[connectionId]) {
+        state.conversations[connectionId] = createConversation(connectionId);
+      }
+
+      state.conversations[connectionId].typing = { username, timestamp };
     },
+
     setMessagesNext(state, action) {
       state.messagesNext = action.payload.messagesNext;
     },
@@ -456,9 +408,10 @@ export const getChatMessages = (connectionId) => (state) => {
     : [];
 };
 
-export const testActiveChat = (state) => state.chats.activeChatUsername;
 export const getMessages = (state) => state.chats.messagesList;
-export const checkMessageTyping = (state) => state.chats.messageTyping;
+// export const checkMessageTyping = (connectionId)=>(state) => state.chats.messageTyping;
+export const checkMessageTyping = (connectionId) => (state) =>
+  state.chats.conversations[connectionId]?.typing?.timestamp || null;
 export const getNextPage = (state) => state.chats.messagesNext;
 export const getNewChats = (state) => state.chats.newChats;
 
