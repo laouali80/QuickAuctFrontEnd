@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import utils, { formatAuctionTime } from "./utils";
-import { BaseAddress, DEVELOPMENT } from "@/constants/config";
+import { BaseAddress, SocketProtocol } from "@/constants/config";
 
 // core/socketManager.js
 let socket = null;
@@ -15,13 +15,7 @@ export const setStore = (store) => {
 //  Socket receive message handlers
 // ----------------------------------
 
-function responseAuctionsList(data) {
-  // console.log("✅ Received chatsList:", message.data);
-  storeRef?.dispatch({
-    type: "auctions/setAuctionsList",
-    payload: data,
-  });
-}
+
 
 function responseNewAuction(data) {
   const state = storeRef.getState();
@@ -49,27 +43,6 @@ function responseWatcher(data) {
   });
 }
 
-function responseLikesAuctions(data) {
-  // console.log(data);
-  storeRef?.dispatch({
-    type: "auctions/setLikesAuctions",
-    payload: data,
-  });
-}
-
-function responseBidsAuctions(data) {
-  storeRef?.dispatch({
-    type: "auctions/setBidsAuctions",
-    payload: data,
-  });
-}
-
-function responseSalesAuctions(data) {
-  storeRef?.dispatch({
-    type: "auctions/setSalesAuctions",
-    payload: data,
-  });
-}
 
 function responseDeleteAuction(data) {
   const state = storeRef.getState();
@@ -122,9 +95,8 @@ export const initializeAuctionSocket = createAsyncThunk(
         socket.close();
       }
 
-      const protocol = DEVELOPMENT ? "ws" : "wss";
       socket = new WebSocket(
-        `${protocol}://${BaseAddress}/ws/auctions/?tokens=${tokens.access}`
+        `${SocketProtocol}://${BaseAddress}/ws/auctions/?tokens=${tokens.access}`
       );
 
       socket.onopen = () => {
