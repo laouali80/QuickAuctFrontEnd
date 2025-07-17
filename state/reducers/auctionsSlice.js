@@ -217,78 +217,78 @@ const auctionsSlice = createSlice({
       state.pagination = { next: null, hasMore: true };
       state.NextPage = null;
     },
-    setLikesAuctions(state, action) {
-      const { auctions, nextPage, loaded } = action.payload;
+    // setLikesAuctions(state, action) {
+    //   const { auctions, nextPage, loaded } = action.payload;
 
-      const newAuctions = auctions.map(addTimeLeft);
+    //   const newAuctions = auctions.map(addTimeLeft);
 
-      const merged = loaded
-        ? [...state.likesAuctions, ...newAuctions]
-        : [...newAuctions, ...state.likesAuctions];
+    //   const merged = loaded
+    //     ? [...state.likesAuctions, ...newAuctions]
+    //     : [...newAuctions, ...state.likesAuctions];
 
-      // to remove duplicate id
-      // Deduplicate by auction.id
-      const unique = [];
-      const seenIds = new Set();
+    //   // to remove duplicate id
+    //   // Deduplicate by auction.id
+    //   const unique = [];
+    //   const seenIds = new Set();
 
-      for (const auction of merged) {
-        if (!seenIds.has(auction.id)) {
-          seenIds.add(auction.id);
-          unique.push(auction);
-        }
-      }
+    //   for (const auction of merged) {
+    //     if (!seenIds.has(auction.id)) {
+    //       seenIds.add(auction.id);
+    //       unique.push(auction);
+    //     }
+    //   }
 
-      state.likesAuctions = unique;
-      state.NextPage = nextPage;
-    },
-    setBidsAuctions(state, action) {
-      const { auctions, nextPage, loaded } = action.payload;
+    //   state.likesAuctions = unique;
+    //   state.NextPage = nextPage;
+    // },
+    // setBidsAuctions(state, action) {
+    //   const { auctions, nextPage, loaded } = action.payload;
 
-      const newAuctions = auctions.map(addTimeLeft);
+    //   const newAuctions = auctions.map(addTimeLeft);
 
-      const merged = loaded
-        ? [...state.bidsAuctions, ...newAuctions]
-        : [...newAuctions, ...state.bidsAuctions];
+    //   const merged = loaded
+    //     ? [...state.bidsAuctions, ...newAuctions]
+    //     : [...newAuctions, ...state.bidsAuctions];
 
-      // to remove duplicate id
-      // Deduplicate by auction.id
-      const unique = [];
-      const seenIds = new Set();
+    //   // to remove duplicate id
+    //   // Deduplicate by auction.id
+    //   const unique = [];
+    //   const seenIds = new Set();
 
-      for (const auction of merged) {
-        if (!seenIds.has(auction.id)) {
-          seenIds.add(auction.id);
-          unique.push(auction);
-        }
-      }
+    //   for (const auction of merged) {
+    //     if (!seenIds.has(auction.id)) {
+    //       seenIds.add(auction.id);
+    //       unique.push(auction);
+    //     }
+    //   }
 
-      state.bidsAuctions = unique;
-      state.NextPage = nextPage;
-    },
-    setSalesAuctions(state, action) {
-      const { auctions, nextPage, loaded } = action.payload;
+    //   state.bidsAuctions = unique;
+    //   state.NextPage = nextPage;
+    // },
+    // setSalesAuctions(state, action) {
+    //   const { auctions, nextPage, loaded } = action.payload;
 
-      const newAuctions = auctions.map(addTimeLeft);
+    //   const newAuctions = auctions.map(addTimeLeft);
 
-      const merged = loaded
-        ? [...state.salesAuctions, ...newAuctions]
-        : [...newAuctions, ...state.salesAuctions];
+    //   const merged = loaded
+    //     ? [...state.salesAuctions, ...newAuctions]
+    //     : [...newAuctions, ...state.salesAuctions];
 
-      // to remove duplicate id
-      // Deduplicate by auction.id
-      const unique = [];
-      const seenIds = new Set();
+    //   // to remove duplicate id
+    //   // Deduplicate by auction.id
+    //   const unique = [];
+    //   const seenIds = new Set();
 
-      for (const auction of merged) {
-        if (!seenIds.has(auction.id)) {
-          seenIds.add(auction.id);
-          unique.push(auction);
-        }
-      }
+    //   for (const auction of merged) {
+    //     if (!seenIds.has(auction.id)) {
+    //       seenIds.add(auction.id);
+    //       unique.push(auction);
+    //     }
+    //   }
 
-      state.salesAuctions = unique;
-      state.NextPage = nextPage;
-    },
+    //   state.salesAuctions = unique;
+    //   state.NextPage = nextPage;
+    // },
     clearAuctionMessage(state) {
       state.message = null;
       state.status = null;
