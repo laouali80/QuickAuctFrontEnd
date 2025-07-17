@@ -55,18 +55,15 @@ const AuctionScreen = ({ navigation, route }) => {
   // -------------------- Navigation Parameters --------------------
   // const { id } = route.params;
   // const auction = route.params;
-  const { id, listType  } = route.params;
-
-  
+  const { id, listType } = route.params;
 
   // -------------------- Redux State --------------------
   const auction = useSelector(getAuction(id, listType));
   const user = useSelector(getUserInfo);
-  console.log('auction: ', auction);
+  // console.log('auction: ', auction);
   const dispatch = useDispatch(); // Get dispatch function
   const isCurrentUser = auction?.seller?.userId === user?.userId;
-  
-  
+
   // console.log("auction: ", isCurrentUser);
   // -------------------- Local State --------------------
   const [activeTab, setActiveTab] = useState("Overview");
@@ -155,7 +152,10 @@ const AuctionScreen = ({ navigation, route }) => {
 
   // Timer for auction time updates
   useEffect(() => {
-    const interval = setInterval(() => dispatch(updateTime({ listType: 'all' })), 1000);
+    const interval = setInterval(
+      () => dispatch(updateTime({ listType: "all" })),
+      1000
+    );
     return () => clearInterval(interval);
   }, []);
 
@@ -199,7 +199,6 @@ const AuctionScreen = ({ navigation, route }) => {
     }
   }, [auction?.watchers, user.userId]);
 
-  
   const ReportMssg = useSelector(getMessage);
   const ReportStatus = useSelector(getStatus);
 
@@ -471,9 +470,9 @@ const AuctionScreen = ({ navigation, route }) => {
         {activeTab === "Overview" && <OverviewTab auction={auction} />}
 
         {activeTab === "Bids" && (
-          <RecentBids 
-            auction={auction} 
-            myBid={auction.user_bid} 
+          <RecentBids
+            auction={auction}
+            myBid={auction.user_bid}
             onSubmitBid={handleSubmitBid}
           />
         )}
@@ -531,7 +530,9 @@ const AuctionScreen = ({ navigation, route }) => {
             text={`Bid N${auction.bid_increment}`}
             isDisabled={auction.has_ended}
             className="py-4"
-            handleSubmit={() => handleSubmitBid(parseFloat(auction.bid_increment))}
+            handleSubmit={() =>
+              handleSubmitBid(parseFloat(auction.bid_increment))
+            }
           />
         </View>
       )}
