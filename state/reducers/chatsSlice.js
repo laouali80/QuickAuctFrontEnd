@@ -4,10 +4,51 @@ import { useDispatch, useSelector } from "react-redux";
 import utils from "@/core/utils";
 import { getTokens, updateThumbnail } from "./userSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BaseAddress, DEVELOPMENT } from "@/constants/config";
+import { BaseAddress, DEVELOPMENT, SocketProtocol } from "@/constants/config";
+import { sendChatDataThroughSocket } from "@/core/chatSocketManager";
 
 const initialState = {
   isConnected: false,
+
+  // Chat conversations - organized by connectionId
+  // conversations: {
+  //   // Each key is a connectionId (unique for each conversation)
+  //   [connectionId]: {
+  //     connectionId: "...",
+  //     friend: { userId: "...", ... },   // sender user object
+  //     receiver: { userId: "...", ... }, // receiver user object
+  //     chats: {
+  //       messages: [
+  //         { id, is_me, content, created, auction, ... },
+  //         // ...
+  //       ],
+  //       pagination: {
+  //         hasNext: true,
+  //         nextPage: 2,
+  //         loaded: true,
+  //       }
+  //     },
+  //     last_message_content: "...",
+  //     last_updated: "...",
+  //     lastRead: timestamp,
+  //     unreadCount: 0,
+  //     typing: { username: null, timestamp: null }
+  //   },
+  //   // ...more connectionIds
+
+  //   // Pagination for the list of connections (not messages)
+  //   pagination: {
+  //     hasNext: true,
+  //     nextPage: 2,
+  //     loaded: true,
+  //   }
+  // },
+
+  conversations: {},
+
+  // Active chat tracking
+  activeChatId: null,
+
   chatsList: [],
   messagesList: [], // Store messages per conversation btw 2 users
   activeChatUsername: null, // Track which chat is currently open
@@ -19,13 +60,41 @@ const initialState = {
 // WebSocket instance (outside Redux)
 let socket = null;
 
+const addMessageToConversationUtil = (conversation, message, isNew = false) => {
+  // Prevent duplicates
+  const existingIndex = conversation.messages.findIndex(
+    (m) => m.id === message.id
+  );
+  if (existingIndex !== -1) {
+    // Update existing message (for status updates)
+    conversation.messages[existingIndex] = {
+      ...conversation.messages[existingIndex],
+      ...message,
+    };
+    return conversation;
+  }
+
+  // Add new message
+  const updatedMessages = isNew
+    ? [message, ...conversation.messages]
+    : [...conversation.messages, message];
+
+  return {
+    ...conversation,
+    messages: updatedMessages.slice(0, 1000), // Limit to 1000 messages per conversation
+    unreadCount: isNew
+      ? conversation.unreadCount + 1
+      : conversation.unreadCount,
+  };
+};
+
 // ----------------------------------
 //  Socket receive message handlers
 // ----------------------------------
 
-function responseChatsList(message, dispatch) {
-  // console.log("✅ Received chatsList:", message.data);
-  dispatch(chatsList(message.data));
+function responseConversationsList(message, dispatch) {
+  console.log("✅ Received setConversations:", message.data);
+  dispatch(chatsSlice.actions.setConversations(message.data));
 }
 
 function responseThumbnail(message, dispatch) {
@@ -34,12 +103,19 @@ function responseThumbnail(message, dispatch) {
   dispatch(updateThumbnail(message.data));
 }
 
-function responseMessagesList(message, dispatch) {
+function responseChatMessages(data, dispatch) {
+  console.log("responseChatMessagess: ", data.data);
+  // dispatch(
+  //   chatsSlice.actions.setChatMessages({
+  //     messages: message.data.messages,
+  //     messagesNext: message.data.next,
+  //     overwrite: false,
+  //   })
+  // );
   dispatch(
-    chatsSlice.actions.setMessagesList({
-      messages: message.data.messages,
-      messagesNext: message.data.next,
-      overwrite: false,
+    chatsSlice.actions.setChatMessages({
+      ...data.data,
+      mode: data.data.currentPage === 1 ? "replace" : "prepend", // or use your own logic
     })
   );
 }
@@ -54,6 +130,15 @@ function responseMessageSend(message, dispatch, getState) {
       username,
       preview: message.data.message.content,
       timestamp: message.data.message.created,
+    })
+  );
+
+  // Update conversation
+  dispatch(
+    chatsSlice.actions.addMessageToConversation({
+      connectionId,
+      message: newMessage,
+      isNew: true,
     })
   );
 
@@ -90,100 +175,47 @@ function responseMessageTyping(message, dispatch, getState) {
   }
 }
 
-// WebSocket Thunk
-export const initializeChatSocket = createAsyncThunk(
-  "chats/connection",
-  async (tokens, { dispatch, getState, rejectWithValue }) => {
-    try {
-      // utils.log("Connecting WebSocket with token:", tokens);
-
-      const protocol = DEVELOPMENT ? "ws" : "wss";
-      socket = new WebSocket(
-        `${protocol}://${BaseAddress}/ws/chat/?tokens=${tokens.access}`
-      );
-
-      socket.onopen = () => {
-        console.log("Chat Socket connected!");
-        socket.send(JSON.stringify({ source: "FetchChatsList" }));
-      };
-
-      socket.onmessage = (event) => {
-        // Convert data to javascript object
-        const parsed = JSON.parse(event.data);
-
-        // log the data received
-        // utils.log("Received from server:", event.data);
-
-        // this is an object/dict of key -> value of function to be called
-        const responses = {
-          thumbnail: responseThumbnail, // this 'thumbnail' key will call the responseThumbnail function
-          chatsList: responseChatsList,
-          messagesList: responseMessagesList,
-          message_typing: (message) =>
-            responseMessageTyping(message, dispatch, getState),
-          message_send: (message) =>
-            responseMessageSend(message, dispatch, getState),
-        };
-
-        const resp = responses[parsed.source];
-
-        if (!resp) {
-          utils.log("parsed.source: " + parsed.source + " not found");
-        } else {
-          resp(parsed, dispatch); // ✅ Pass dispatch manually
-        }
-      };
-
-      socket.onerror = (error) => {
-        console.log(" WebSocket Error:", error);
-      };
-
-      socket.onclose = () => {
-        console.log("WebSocket Disconnected");
-      };
-
-      // 🚀 Auto-reconnect after 5 seconds
-      // setTimeout(() => {
-      //   dispatch(initializeChatSocket(tokens));
-      // }, 5000);
-
-      return true;
-    } catch (err) {
-      return rejectWithValue(err.message);
-    }
-  }
-);
-
-export const ChatSocketClose = () => (dispatch) => {
-  if (socket) {
-    socket.close();
-    socket = null; // Clear the socket reference
-    dispatch(setWebSocketDisconnected());
-  }
-};
+// export const ChatSocketClose = () => (dispatch) => {
+//   if (socket) {
+//     socket.close();
+//     socket = null; // Clear the socket reference
+//     dispatch(setWebSocketDisconnected());
+//   }
+// };
 // Fetch messages for a chat
-export const messagesList =
-  (connectionId, page = 0) =>
-  (dispatch) => {
-    console.log("reach.....", page);
-    if (page === 0) {
-      dispatch(
-        chatsSlice.actions.setMessagesList({
-          messages: [],
-          messagesNext: null,
-          overwrite: true,
-        })
-      );
-    }
-    // Don't set messagesNext to null for pagination requests
-    socket.send(
-      JSON.stringify({
-        connectionId,
-        page,
-        source: "fetchMessagesList",
+export const fetchChats = (data) => (dispatch) => {
+  // console.log("reach.....", data);
+
+  if (data.page === 1) {
+    dispatch(
+      chatsSlice.actions.clearChats({
+        connectionId: data.connectionId,
       })
     );
-  };
+  }
+
+  // if (page === 0) {
+  //   dispatch(
+  //     chatsSlice.actions.setChatMessages({
+  //       messages: [],
+  //       messagesNext: null,
+  //       overwrite: true,
+  //     })
+  //   );
+  // }
+  sendChatDataThroughSocket({
+    data,
+    source: "fetchChatMessages",
+  });
+
+  // Don't set messagesNext to null for pagination requests
+  // socket.send(
+  //   JSON.stringify({
+  //     data,
+  //     source: "fetchChatMessages",
+  //   })
+  // );
+};
 
 // Send message
 export const messageSend = ({ connectionId, content }) => {
@@ -240,25 +272,91 @@ const chatsSlice = createSlice({
   initialState,
   reducers: {
     setWebSocketConnected(state) {
+      console.log("WebSocket Connected");
       state.isConnected = true;
     },
     setWebSocketDisconnected(state) {
       state.isConnected = false;
     },
-    chatsList(state, action) {
-      // console.log("✅ chatsList reducer triggered with:", action.payload);
-      state.chatsList = action.payload;
-    },
-    setMessagesList(state, action) {
-      const { messages, overwrite, messagesNext } = action.payload;
+    setConversations(state, action) {
+      console.log("✅ chatsList reducer triggered with:", action.payload);
+      const { data, pagination } = action.payload;
 
-      state.messagesNext = messagesNext;
-      if (overwrite) {
-        state.messagesList = messages;
-        state.messageTyping = null;
+      // Convert new conversations to objects with
+      const newConversations = {};
+      data.forEach((conversation) => {
+        newConversations[conversation.connectionId] = {
+          ...conversation,
+          lastRead: null,
+          unreadCount: 5,
+          chats: { messages: [], pagination: {} },
+          typing: { username: null, timestamp: null },
+        };
+      });
+
+      // console.log("seting newConversations: ",newConversations);
+
+      // Merge with existing conversations based on loaded flag
+      if (pagination.loaded) {
+        // Append new conversations to existing ones (for pagination)
+        // New conversations will override existing ones if they have the same ID
+        state.conversations = {
+          ...state.conversations,
+          ...newConversations,
+          pagination: pagination,
+        };
       } else {
-        state.messagesList = [...messages, ...(state.messagesList || [])];
+        // Prepend new conversations to existing ones (for refresh/new data)
+        // Existing conversations will override new ones if they have the same ID
+        state.conversations = {
+          ...newConversations,
+          ...state.conversations,
+          pagination: pagination,
+        };
       }
+    },
+    setChatMessages(state, action) {
+      const { connectionId, messages, pagination, friend } = action.payload;
+
+      // console.log('messages: ',messages);
+
+      if (!state.conversations[connectionId]) {
+        state.conversations[connectionId] = {
+          connectionId,
+          friend: friend || {},
+          chats: { messages: [], pagination: {} },
+          last_message_content: "",
+          last_updated: null,
+          lastRead: null,
+          unreadCount: 0,
+          typing: { username: null, timestamp: null },
+        };
+      }
+
+      const existingMessages = state.conversations[connectionId].chats.messages;
+
+      // Create a map of existing message IDs for fast lookup
+      const existingIds = new Set(existingMessages.map((msg) => msg.id));
+
+      // Filter out duplicates
+      const newMessages = messages.filter((msg) => !existingIds.has(msg.id));
+
+      if (pagination.loaded) {
+        // Loading older messages (pagination)
+        state.conversations[connectionId].chats.messages = [
+          ...existingMessages,
+          ...newMessages,
+        ];
+      } else {
+        // First page load / refresh
+        state.conversations[connectionId].chats.messages = [
+          ...newMessages,
+          ...existingMessages,
+        ];
+      }
+
+      // Update pagination info
+      state.conversations[connectionId].chats.pagination = pagination;
     },
     pushMessage(state, action) {
       const { message } = action.payload;
@@ -268,34 +366,23 @@ const chatsSlice = createSlice({
     setActiveChat(state, action) {
       state.activeChatUsername = action.payload;
     },
-    updateChatPreview(state, action) {
-      const { username, preview, timestamp } = action.payload;
 
-      // Find and update the chat in chatsList
-      const updatedChatsList = state.chatsList.map((chat) => {
-        if (chat.friend.username === username) {
-          return {
-            ...chat,
-            preview,
-            updated: timestamp,
-          };
-        }
-        return chat;
-      });
+    addMessageToConversation(state, action) {
+      const { connectionId, message, isNew } = action.payload;
 
-      // Move the updated chat to the top
-      const chatIndex = updatedChatsList.findIndex(
-        (chat) => chat.friend.username === username
+      // if (!state.conversations[connectionId]) {
+      //   state.conversations[connectionId] = createConversation(connectionId);
+      // }
+
+      const updatedConversation = addMessageToConversationUtil(
+        state.conversations[connectionId],
+        message,
+        isNew
       );
 
-      if (chatIndex >= 0) {
-        const chat = updatedChatsList[chatIndex];
-        updatedChatsList.splice(chatIndex, 1);
-        updatedChatsList.unshift(chat);
-      }
-
-      state.chatsList = updatedChatsList;
+      state.conversations[connectionId] = updatedConversation;
     },
+
     setMessageTyping(state, action) {
       const username = action.payload.username;
       // console.log(action.payload);
@@ -307,6 +394,18 @@ const chatsSlice = createSlice({
     setMessagesNext(state, action) {
       state.messagesNext = action.payload.messagesNext;
     },
+    clearChats(state, action) {
+      const connectionId = action.payload;
+
+      if (!state.conversations[connectionId]) {
+        console.warn(
+          `connection id '${connectionId}' not found in state.conversations`
+        );
+        return;
+      }
+
+      state.conversations[connectionId]["chats"] = {};
+    },
   },
 });
 
@@ -314,14 +413,50 @@ export const {
   setWebSocketConnected,
   setWebSocketDisconnected,
   chatsList,
-  setMessagesList,
+  setChatMessages,
   pushMessage,
   setActiveChat,
   updateChatPreview,
   setMessageTyping,
 } = chatsSlice.actions;
 
-export const getChatsList = (state) => state.chats.chatsList;
+export const getConversationsList = (state) =>
+  Object.values(state.chats.conversations).filter(
+    (convo) => convo && convo.connectionId
+  );
+
+export const findConnectionBySeller = (sellerId) => (state) => {
+  const conn = Object.values(state.chats.conversations).find(
+    (conn) =>
+      conn &&
+      conn.connectionId &&
+      conn.friend &&
+      conn.friend.userId === sellerId
+  );
+  return conn ? conn : null;
+};
+
+// export const findConnectionBySeller = (sellerId) => (state) => {
+//   const conns = Object.values(state.chats.conversations).filter(
+//     convo => convo && convo.connectionId
+//   );
+//   // If you have sender/receiver:
+//   const conn = conns.find(
+//     conn =>
+//       (conn.sender && conn.sender.userId === sellerId) ||
+//       (conn.receiver && conn.receiver.userId === sellerId) ||
+//       (conn.friend && conn.friend.userId === sellerId) // fallback for old model
+//   );
+//   return conn ? conn.connectionId : null;
+// };
+export const getChatMessages = (connectionId) => (state) => {
+  const conn = state.chats.conversations[connectionId];
+  return conn && conn.chats && Array.isArray(conn.chats.messages)
+    ? conn.chats.messages
+    : [];
+};
+
+export const testActiveChat = (state) => state.chats.activeChatUsername;
 export const getMessages = (state) => state.chats.messagesList;
 export const checkMessageTyping = (state) => state.chats.messageTyping;
 export const getNextPage = (state) => state.chats.messagesNext;
