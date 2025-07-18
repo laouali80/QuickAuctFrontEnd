@@ -6,7 +6,6 @@ import { ENVIRONMENT } from "@env";
 // const DEVELOPMENT = process.env.DEVELOPMENT;
 // const apiUrl = process.env.REACT_APP_API_URL;
 
-console.log(ENVIRONMENT);
 // console.log(`API URL: ${apiUrl}`);
 
 function log() {

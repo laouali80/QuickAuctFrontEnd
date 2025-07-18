@@ -19,7 +19,7 @@ export const makeCall = (phone_number) => {
 // Navigate to chat screen
 export const _navigateToChat = (navigation, auction) => {
   // console.log(userId);
-  navigation.navigate("Chat", auction?.seller);
+  navigation.navigate("Chat", {auction:auction});
 };
 
 // Rating submition

@@ -1,33 +1,20 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import utils, { formatAuctionTime } from "./utils";
-import { BaseAddress, DEVELOPMENT } from "@/constants/config";
+import { BaseAddress, SocketProtocol } from "@/constants/config";
+import { getStore } from "./storeRef";
 
 // core/socketManager.js
 let socket = null;
-
-let storeRef = null; // for dispatching from socket events
-
-export const setStore = (store) => {
-  storeRef = store;
-};
 
 // ----------------------------------
 //  Socket receive message handlers
 // ----------------------------------
 
-function responseAuctionsList(data) {
-  // console.log("✅ Received chatsList:", message.data);
-  storeRef?.dispatch({
-    type: "auctions/setAuctionsList",
-    payload: data,
-  });
-}
-
 function responseNewAuction(data) {
-  const state = storeRef.getState();
+  const state = getStore().getState();
   const currentUserId = state.user.user?.userId; // adjust path if different
   const { seller } = data;
-  storeRef?.dispatch({
+  getStore()?.dispatch({
     type: "auctions/addNewAuction",
     payload: { seller, currentUserId },
   });
@@ -35,7 +22,7 @@ function responseNewAuction(data) {
 
 function responseNewBid(data) {
   // console.log(data);
-  storeRef?.dispatch({
+  getStore()?.dispatch({
     type: "auctions/updateAuction",
     payload: data,
   });
@@ -43,48 +30,26 @@ function responseNewBid(data) {
 
 function responseWatcher(data) {
   // console.log(data);
-  storeRef?.dispatch({
+  getStore()?.dispatch({
     type: "auctions/updateAuction",
     payload: data,
   });
 }
 
-function responseLikesAuctions(data) {
-  // console.log(data);
-  storeRef?.dispatch({
-    type: "auctions/setLikesAuctions",
-    payload: data,
-  });
-}
-
-function responseBidsAuctions(data) {
-  storeRef?.dispatch({
-    type: "auctions/setBidsAuctions",
-    payload: data,
-  });
-}
-
-function responseSalesAuctions(data) {
-  storeRef?.dispatch({
-    type: "auctions/setSalesAuctions",
-    payload: data,
-  });
-}
-
 function responseDeleteAuction(data) {
-  const state = storeRef.getState();
+  const state = getStore().getState();
   const currentUserId = state.user.user?.userId; // adjust path if different
   console.log("responseDeleteAuction: ", { ...data, currentUserId });
-  // storeRef?.dispatch({
+  // getStore()?.dispatch({
   //   type: "auctions/auction_deleted",
   //   payload: { ...data, currentUserId },
   // });
 }
 
-function responseProccessingError(data){
-  const state = storeRef.getState();
+function responseProccessingError(data) {
+  const state = getStore().getState();
   const currentUserId = state.user.user?.userId; // adjust path if different
-storeRef?.dispatch({
+  getStore()?.dispatch({
     type: "auctions/proccesingError",
     payload: { ...data, currentUserId },
   });
@@ -99,19 +64,19 @@ export const addTimeLeft = (auction) => {
 // WebSocket message handlers
 const handleAuctionsList = (data, dispatch) => {
   // console.log('handleAuctionsList: ', data);
-  
-  const { auctions, nextPage, loaded, listType = 'all' } = data;
+
+  const { auctions, nextPage, loaded, listType = "all" } = data;
   const processedAuctions = auctions.map(addTimeLeft);
-  
-  
-  storeRef?.dispatch({
+
+  getStore()?.dispatch({
     type: "auctions/setAuctionsList",
-    payload:{
-    auctions: processedAuctions,
-    nextPage,
-    loaded,
-    listType
-  }});
+    payload: {
+      auctions: processedAuctions,
+      nextPage,
+      loaded,
+      listType,
+    },
+  });
 };
 
 export const initializeAuctionSocket = createAsyncThunk(
@@ -122,14 +87,14 @@ export const initializeAuctionSocket = createAsyncThunk(
         socket.close();
       }
 
-      const protocol = DEVELOPMENT ? "ws" : "wss";
       socket = new WebSocket(
-        `${protocol}://${BaseAddress}/ws/auctions/?tokens=${tokens.access}`
+        `${SocketProtocol}://${BaseAddress}/ws/auctions/?tokens=${tokens.access}`
       );
 
+      console.log("getStore() auction: ", getStore());
       socket.onopen = () => {
         console.log("Auction Socket connected!");
-        storeRef.dispatch({ type: "auctions/clearAuctions" }); // clear old
+        getStore().dispatch({ type: "auctions/clearAuctions" }); // clear old
         socket.send(
           JSON.stringify({
             source: "FetchAuctionsListByCategory",
@@ -142,7 +107,7 @@ export const initializeAuctionSocket = createAsyncThunk(
             },
           })
         );
-        // storeRef?.dispatch({ type: "auctions/setSocketConnected" });
+        // getStore()?.dispatch({ type: "auctions/setSocketConnected" });
       };
 
       socket.onmessage = (event) => {
@@ -150,7 +115,7 @@ export const initializeAuctionSocket = createAsyncThunk(
         // utils.log("received from server: ", parsed);
         const handlers = {
           search: (data) =>
-            storeRef?.dispatch({
+            getStore()?.dispatch({
               type: "auctions/setSearchList",
               payload: data,
             }),
@@ -159,9 +124,12 @@ export const initializeAuctionSocket = createAsyncThunk(
           new_auction: responseNewAuction,
           new_bid: responseNewBid,
           watcher: responseWatcher,
-          likesAuctions: (data) => handleAuctionsList({ ...data, listType: 'likes' }, dispatch),
-          bidsAuctions: (data) => handleAuctionsList({ ...data, listType: 'bids' }, dispatch),
-          salesAuctions: (data) => handleAuctionsList({ ...data, listType: 'sales' }, dispatch),
+          likesAuctions: (data) =>
+            handleAuctionsList({ ...data, listType: "likes" }, dispatch),
+          bidsAuctions: (data) =>
+            handleAuctionsList({ ...data, listType: "bids" }, dispatch),
+          salesAuctions: (data) =>
+            handleAuctionsList({ ...data, listType: "sales" }, dispatch),
           // likesAuctions: responseLikesAuctions,
           // bidsAuctions: responseBidsAuctions,
           // salesAuctions: responseSalesAuctions,
@@ -177,13 +145,13 @@ export const initializeAuctionSocket = createAsyncThunk(
       socket.onerror = () => {
         socket.close();
         socket = null;
-        storeRef?.dispatch({ type: "auctions/setSocketDisconnected" });
+        getStore()?.dispatch({ type: "auctions/setSocketDisconnected" });
       };
 
       socket.onclose = () => {
         console.log("WebSocket Disconnected");
 
-        // storeRef?.dispatch({ type: "auctions/setSocketDisconnected" });
+        // getStore()?.dispatch({ type: "auctions/setSocketDisconnected" });
       };
       return true;
     } catch (err) {
@@ -196,7 +164,7 @@ export const AuctionSocketClose = () => (dispatch) => {
   if (socket) {
     socket.close();
     socket = null;
-    storeRef?.dispatch({ type: "auctions/setSocketDisconnected" });
+    getStore()?.dispatch({ type: "auctions/setSocketDisconnected" });
     // dispatch(setSocketDisconnected)
   }
 };
