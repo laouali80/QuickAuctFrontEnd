@@ -157,11 +157,6 @@ export const initializeChatSocket = createAsyncThunk(
               fetchChatMessages: responseChatMessages,
               typingIndicator: responseTypingIndicator,
               message_send: responseMessageSend,
-
-              // chatsList: handleChatsList,
-              // messagesList: handleMessagesList,
-              // message_send: handleMessageSend,
-              // message_typing: handleMessageTyping
             };
 
             // const handler = handlers[parsed.source];
