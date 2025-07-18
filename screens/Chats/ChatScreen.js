@@ -152,6 +152,8 @@ const ChatScreen = ({ navigation, route }) => {
     }
   }, [messagesNext, isLoading, dispatch, connectionId, isTyping]);
 
+  // console.log("ChatScreen messages: ", messages);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ flex: 1, marginBottom: Platform.OS === "ios" ? 60 : 0 }}>
@@ -170,14 +172,25 @@ const ChatScreen = ({ navigation, route }) => {
           onScroll={({ nativeEvent }) => {
             // Track scroll position if needed
           }}
-          renderItem={({ item, index }) => (
-            <MessageBubble
-              index={index}
-              message={item}
-              friend={friend}
-              connectionId={connectionId}
-            />
-          )}
+          renderItem={({ item, index }) => {
+            const fullList = [{ id: -1 }, ...messages];
+            // const isTypingIndicator = item.id === -1;
+
+            const previousMessage =
+              index < fullList.length - 1 ? fullList[index + 1] : null;
+            // const nextMessage = index > 0 ? fullList[index - 1] : null;
+
+            return (
+              <MessageBubble
+                index={index}
+                message={item}
+                prevMessage={previousMessage}
+                // nextMessage={nextMessage}
+                friend={friend}
+                connectionId={connectionId}
+              />
+            );
+          }}
           ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
         />
       </View>
