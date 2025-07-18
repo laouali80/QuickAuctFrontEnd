@@ -2,8 +2,14 @@ import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import Thumbnail from "@/common_components/Thumbnail";
 import MessageTypingAnimation from "./MessageTypingAnimation";
+import { COLORS } from "@/constants/COLORS";
 
-const MessageBubbleFriend = ({ content = "", friend, typing = false }) => {
+const MessageBubbleFriend = ({
+  content = "",
+  friend,
+  typing = false,
+  created,
+}) => {
   return (
     <View
       style={{
@@ -20,7 +26,8 @@ const MessageBubbleFriend = ({ content = "", friend, typing = false }) => {
       />
       <View
         style={{
-          backgroundColor: "#d0d2db",
+          backgroundColor: "#f5f4f8",
+          // backgroundColor: COLORS.silverIcon,
           borderRadius: 21,
           maxWidth: "75%",
           paddingHorizontal: 16,
@@ -37,16 +44,26 @@ const MessageBubbleFriend = ({ content = "", friend, typing = false }) => {
             <MessageTypingAnimation offset={2} />
           </View>
         ) : content.length > 0 ? (
-          <Text
-            style={{
-              color: "#202020",
-              fontSize: 16,
-              lineHeight: 18,
-            }}
-          >
-            {content}
-          </Text>
-        ) : null}
+          <View style={{ flexDirection: "row" }}>
+            <Text
+              style={{
+                color: "#202020",
+                fontSize: 16,
+                lineHeight: 18,
+              }}
+            >
+              {content}
+            </Text>
+            <Text style={{ marginLeft: 10 }}>
+              {new Date(created).toLocaleTimeString([], {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              })}
+            </Text>
+          </View>
+        ) : // </View>
+        null}
       </View>
       <View style={{ flex: 1 }} />
     </View>

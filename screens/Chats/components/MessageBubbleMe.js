@@ -1,7 +1,8 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
+import { COLORS } from "@/constants/COLORS";
 
-const MessageBubbleMe = ({ content }) => {
+const MessageBubbleMe = ({ content, created }) => {
   return (
     <View
       style={{
@@ -13,7 +14,8 @@ const MessageBubbleMe = ({ content }) => {
       <View style={{ flex: 1 }} />
       <View
         style={{
-          backgroundColor: "#303040",
+          backgroundColor: "#259e47",
+          // backgroundColor: COLORS.primary,
           borderRadius: 21,
           maxWidth: "75%",
           paddingHorizontal: 16,
@@ -21,6 +23,8 @@ const MessageBubbleMe = ({ content }) => {
           justifyContent: "center",
           marginRight: 8,
           minHeight: 42,
+          flexDirection: "row",
+          alignItems: "end",
         }}
       >
         <Text
@@ -31,6 +35,13 @@ const MessageBubbleMe = ({ content }) => {
           }}
         >
           {content}
+        </Text>
+        <Text style={{ marginLeft: 10 }}>
+          {new Date(created).toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          })}
         </Text>
       </View>
     </View>
