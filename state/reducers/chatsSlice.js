@@ -105,26 +105,6 @@ function responseThumbnail(message, dispatch) {
   dispatch(updateThumbnail(message.data));
 }
 
-function responseMessageTyping(message, dispatch, getState) {
-  const currentState = getState();
-
-  // Only show typing indicator if it's for the active chat
-  if (message.data.username === currentState.chats.activeChatUsername) {
-    dispatch(
-      chatsSlice.actions.setMessageTyping({
-        username: message.data.username,
-      })
-    );
-  }
-}
-
-// export const ChatSocketClose = () => (dispatch) => {
-//   if (socket) {
-//     socket.close();
-//     socket = null; // Clear the socket reference
-//     dispatch(setWebSocketDisconnected());
-//   }
-// };
 // Fetch messages for a chat
 export const fetchChats = (data) => (dispatch) => {
   // console.log("reach.....", data);
@@ -161,22 +141,6 @@ export const messageSend = (data) => {
     source: "message_send",
   });
 };
-
-// typing a message
-// export const messageTyping = (username) => {
-//   const messageData = JSON.stringify({
-//     username,
-//     source: "message_typing",
-//   });
-//   // console.log("typing: ", username);
-
-//   if (socket && socket.readyState === WebSocket.OPEN) {
-//     // console.log("typing: ", username);
-//     socket.send(messageData);
-//   } else {
-//     throw new Error("WebSocket is not connected");
-//   }
-// };
 
 export const sendTypingIndicator = (data) => {
   // console.log("typing: ", data);
@@ -300,9 +264,6 @@ const chatsSlice = createSlice({
       state.messagesList = [message, ...(state.messagesList || [])];
       state.messageTyping = null;
     },
-    // setActiveChat(state, action) {
-    //   state.activeChatUsername = action.payload;
-    // },
 
     setActiveChat(state, action) {
       state.activeChatId = action.payload;
@@ -343,6 +304,15 @@ const chatsSlice = createSlice({
       state.conversations[connectionId].typing = { username, timestamp };
     },
 
+    cleanTypingIndicator(state, action) {
+      const connectionId = action.payload;
+      // console.log("cleanTypingIndicator: ", connectionId);
+      state.conversations[connectionId].typing = {
+        username: null,
+        timestamp: null,
+      };
+    },
+
     setMessagesNext(state, action) {
       state.messagesNext = action.payload.messagesNext;
     },
@@ -370,6 +340,7 @@ export const {
   setActiveChat,
   updateChatPreview,
   setMessageTyping,
+  cleanTypingIndicator,
 } = chatsSlice.actions;
 
 export const getConversationsList = (state) =>
