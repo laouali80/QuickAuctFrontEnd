@@ -72,7 +72,7 @@ const ChatScreen = ({ navigation, route }) => {
   const isTyping = useSelector(checkMessageTyping);
 
   // console.log("render page: ", messagesNext);
-  console.log("messages: ", messages);
+  // console.log("messages: ", messages);
 
   // WebSocket and navigation setup
   useLayoutEffect(() => {
