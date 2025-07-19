@@ -31,6 +31,8 @@ import {
 } from "@/state/reducers/chatsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import AuctionReplyPreview from "./components/AuctionReplyPreview";
+import apiRequest from "@/api/axiosInstance";
+import { set } from "@gluestack-style/react";
 
 const ChatScreen = ({ navigation, route }) => {
   const params = route.params || {};
@@ -50,23 +52,37 @@ const ChatScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showAuctionPreview, setShowAuctionPreview] = useState(
+    auction ? true : false
+  );
   const flatListRef = useRef(null);
+  const hadConnection = seller
+    ? useSelector(findConnectionBySeller(seller.userId))
+    : null;
   // const { sellerId, auction } = route.params || {};
 
   // Redux state
   const messages = connectionId
     ? useSelector(getChatMessages(connectionId))
+    : hadConnection
+    ? useSelector(getChatMessages(hadConnection.connectionId))
     : [];
+
   const messagesNext = useSelector(getNextPage);
   const isTyping = useSelector(checkMessageTyping);
 
   // console.log("render page: ", messagesNext);
-  // console.log("activeuSER: ", activeuSER);
+  console.log("messages: ", messages);
 
   // WebSocket and navigation setup
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => <ChatHeader friend={friend} />,
+      headerTitle: () =>
+        friend ? (
+          <ChatHeader friend={friend} />
+        ) : (
+          <ChatHeader friend={seller} />
+        ),
     });
   }, [navigation]);
 
@@ -80,21 +96,31 @@ const ChatScreen = ({ navigation, route }) => {
       }
       // dispatch(setActiveChat(friend.username));
       dispatch(setActiveChat(connectionId));
+    } else if (seller) {
+      // Navigated from AuctionScreen
+
+      console.log("hadConnection: ", hadConnection);
+
+      // If we have a connection but empty messages in the chats, fetch messages
+      if (hadConnection && messages.length === 0) {
+        dispatch(
+          fetchChats({ connectionId: hadConnection.connectionId, page: 1 })
+        );
+      } else if (!hadConnection) {
+        // If no connection, make an api call to check if we ever chatted with this seller
+        // const response = apiRequest({
+        //   method: "get",
+        //   url: `/chats/connections/${seller.userId}`,
+        // });
+      }
+      //     if (messages.length === 0) {
+      //       const response = FetchMessagesList({connectionId:hadConnection.connectionId,page:1});
+
+      //       const messages = response.data
+
+      //     }
+      //   }
     }
-    // else if (seller) {
-    //   // Navigated from AuctionScreen
-    //   const hadConnection = findConnectionBySeller(seller.userId);
-    //   if (hadConnection) {
-    //     messages = getChatMessages(hadConnection.connectionId);
-
-    //     if (messages.length === 0) {
-    //       const response = FetchMessagesList({connectionId:hadConnection.connectionId,page:1});
-
-    //       const messages = response.data
-
-    //     }
-    //   }
-    // }
 
     return () => {
       dispatch(setActiveChat(null));
@@ -112,8 +138,19 @@ const ChatScreen = ({ navigation, route }) => {
   const onSend = () => {
     const cleaned = message.replace(/\s+/g, " ").trim();
     if (cleaned.length === 0) return;
+    if (showAuctionPreview && hadConnection) {
+      messageSend({
+        connectionId: hadConnection.connectionId,
+        content: cleaned,
+        auctionId: auction?.id,
+      });
+      setShowAuctionPreview(false);
+    } else if (connectionId) {
+      messageSend({ connectionId, content: cleaned });
+    } else if (!hadConnection) {
+      // TO DO
+    }
 
-    messageSend({ connectionId, content: cleaned });
     setMessage("");
 
     // Scroll to bottom after sending
@@ -186,7 +223,7 @@ const ChatScreen = ({ navigation, route }) => {
                 message={item}
                 prevMessage={previousMessage}
                 // nextMessage={nextMessage}
-                friend={friend}
+                friend={friend ? friend : seller}
                 connectionId={connectionId}
               />
             );
@@ -197,13 +234,14 @@ const ChatScreen = ({ navigation, route }) => {
 
       {Platform.OS === "ios" ? (
         <>
-          {auction && (
+          {showAuctionPreview && (
             <AuctionReplyPreview
               auction={auction}
               onViewAuction={() =>
                 navigation.navigate("AuctionScreen", { id: auction.id })
               }
               onClose={() => {
+                setShowAuctionPreview(false);
                 // logic to remove auction preview, e.g. setAuction(null)
               }}
             />
@@ -218,13 +256,14 @@ const ChatScreen = ({ navigation, route }) => {
         </>
       ) : (
         <>
-          {auction && (
+          {showAuctionPreview && (
             <AuctionReplyPreview
               auction={auction}
               onViewAuction={() =>
                 navigation.navigate("AuctionScreen", { id: auction.id })
               }
               onClose={() => {
+                setShowAuctionPreview(false);
                 // logic to remove auction preview, e.g. setAuction(null)
               }}
             />
