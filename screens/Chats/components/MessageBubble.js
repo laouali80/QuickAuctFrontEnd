@@ -8,6 +8,7 @@ import {
   checkMessageTyping,
   cleanTypingIndicator,
 } from "@/state/reducers/chatsSlice";
+import { useNavigation } from "@react-navigation/native";
 
 function formatMessageDate(dateString) {
   const msgDate = new Date(dateString); // keep as Date object
@@ -38,6 +39,7 @@ const MessageBubble = ({
   connectionId,
 }) => {
   // utils.log("MessageBubble: ", message);
+  const navigation = useNavigation();
 
   const [showTyping, setShowTyping] = useState(false);
   const dispatch = useDispatch();
@@ -86,12 +88,33 @@ const MessageBubble = ({
   return (
     <>
       {message.is_me ? (
-        <MessageBubbleMe content={message.content} created={message.created} />
+        <MessageBubbleMe
+          content={message.content}
+          created={message.created}
+          auction={message.auction}
+          onViewAuction={(auction) => {
+            if (!auction) return;
+            // navigation is not available here, so pass a callback from parent if needed
+            navigation.navigate("Auction", {
+              id: message.auction.id,
+              listType: "all",
+            });
+          }}
+        />
       ) : (
         <MessageBubbleFriend
           content={message.content}
           friend={friend}
           created={message.created}
+          auction={message.auction}
+          onViewAuction={(auction) => {
+            if (!auction) return;
+            // navigation is not available here, so pass a callback from parent if needed
+            navigation.navigate("Auction", {
+              id: message.auction.id,
+              listType: "all",
+            });
+          }}
         />
       )}
 
