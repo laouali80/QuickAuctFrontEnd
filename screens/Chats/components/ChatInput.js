@@ -28,13 +28,14 @@ const ChatInput = ({ message, setMessage, onSend }) => {
           height: 50,
         }}
       />
-      <TouchableOpacity onPress={onSend}>
+      <TouchableOpacity onPress={onSend} disabled={!message.trim()}>
         <Entypo
           name="paper-plane"
           size={22}
           color="#303040"
           style={{
             marginHorizontal: 12,
+            opacity: message.trim() ? 1 : 0.5,
           }}
         />
       </TouchableOpacity>
