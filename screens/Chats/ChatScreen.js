@@ -11,6 +11,7 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -28,11 +29,13 @@ import {
   findConnectionBySeller,
   getChatMessages,
   fetchChats,
+  createConnection,
 } from "@/state/reducers/chatsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import AuctionReplyPreview from "./components/AuctionReplyPreview";
-import apiRequest from "@/api/axiosInstance";
-import { set } from "@gluestack-style/react";
+import { getTokens } from "@/state/reducers/userSlice";
+import { checkConnection } from "./calls/chatScreen/checkConnection";
+import { fetchMessages } from "./calls/chatScreen/fetchMessages";
 
 const ChatScreen = ({ navigation, route }) => {
   const params = route.params || {};
@@ -45,34 +48,41 @@ const ChatScreen = ({ navigation, route }) => {
   const auction = params.auction || null;
   const seller = auction?.seller || null;
 
-  // Decide which to use
-  let chatConnectionId = connectionId;
-  let chatFriend = friend;
-
   const dispatch = useDispatch();
+
+  // Always declare all state variables at the top level
+  const [localMessages, setLocalMessages] = useState([]);
+  const [localConnection, setLocalConnection] = useState(null);
+  const [wereConnected, setWereConnected] = useState(false);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showAuctionPreview, setShowAuctionPreview] = useState(
     auction ? true : false
   );
+
   const flatListRef = useRef(null);
-  const hadConnection = seller
-    ? useSelector(findConnectionBySeller(seller.userId))
-    : null;
-  // const { sellerId, auction } = route.params || {};
+  const typingTimeoutRef = useRef(null);
 
-  // Redux state
-  const messages = connectionId
-    ? useSelector(getChatMessages(connectionId))
-    : hadConnection
-    ? useSelector(getChatMessages(hadConnection.connectionId))
-    : [];
-
+  // Always call these hooks, regardless of conditions
+  const hadConnection = useSelector(
+    seller ? findConnectionBySeller(seller.userId) : () => null
+  );
+  const messagesFromConnection = useSelector(
+    connectionId ? getChatMessages(connectionId) : () => []
+  );
+  const messagesFromHadConnection = useSelector(
+    hadConnection ? getChatMessages(hadConnection.connectionId) : () => []
+  );
   const messagesNext = useSelector(getNextPage);
   const isTyping = useSelector(checkMessageTyping);
+  const tokens = useSelector(getTokens);
 
-  // console.log("render page: ", messagesNext);
-  // console.log("messages: ", messages);
+  // Then use logic to pick which messages to use
+  const messages = connectionId
+    ? messagesFromConnection
+    : hadConnection
+    ? messagesFromHadConnection
+    : [];
 
   // WebSocket and navigation setup
   useLayoutEffect(() => {
@@ -84,100 +94,103 @@ const ChatScreen = ({ navigation, route }) => {
           <ChatHeader friend={seller} />
         ),
     });
-  }, [navigation]);
+  }, [navigation, friend, seller]);
 
+  // Single useEffect with all initialization logic
   useEffect(() => {
-    // Initial load
-    if (connectionId && friend) {
-      // Navigated from ChatsScreen
+    let isMounted = true;
 
-      if (messages.length === 0) {
-        dispatch(fetchChats({ connectionId: connectionId, page: 1 }));
+    const init = async () => {
+      if (connectionId && friend) {
+        // From ChatsScreen — use Redux directly
+        if (messages.length === 0) {
+          dispatch(fetchChats({ connectionId, page: 1 }));
+        }
+        dispatch(setActiveChat(connectionId));
+      } else if (seller) {
+        // From AuctionScreen — handle local state only
+        if (hadConnection && messages.length === 0) {
+          const data = await fetchMessages(hadConnection.connectionId, tokens);
+          if (isMounted) {
+            setLocalMessages(data.messages || []);
+          }
+        } else if (!hadConnection) {
+          const data = await checkConnection(seller.userId, tokens);
+          if (isMounted) {
+            if (data.isConnected) {
+              setLocalMessages(data.messages || []);
+              setLocalConnection(data.connection || null);
+              setWereConnected(true);
+            } else {
+              setWereConnected(false);
+            }
+          }
+        }
       }
-      // dispatch(setActiveChat(friend.username));
-      dispatch(setActiveChat(connectionId));
-    } else if (seller) {
-      // Navigated from AuctionScreen
+    };
 
-      console.log("hadConnection: ", hadConnection);
-
-      // If we have a connection but empty messages in the chats, fetch messages
-      if (hadConnection && messages.length === 0) {
-        dispatch(
-          fetchChats({ connectionId: hadConnection.connectionId, page: 1 })
-        );
-      } else if (!hadConnection) {
-        // If no connection, make an api call to check if we ever chatted with this seller
-        // const response = apiRequest({
-        //   method: "get",
-        //   url: `/chats/connections/${seller.userId}`,
-        // });
-      }
-      //     if (messages.length === 0) {
-      //       const response = FetchMessagesList({connectionId:hadConnection.connectionId,page:1});
-
-      //       const messages = response.data
-
-      //     }
-      //   }
-    }
+    init();
 
     return () => {
       dispatch(setActiveChat(null));
+      isMounted = false;
     };
-  }, [connectionId, seller, dispatch]);
+  }, [
+    connectionId,
+    seller,
+    dispatch,
+    messages.length,
+    hadConnection,
+    tokens,
+    friend,
+  ]);
 
   // Reset loading state when messages change
   useEffect(() => {
     if (isLoading) {
       setIsLoading(false);
     }
-  }, [messagesNext]);
-
-  // Improved send message handler
-  const onSend = () => {
-    const cleaned = message.replace(/\s+/g, " ").trim();
-    if (cleaned.length === 0) return;
-    if (showAuctionPreview && hadConnection) {
-      messageSend({
-        connectionId: hadConnection.connectionId,
-        content: cleaned,
-        auctionId: auction?.id,
-      });
-      setShowAuctionPreview(false);
-    } else if (connectionId) {
-      messageSend({ connectionId, content: cleaned });
-    } else if (!hadConnection) {
-      // TO DO
-    }
-
-    setMessage("");
-
-    // Scroll to bottom after sending
-    setTimeout(() => {
-      flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
-    }, 100);
-  };
-
-  const delay = null;
+  }, [messagesNext, isLoading]);
 
   // Improved typing handler with proper debouncing
-  const typingTimeoutRef = useRef(null);
-  const onTyping = (value) => {
-    setMessage(value);
+  const onTyping = useCallback(
+    (value) => {
+      setMessage(value);
 
-    // Clear previous timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
+      // Clear any previous timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
 
-    // Only send typing indicator if there's content
-    if (value.trim().length > 0) {
+      const trimmed = value.trim();
+
+      if (trimmed.length === 0) return;
+
+      // Resolve connectionId once
+      const resolvedConnectionId =
+        connectionId ||
+        (hadConnection
+          ? hadConnection.connectionId
+          : localConnection?.connectionId);
+
+      // Resolve username safely
+      const resolvedUsername = connectionId
+        ? friend?.username
+        : seller?.username;
+
+      // Safety check
+      if (!resolvedConnectionId || !resolvedUsername) return;
+
+      // Set timeout to send typing indicator after short delay
       typingTimeoutRef.current = setTimeout(() => {
-        sendTypingIndicator({ username: friend.username, connectionId });
+        sendTypingIndicator({
+          username: resolvedUsername,
+          connectionId: resolvedConnectionId,
+        });
       }, 500);
-    }
-  };
+    },
+    [connectionId, hadConnection, localConnection, friend, seller]
+  );
 
   // Improved pagination handler
   const handleLoadMore = useCallback(() => {
@@ -189,7 +202,137 @@ const ChatScreen = ({ navigation, route }) => {
     }
   }, [messagesNext, isLoading, dispatch, connectionId, isTyping]);
 
-  // console.log("ChatScreen messages: ", messages);
+  // Memoize messages to render
+  const messagesToRender = useMemo(() => {
+    if (connectionId && messages.length > 0) return messages;
+    if (hadConnection && messages.length > 0) return messages;
+    return localMessages;
+  }, [connectionId, hadConnection, messages, localMessages]);
+
+  const onSend = useCallback(() => {
+    const cleaned = message.replace(/\s+/g, " ").trim();
+    if (cleaned.length === 0) return;
+
+    const hasMessages = messagesToRender.length > 0;
+
+    // 💬 Case 1: Connection from chat list
+    if (connectionId) {
+      // console.log("Case 1: Connection from chat list");
+      messageSend({ connectionId, content: cleaned });
+    }
+    // 💬 Case 2: Existing connection + showing auction
+    else if (showAuctionPreview && hadConnection && hasMessages) {
+      // console.log("Case 2: Existing connection + showing auction");
+      dispatch(
+        fetchChats({ connectionId: hadConnection.connectionId, page: 1 })
+      );
+      messageSend({
+        connectionId: hadConnection.connectionId,
+        content: cleaned,
+        auctionId: auction?.id,
+      });
+      setShowAuctionPreview(false);
+    }
+
+    // 💬 Case 3: Existing connection, no auction
+    else if (!showAuctionPreview && hadConnection && hasMessages) {
+      // console.log("Case 3: Existing connection, no auction");
+      messageSend({
+        connectionId: hadConnection.connectionId,
+        content: cleaned,
+      });
+    }
+
+    // 💬 Case 4: Connection exists in DB but not in Redux and send with auction
+    else if (showAuctionPreview && !hadConnection && wereConnected) {
+      // console.log("Case 4: (with auct) Connection exists in DB but not in Redux");
+      dispatch(
+        fetchChats({ connectionId: localConnection.connectionId, page: 1 })
+      );
+      messageSend({
+        connectionId: localConnection.connectionId,
+        content: cleaned,
+        auctionId: auction?.id,
+      });
+      setShowAuctionPreview(false);
+    }
+
+    // 💬 Case 5: Connection exists in DB but not in Redux and send without auction
+    else if (!showAuctionPreview && !hadConnection && wereConnected) {
+      // console.log("Case 5: (without auct) Connection exists in DB but not in Redux");
+      dispatch(
+        fetchChats({ connectionId: localConnection.connectionId, page: 1 })
+      );
+      messageSend({
+        connectionId: localConnection.connectionId,
+        content: cleaned,
+      });
+    }
+
+    // 💬 Case 6: No connection at all — create new one
+    else if (!hadConnection && !wereConnected) {
+      // console.log("Case 6: No connection at all — create new one");
+
+      createConnection({
+        receiver_id: seller.userId,
+        content: cleaned,
+        auctionId: showAuctionPreview ? auction.id : null,
+      });
+      setShowAuctionPreview(false);
+    }
+
+    // 💬 Case 7: Had connection, but messages are empty
+    else if (hadConnection && messages.length === 0 && !showAuctionPreview) {
+      // console.log(
+      //   "Case 7: Had connection, but messages are empty (without auct)"
+      // );
+      dispatch(
+        fetchChats({ connectionId: hadConnection.connectionId, page: 1 })
+      );
+      messageSend({
+        connectionId: hadConnection.connectionId,
+        content: cleaned,
+      });
+    }
+
+    // 💬 Case 8: Had connection, but messages are empty and send with auct
+    else if (hadConnection && messages.length === 0 && showAuctionPreview) {
+      // console.log("Case 8: Had connection, but messages are empty (with auct)");
+      dispatch(
+        fetchChats({ connectionId: hadConnection.connectionId, page: 1 })
+      );
+      messageSend({
+        connectionId: hadConnection.connectionId,
+        content: cleaned,
+        auctionId: auction?.id,
+      });
+      setShowAuctionPreview(false);
+    }
+
+    // 💬 Catch: Fallback (optional for safety)
+    else {
+      console.warn("Message send failed: unexpected state");
+    }
+
+    // Reset input
+    setMessage("");
+
+    // Scroll to bottom after sending
+    setTimeout(() => {
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+    }, 100);
+  }, [
+    message,
+    messagesToRender,
+    showAuctionPreview,
+    hadConnection,
+    wereConnected,
+    localConnection,
+    auction,
+    connectionId,
+    messages,
+    dispatch,
+  ]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -198,7 +341,7 @@ const ChatScreen = ({ navigation, route }) => {
           ref={flatListRef}
           automaticallyAdjustKeyboardInsets={true}
           contentContainerStyle={{ paddingTop: 30 }}
-          data={[{ id: -1 }, ...messages]}
+          data={[{ id: -1 }, ...messagesToRender]}
           inverted={true}
           keyExtractor={(item) => {
             if (item.id === -1) return "typing-indicator";
@@ -210,7 +353,7 @@ const ChatScreen = ({ navigation, route }) => {
             // Track scroll position if needed
           }}
           renderItem={({ item, index }) => {
-            const fullList = [{ id: -1 }, ...messages];
+            const fullList = [{ id: -1 }, ...messagesToRender];
             // const isTypingIndicator = item.id === -1;
 
             const previousMessage =
