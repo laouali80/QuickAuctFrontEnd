@@ -114,6 +114,29 @@ const responseTypingIndicator = (data) => {
   }
 };
 
+function responseNewConnection(data, dispatch) {
+  // console.log("responseNewConnection: ", data);
+  // console.log("responseNewConnection: ", data.data);
+
+  getStore()?.dispatch({
+    type: "chats/addNewConnection",
+    payload: {
+      ...data,
+    },
+  });
+
+  getStore()?.dispatch({
+    type: "chats/addMessageToConversation",
+    payload: {
+      connectionId: data.connection.connectionId,
+      message: data.message,
+      isNew: true,
+    },
+  });
+
+  // dispatch(chatsSlice.actions.addNewConnection(message.data));
+}
+
 // ----------------------------------
 // WebSocket Thunk with improved error handling and reconnection
 // ----------------------------------
@@ -134,6 +157,7 @@ export const initializeChatSocket = createAsyncThunk(
           //   type: "chats/setConnectionStatus",
           //   payload: { isConnected: true, error: null },
           // });
+
           chatSocket.send(
             JSON.stringify({
               source: "fetchConversationsList",
@@ -157,6 +181,7 @@ export const initializeChatSocket = createAsyncThunk(
               fetchChatMessages: responseChatMessages,
               typingIndicator: responseTypingIndicator,
               message_send: responseMessageSend,
+              new_connection: responseNewConnection,
             };
 
             // const handler = handlers[parsed.source];
