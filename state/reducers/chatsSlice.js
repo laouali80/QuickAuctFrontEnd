@@ -95,6 +95,24 @@ const addMessageToConversationUtil = (conversation, message, isNew = false) => {
   };
 };
 
+// Utility functions
+const createConversation = (connectionId) => ({
+  connectionId,
+  chats: {
+          messages: [
+          ],
+          pagination: {
+            hasNext: false,
+            nextPage: 1,
+            loaded: false,
+          }
+        },
+  pagination: { next: null, hasMore: true },
+  lastRead: null,
+  unreadCount: 0,
+  typing: { username: null, timestamp: null }
+});
+
 // ----------------------------------
 //  Socket receive message handlers
 // ----------------------------------
@@ -165,6 +183,14 @@ export const uploadThumbnail = (file) => {
   } else {
     throw new Error("WebSocket is not connected");
   }
+};
+
+export const createConnection = (data) => {
+  // console.log("createConnection: ", data);
+  sendChatDataThroughSocket({
+    data,
+    source: "new_connection",
+  });
 };
 
 // Chats Slice
@@ -277,9 +303,9 @@ const chatsSlice = createSlice({
     addMessageToConversation(state, action) {
       const { connectionId, message, isNew } = action.payload;
 
-      // if (!state.conversations[connectionId]) {
-      //   state.conversations[connectionId] = createConversation(connectionId);
-      // }
+      if (!state.conversations[connectionId]) {
+        state.conversations[connectionId] = createConversation(connectionId);
+      }
 
       const updatedConversation = addMessageToConversationUtil(
         state.conversations[connectionId],
@@ -313,9 +339,35 @@ const chatsSlice = createSlice({
       };
     },
 
+    addNewConnection(state, action) {
+      const { connection, friend } = action.payload;
+
+      if (state.conversations && state.conversations[connection.connectionId]) {
+        console.warn(
+          `Connection with id '${connection.connectionId}' already exists`
+        );
+        return;
+      }
+
+      const newConnection = {
+        ...connection,
+        lastRead: null,
+        unreadCount: 5,
+        chats: { messages: [], pagination: {} },
+        typing: { username: null, timestamp: null },
+      };
+      state.conversations = {
+        [connection.connectionId]: {
+          ...newConnection,
+        },
+        ...state.conversations,
+      };
+    },
+
     setMessagesNext(state, action) {
       state.messagesNext = action.payload.messagesNext;
     },
+
     clearChats(state, action) {
       const connectionId = action.payload;
 
