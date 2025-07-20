@@ -27,6 +27,14 @@ export const apiRequest = async (
   // dispatch = null // ✅ new parameter
 ) => {
   try {
+    if (typeof url !== "string") {
+      console.error(
+        "🚨 apiRequest: Expected URL to be a string, got:",
+        typeof url,
+        url
+      );
+      throw new Error("apiRequest expected 'url' to be a string");
+    }
     // Skip auth token logic for login or public routes
     const isAuthRoute = url.includes("/login") || url.includes("/register");
 
