@@ -3,6 +3,7 @@ import utils, { formatAuctionTime } from "./utils";
 import { BaseAddress, SocketProtocol } from "@/constants/config";
 import { getStore } from "./storeRef";
 import NetInfo from "@react-native-community/netinfo";
+import { showToast } from "@/animation/CustomToast/ToastManager";
 
 // core/socketManager.js
 let reconnectAttempts = 0;
@@ -191,10 +192,29 @@ export const AuctionSocketClose = () => (dispatch) => {
   }
 };
 
-export const sendThroughSocket = (data) => {
+export const sendThroughSocket = async (data) => {
+  const netState = await NetInfo.fetch();
   console.log("auctionSocketManager: ", data);
+
+  if (!netState.isConnected) {
+    console.warn("📴 Device offline. Cannot send auction sokect requests.");
+    showToast({
+      text: "📴 Please connect to the internet",
+      duration: 2000,
+      type: "error",
+    });
+    return;
+  }
+
   if (auctionSocket && auctionSocket.readyState === WebSocket.OPEN) {
     auctionSocket.send(JSON.stringify(data));
+  } else {
+    console.warn("Auction WebSocket not open");
+    showToast({
+      text: "💬 Server went down. Please wait or try again.",
+      duration: 2000,
+      type: "warning",
+    });
   }
 };
 

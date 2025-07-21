@@ -35,6 +35,7 @@ export const apiRequest = async (
       );
       throw new Error("apiRequest expected 'url' to be a string");
     }
+
     // Skip auth token logic for login or public routes
     const isAuthRoute = url.includes("/login") || url.includes("/register");
 

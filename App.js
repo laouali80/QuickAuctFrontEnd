@@ -12,7 +12,7 @@ import HomeScreen from "./screens/Welcomes/HomeScreen";
 import InsightsScreen from "./screens/Insights/InsightsScreen";
 import ChatsScreen from "./screens/Chats/ChatsScreen";
 import ProfileScreen from "./screens/Profile/ProfileScreen";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SplashScreen from "./screens/Welcomes/SplashScreen";
 import { Provider, useDispatch, useSelector } from "react-redux";
 // import AuctionScreen from "./screens/Auctions/AuctionScreen";
@@ -38,6 +38,7 @@ import NotificationsScreen from "./screens/Notification/NotificationsScreen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { showToast, ToastProvider } from "./animation/CustomToast/ToastManager";
 import BidHistory from "./screens/Auctions/BidHistoryScreen";
+import NetInfo from "@react-native-community/netinfo";
 
 const Stack = createNativeStackNavigator();
 
@@ -53,8 +54,65 @@ function AppContent() {
   const colorScheme = useColorScheme(); // Detects light or dark mode
   const [showSplash, setShowSplash] = useState(true);
   const authenticated = useSelector(getAuthentication);
+  const [networkStatus, setNetworkStatus] = useState(null);
   console.log(authenticated);
   // const authenticated = true;
+
+  const hasInitialized = useRef(false);
+  const previousStatus = useRef(null);
+  const wasDisconnected = useRef(false); // 🔒 tracks real disconnection
+
+  useEffect(() => {
+    if (networkStatus === null) return;
+
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      return; // skip first trigger
+    }
+
+    // then show the toast
+  }, [networkStatus]);
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      if (state.isConnected !== previousStatus.current) {
+        previousStatus.current = state.isConnected;
+        setNetworkStatus(state.isConnected);
+      }
+    });
+
+    return () => {
+      unsubscribe(); // Clean up on unmount
+    };
+  }, []);
+
+  useEffect(() => {
+    if (networkStatus === null || showSplash) return;
+
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      return; // skip first trigger after splash
+    }
+
+    if (networkStatus) {
+      if (wasDisconnected.current) {
+        // ✅ Only show restored toast if we've been disconnected before
+        showToast({
+          text: "📶 Network restored",
+          duration: 2000,
+          type: "success",
+        });
+        wasDisconnected.current = false; // reset after restoring
+      }
+    } else {
+      showToast({
+        text: "📴 Network lost",
+        duration: 2000,
+        type: "error",
+      });
+      wasDisconnected.current = true; // 🔥 mark as disconnected
+    }
+  }, [networkStatus, showSplash]);
 
   const isDarkMode = colorScheme === "dark";
   const statusBarStyle = isDarkMode ? "light-content" : "dark-content";
@@ -88,8 +146,8 @@ function AppContent() {
                 <Stack.Navigator>
                   {showSplash ? (
                     <>
-                      <Stack.Screen 
-                        name="Splash" 
+                      <Stack.Screen
+                        name="Splash"
                         options={{ headerShown: false }}
                       >
                         {() => <SplashScreen onFinish={handleSplashFinish} />}
@@ -142,6 +200,17 @@ function AppContent() {
   );
 }
 
+export default function App() {
+  return (
+    <Provider store={store}>
+      {/* PersistGate is to rehydrate the app when reloading again with the previous store state */}
+      <PersistGate loading={null} persistor={persistor}>
+        <AppContent />
+      </PersistGate>
+    </Provider>
+  );
+}
+
 // function AppContent() {
 //   return (
 //     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -175,14 +244,3 @@ function AppContent() {
 //     </GestureHandlerRootView>
 //   );
 // }
-
-export default function App() {
-  return (
-    <Provider store={store}>
-      {/* PersistGate is to rehydrate the app when reloading again with the previous store state */}
-      <PersistGate loading={null} persistor={persistor}>
-        <AppContent />
-      </PersistGate>
-    </Provider>
-  );
-}

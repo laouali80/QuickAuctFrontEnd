@@ -34,6 +34,7 @@ import { persistor } from "@/state/store";
 import secure from "@/storage/secure";
 import CustomInputField from "@/common_components/CustomInputField";
 import { showToast } from "@/animation/CustomToast/ToastManager";
+import NetInfo from "@react-native-community/netinfo";
 
 const SignUpForm = () => {
   const navigation = useNavigation();
@@ -110,8 +111,20 @@ const SignUpForm = () => {
   };
 
   const handleSubmit = async () => {
+    const netState = await NetInfo.fetch();
+
     if (validateForm()) {
       // console.log("Form submitted:", formData);
+
+      if (!netState.isConnected) {
+        console.warn("📴 Device offline. Cannot requests.");
+        showToast({
+          text: "📴 Please connect to the internet",
+          duration: 2000,
+          type: "error",
+        });
+        return;
+      }
 
       dispatch(
         EmailVerification({
