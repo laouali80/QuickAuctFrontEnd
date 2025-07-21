@@ -30,12 +30,15 @@ import {
   getChatMessages,
   fetchChats,
   createConnection,
+  markReadMessages,
+  getChatPagination,
 } from "@/state/reducers/chatsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import AuctionReplyPreview from "./components/AuctionReplyPreview";
 import { getTokens } from "@/state/reducers/userSlice";
 import { checkConnection } from "./calls/chatScreen/checkConnection";
 import { fetchMessages } from "./calls/chatScreen/fetchMessages";
+import ChatSkeleton from "./components/ChatSkeleton";
 
 const ChatScreen = ({ navigation, route }) => {
   const params = route.params || {};
@@ -59,6 +62,10 @@ const ChatScreen = ({ navigation, route }) => {
   const [showAuctionPreview, setShowAuctionPreview] = useState(
     auction ? true : false
   );
+  const activeConnectionId =
+    connectionId ??
+    hadConnection?.connectionId ??
+    localConnection?.connectionId;
 
   const flatListRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -73,9 +80,25 @@ const ChatScreen = ({ navigation, route }) => {
   const messagesFromHadConnection = useSelector(
     hadConnection ? getChatMessages(hadConnection.connectionId) : () => []
   );
-  const messagesNext = useSelector(getNextPage);
-  const isTyping = useSelector(checkMessageTyping);
+
+  //   const messages = useSelector(
+  //   activeConnectionId ? getChatMessages(activeConnectionId) : () => []
+  // );
+
+  const chatPagination = useSelector(
+    activeConnectionId ? getChatPagination(activeConnectionId) : () => null
+  );
+  const isTyping = useSelector(checkMessageTyping(activeConnectionId));
   const tokens = useSelector(getTokens);
+
+  const conversation = useSelector((state) =>
+    connectionId
+      ? state.chats.conversations[connectionId]
+      : hadConnection
+      ? state.chats.conversations[hadConnection.connectionId]
+      : false
+  );
+  const historyLoaded = conversation?.historyLoaded;
 
   // Then use logic to pick which messages to use
   const messages = connectionId
@@ -103,13 +126,21 @@ const ChatScreen = ({ navigation, route }) => {
     const init = async () => {
       if (connectionId && friend) {
         // From ChatsScreen — use Redux directly
-        if (messages.length === 0) {
+        if (!historyLoaded) {
           dispatch(fetchChats({ connectionId, page: 1 }));
         }
         dispatch(setActiveChat(connectionId));
+        if (params.unreadCount > 0) {
+          // Mark messages as read if there are unread messages
+          markReadMessages({ connectionId });
+        }
       } else if (seller) {
         // From AuctionScreen — handle local state only
-        if (hadConnection && messages.length === 0) {
+        if (hadConnection && messages.length > 0) {
+          if (hadConnection.unreadCount !== 0) {
+            markReadMessages({ connectionId: hadConnection.connectionId });
+          }
+        } else if (hadConnection && messages.length === 0) {
           const data = await fetchMessages(hadConnection.connectionId, tokens);
           if (isMounted) {
             setLocalMessages(data.messages || []);
@@ -143,6 +174,7 @@ const ChatScreen = ({ navigation, route }) => {
     hadConnection,
     tokens,
     friend,
+    historyLoaded,
   ]);
 
   // Reset loading state when messages change
@@ -150,7 +182,7 @@ const ChatScreen = ({ navigation, route }) => {
     if (isLoading) {
       setIsLoading(false);
     }
-  }, [messagesNext, isLoading]);
+  }, [chatPagination, isLoading]);
 
   // Improved typing handler with proper debouncing
   const onTyping = useCallback(
@@ -194,13 +226,32 @@ const ChatScreen = ({ navigation, route }) => {
 
   // Improved pagination handler
   const handleLoadMore = useCallback(() => {
-    // Only load more if we're not already loading, have a next page, and typing indicator is not active
-    if (!isLoading && messagesNext && messagesNext !== null && !isTyping) {
-      console.log("Loading more messages, page:", messagesNext);
+    // Prevent loading if no pagination data or no more pages
+    if (!chatPagination || !chatPagination.hasNext) return;
+
+    // Prevent loading if already loading, user is typing, or required IDs are missing
+    if (isLoading || isTyping) return;
+
+    const nextPage = chatPagination.nextPage;
+
+    if (connectionId) {
       setIsLoading(true);
-      dispatch(messagesList(connectionId, messagesNext));
+      dispatch(fetchChats({ connectionId: connectionId, page: nextPage }));
+    } else if (hadConnection?.connectionId && messages.length > 0) {
+      setIsLoading(true);
+      dispatch(
+        fetchChats({ connectionId: hadConnection.connectionId, page: nextPage })
+      );
     }
-  }, [messagesNext, isLoading, dispatch, connectionId, isTyping]);
+  }, [
+    chatPagination,
+    isLoading,
+    dispatch,
+    connectionId,
+    hadConnection,
+    isTyping,
+    messages,
+  ]);
 
   // Memoize messages to render
   const messagesToRender = useMemo(() => {
@@ -334,45 +385,65 @@ const ChatScreen = ({ navigation, route }) => {
     dispatch,
   ]);
 
+  // Show skeleton if:
+  // - No conversation exists yet (coming from AuctionScreen and not loaded)
+  // - Or historyLoaded is not true
+  const showSkeleton = !conversation || !historyLoaded;
+  // console.log("messagesToRender: ",messagesToRender);
+
+  //
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ flex: 1, marginBottom: Platform.OS === "ios" ? 60 : 0 }}>
-        <FlatList
-          ref={flatListRef}
-          automaticallyAdjustKeyboardInsets={true}
-          contentContainerStyle={{ paddingTop: 30 }}
-          data={[{ id: -1 }, ...messagesToRender]}
-          inverted={true}
-          keyExtractor={(item) => {
-            if (item.id === -1) return "typing-indicator";
-            return item.id.toString();
-          }}
-          onEndReachedThreshold={0.5}
-          onEndReached={handleLoadMore}
-          onScroll={({ nativeEvent }) => {
-            // Track scroll position if needed
-          }}
-          renderItem={({ item, index }) => {
-            const fullList = [{ id: -1 }, ...messagesToRender];
-            // const isTypingIndicator = item.id === -1;
+        {showSkeleton ? (
+          <ChatSkeleton />
+        ) : (
+          <FlatList
+            ref={flatListRef}
+            automaticallyAdjustKeyboardInsets={true}
+            contentContainerStyle={{ paddingTop: 30 }}
+            data={[{ id: -1 }, ...messagesToRender]}
+            inverted={true}
+            keyExtractor={(item) => {
+              if (item.id === -1) return "typing-indicator";
+              return item.id.toString();
+            }}
+            onEndReachedThreshold={0.5}
+            onEndReached={
+              handleLoadMore // your actual pagination logic
+            }
+            // onEndReached={() =>
+            //   console.log("End reached, handleLoadMore called")
+            // }
+            onScroll={({ nativeEvent }) => {
+              // Track scroll position if needed
+            }}
+            onMomentumScrollBegin={() => {
+              // Reset the flag so `onEndReached` can be called again on actual scroll
+              onEndReachedCalledOnce.current = false;
+            }}
+            renderItem={({ item, index }) => {
+              const fullList = [{ id: -1 }, ...messagesToRender];
+              // const isTypingIndicator = item.id === -1;
 
-            const previousMessage =
-              index < fullList.length - 1 ? fullList[index + 1] : null;
-            // const nextMessage = index > 0 ? fullList[index - 1] : null;
+              const previousMessage =
+                index < fullList.length - 1 ? fullList[index + 1] : null;
+              // const nextMessage = index > 0 ? fullList[index - 1] : null;
 
-            return (
-              <MessageBubble
-                index={index}
-                message={item}
-                prevMessage={previousMessage}
-                // nextMessage={nextMessage}
-                friend={friend ? friend : seller}
-                connectionId={connectionId}
-              />
-            );
-          }}
-          ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
-        />
+              return (
+                <MessageBubble
+                  index={index}
+                  message={item}
+                  prevMessage={previousMessage}
+                  // nextMessage={nextMessage}
+                  friend={friend ? friend : seller}
+                  connectionId={connectionId}
+                />
+              );
+            }}
+            ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
+          />
+        )}
       </View>
 
       {Platform.OS === "ios" ? (
@@ -411,7 +482,12 @@ const ChatScreen = ({ navigation, route }) => {
               }}
             />
           )}
-          <ChatInput message={message} setMessage={onTyping} onSend={onSend} />
+          <ChatInput
+            message={message}
+            setMessage={onTyping}
+            onSend={onSend}
+            loading={!historyLoaded}
+          />
         </>
       )}
     </SafeAreaView>
