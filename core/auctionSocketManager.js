@@ -4,7 +4,9 @@ import { BaseAddress, SocketProtocol } from "@/constants/config";
 import { getStore } from "./storeRef";
 
 // core/socketManager.js
-let socket = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
+let auctionSocket = null;
 
 // ----------------------------------
 //  Socket receive message handlers
@@ -83,19 +85,21 @@ export const initializeAuctionSocket = createAsyncThunk(
   "auctions/connection",
   async (tokens, { dispatch, getState, rejectWithValue }) => {
     try {
-      if (socket) {
-        socket.close();
+      if (auctionSocket) {
+        auctionSocket.close();
       }
 
-      socket = new WebSocket(
+      auctionSocket = new WebSocket(
         `${SocketProtocol}://${BaseAddress}/ws/auctions/?tokens=${tokens.access}`
       );
 
       console.log("getStore() auction: ", getStore());
-      socket.onopen = () => {
+      auctionSocket.onopen = () => {
         console.log("Auction Socket connected!");
+
+        reconnectAttempts = 0;
         getStore().dispatch({ type: "auctions/clearAuctions" }); // clear old
-        socket.send(
+        auctionSocket.send(
           JSON.stringify({
             source: "FetchAuctionsListByCategory",
             data: {
@@ -110,7 +114,7 @@ export const initializeAuctionSocket = createAsyncThunk(
         // getStore()?.dispatch({ type: "auctions/setSocketConnected" });
       };
 
-      socket.onmessage = (event) => {
+      auctionSocket.onmessage = (event) => {
         const parsed = JSON.parse(event.data);
         // utils.log("received from server: ", parsed);
         const handlers = {
@@ -142,16 +146,33 @@ export const initializeAuctionSocket = createAsyncThunk(
         }
       };
 
-      socket.onerror = () => {
-        socket.close();
-        socket = null;
+      auctionSocket.onerror = () => {
+        auctionSocket.close();
+        auctionSocket = null;
         getStore()?.dispatch({ type: "auctions/setSocketDisconnected" });
       };
 
-      socket.onclose = () => {
-        console.log("WebSocket Disconnected");
+      auctionSocket.onclose = () => {
+        console.log("🔌 Auction WebSocket disconnected");
 
-        // getStore()?.dispatch({ type: "auctions/setSocketDisconnected" });
+        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+          reconnectAttempts++;
+          setTimeout(() => {
+            dispatch(initializeAuctionSocket(tokens));
+          }, Math.pow(2, reconnectAttempts) * 1000);
+        } else {
+          // Wait for network reconnect to retry
+          const unsubscribe = NetInfo.addEventListener((state) => {
+            console.log("Connection type", state.type);
+            console.log("Is connected?", state.isConnected);
+            if (state.isConnected) {
+              console.log("📶 Network restored, retrying WebSocket");
+              reconnectAttempts = 0;
+              dispatch(initializeAuctionSocket(tokens));
+              unsubscribe(); // cleanup listener
+            }
+          });
+        }
       };
       return true;
     } catch (err) {
@@ -161,9 +182,9 @@ export const initializeAuctionSocket = createAsyncThunk(
 );
 
 export const AuctionSocketClose = () => (dispatch) => {
-  if (socket) {
-    socket.close();
-    socket = null;
+  if (auctionSocket) {
+    auctionSocket.close();
+    auctionSocket = null;
     getStore()?.dispatch({ type: "auctions/setSocketDisconnected" });
     // dispatch(setSocketDisconnected)
   }
@@ -171,8 +192,8 @@ export const AuctionSocketClose = () => (dispatch) => {
 
 export const sendThroughSocket = (data) => {
   console.log("auctionSocketManager: ", data);
-  if (socket && socket.readyState === WebSocket.OPEN) {
-    socket.send(JSON.stringify(data));
+  if (auctionSocket && auctionSocket.readyState === WebSocket.OPEN) {
+    auctionSocket.send(JSON.stringify(data));
   }
 };
 
