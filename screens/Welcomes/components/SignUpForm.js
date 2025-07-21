@@ -116,7 +116,7 @@ const SignUpForm = () => {
     if (validateForm()) {
       // console.log("Form submitted:", formData);
 
-      if (!netState.isConnected) {
+      if (!netState.isConnected || !netState.isInternetReachable) {
         console.warn("📴 Device offline. Cannot requests.");
         showToast({
           text: "📴 Please connect to the internet",

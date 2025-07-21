@@ -4,7 +4,7 @@ import { Entypo } from "@expo/vector-icons";
 import { useNetInfo } from "@react-native-community/netinfo";
 
 const ChatInput = ({ message, setMessage, onSend, loading }) => {
-  const { type, isConnected } = useNetInfo();
+  const { type, isConnected, isInternetReachable } = useNetInfo();
   return (
     <View
       style={{
@@ -37,7 +37,7 @@ const ChatInput = ({ message, setMessage, onSend, loading }) => {
       />
       <TouchableOpacity
         onPress={onSend}
-        disabled={!message.trim() || isConnected}
+        disabled={!message.trim() || !isConnected || !isInternetReachable}
       >
         <Entypo
           name="paper-plane"

@@ -196,7 +196,7 @@ export const sendThroughSocket = async (data) => {
   const netState = await NetInfo.fetch();
   console.log("auctionSocketManager: ", data);
 
-  if (!netState.isConnected) {
+  if (!netState.isConnected || !netState.isInternetReachable) {
     console.warn("📴 Device offline. Cannot send auction sokect requests.");
     showToast({
       text: "📴 Please connect to the internet",
@@ -211,7 +211,7 @@ export const sendThroughSocket = async (data) => {
   } else {
     console.warn("Auction WebSocket not open");
     showToast({
-      text: "💬 Server went down. Please wait or try again.",
+      text: "💬 Server unavailable. Please wait or try again.",
       duration: 2000,
       type: "warning",
     });

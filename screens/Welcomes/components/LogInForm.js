@@ -115,7 +115,7 @@ const LogInForm = () => {
     if (validateForm()) {
       console.log("Login attempt with:", { email, password });
 
-      if (!netState.isConnected) {
+      if (!netState.isConnected || !netState.isInternetReachable) {
         console.warn("📴 Device offline. Cannot requests.");
         showToast({
           text: "📴 Please connect to the internet",

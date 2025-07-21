@@ -244,7 +244,7 @@ export const sendChatDataThroughSocket = async (data) => {
   const netState = await NetInfo.fetch();
 
   console.log("auctionSocketManager: ", data);
-  if (!netState.isConnected) {
+  if (!netState.isConnected || !netState.isInternetReachable) {
     console.warn("📴 Device offline. Cannot send message.");
 
     showToast({
@@ -260,7 +260,7 @@ export const sendChatDataThroughSocket = async (data) => {
   } else {
     console.warn("Chat WebSocket not open");
     showToast({
-      text: "💬 Server went down. Please wait or try again.",
+      text: "💬 Server unavailable. Please wait or try again.",
       duration: 2000,
       type: "warning",
     });
