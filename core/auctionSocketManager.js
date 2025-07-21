@@ -2,6 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import utils, { formatAuctionTime } from "./utils";
 import { BaseAddress, SocketProtocol } from "@/constants/config";
 import { getStore } from "./storeRef";
+import NetInfo from "@react-native-community/netinfo";
 
 // core/socketManager.js
 let reconnectAttempts = 0;
