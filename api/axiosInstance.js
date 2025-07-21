@@ -1,9 +1,10 @@
 import axios from "axios";
-
+import NetInfo from "@react-native-community/netinfo";
 import { Platform } from "react-native";
 import secure from "../storage/secure";
 import { BaseAddress, Protocol } from "@/constants/config";
 import { resetTokens, silentLogin } from "@/state/reducers/userSlice";
+import { showToast } from "@/animation/CustomToast/ToastManager";
 
 // if using android studio
 // const BaseAddress =
@@ -36,6 +37,8 @@ export const apiRequest = async (
       throw new Error("apiRequest expected 'url' to be a string");
     }
 
+    const netState = await NetInfo.fetch();
+
     // Skip auth token logic for login or public routes
     const isAuthRoute = url.includes("/login") || url.includes("/register");
 
@@ -53,6 +56,16 @@ export const apiRequest = async (
     const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
     // console.log("header: ", headers);
+
+    if (!netState.isConnected || !netState.isInternetReachable) {
+      console.warn("📴 Device offline. Cannot requests.");
+      showToast({
+        text: "📴 Please connect to the internet",
+        duration: 2000,
+        type: "error",
+      });
+      return;
+    }
 
     const response = await api({
       url: url,

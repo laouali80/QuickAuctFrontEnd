@@ -75,9 +75,10 @@ function AppContent() {
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
-      if (state.isConnected !== previousStatus.current) {
-        previousStatus.current = state.isConnected;
-        setNetworkStatus(state.isConnected);
+      const isOnline = state.isConnected && state.isInternetReachable;
+      if (isOnline !== previousStatus.current) {
+        previousStatus.current = isOnline;
+        setNetworkStatus(isOnline);
       }
     });
 
