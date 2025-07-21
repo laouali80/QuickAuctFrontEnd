@@ -60,7 +60,12 @@ const initialState = {
 // WebSocket instance (outside Redux)
 let socket = null;
 
-const addMessageToConversationUtil = (conversation, message, isNew = false) => {
+const addMessageToConversationUtil = (
+  conversation,
+  message,
+  isNew = false,
+  incrementUnread
+) => {
   // Prevent duplicates
   const existingIndex = conversation.chats.messages.findIndex(
     (m) => m.id === message.id
@@ -89,7 +94,7 @@ const addMessageToConversationUtil = (conversation, message, isNew = false) => {
     typing: { username: null, timestamp: null },
     last_message_content: message.content,
     last_updated: new Date().toISOString(),
-    unreadCount: isNew
+    unreadCount: incrementUnread
       ? conversation.unreadCount + 1
       : conversation.unreadCount,
   };
@@ -99,18 +104,18 @@ const addMessageToConversationUtil = (conversation, message, isNew = false) => {
 const createConversation = (connectionId) => ({
   connectionId,
   chats: {
-          messages: [
-          ],
-          pagination: {
-            hasNext: false,
-            nextPage: 1,
-            loaded: false,
-          }
-        },
+    messages: [],
+    pagination: {
+      hasNext: false,
+      nextPage: 1,
+      loaded: false,
+    },
+  },
   pagination: { next: null, hasMore: true },
   lastRead: null,
   unreadCount: 0,
-  typing: { username: null, timestamp: null }
+  typing: { username: null, timestamp: null },
+  historyLoaded: false, // NEW
 });
 
 // ----------------------------------
@@ -193,16 +198,24 @@ export const createConnection = (data) => {
   });
 };
 
+export const markReadMessages = (data) => {
+  // console.log("markReadMessages: ", connectionId);
+  sendChatDataThroughSocket({
+    data,
+    source: "read_messages",
+  });
+};
+
 // Chats Slice
 const chatsSlice = createSlice({
   name: "chats",
   initialState,
   reducers: {
-    setWebSocketConnected(state) {
+    setChatWebSocketConnected(state) {
       // console.log("WebSocket Connected");
       state.isConnected = true;
     },
-    setWebSocketDisconnected(state) {
+    seChattWebSocketDisconnected(state) {
       state.isConnected = false;
     },
     setConversations(state, action) {
@@ -215,7 +228,6 @@ const chatsSlice = createSlice({
         newConversations[conversation.connectionId] = {
           ...conversation,
           lastRead: null,
-          unreadCount: 5,
           chats: { messages: [], pagination: {} },
           typing: { username: null, timestamp: null },
         };
@@ -249,14 +261,8 @@ const chatsSlice = createSlice({
 
       if (!state.conversations[connectionId]) {
         state.conversations[connectionId] = {
-          connectionId,
+          ...createConversation(connectionId),
           friend: friend || {},
-          chats: { messages: [], pagination: {} },
-          last_message_content: "",
-          last_updated: null,
-          lastRead: null,
-          unreadCount: 0,
-          typing: { username: null, timestamp: null },
         };
       }
 
@@ -284,6 +290,8 @@ const chatsSlice = createSlice({
 
       // Update pagination info
       state.conversations[connectionId].chats.pagination = pagination;
+      // Mark history as loaded
+      state.conversations[connectionId].historyLoaded = true;
     },
     pushMessage(state, action) {
       const { message } = action.payload;
@@ -307,10 +315,24 @@ const chatsSlice = createSlice({
         state.conversations[connectionId] = createConversation(connectionId);
       }
 
+      // Only increment unreadCount if:
+      // - The message is not from the current user (i.e., the user is the receiver)
+      // - The chat is not currently active
+      let incrementUnread = false;
+      if (
+        !message.is_me && // not sent by me
+        state.activeChatId !== connectionId // not currently viewing this chat
+      ) {
+        incrementUnread = true;
+      }
+
+      // console.log("incrementUnread: ", incrementUnread);
+
       const updatedConversation = addMessageToConversationUtil(
         state.conversations[connectionId],
         message,
-        isNew
+        isNew,
+        incrementUnread
       );
       // Remove the old entry and re-insert at the top
       const { [connectionId]: removed, ...rest } = state.conversations;
@@ -355,6 +377,7 @@ const chatsSlice = createSlice({
         unreadCount: 5,
         chats: { messages: [], pagination: {} },
         typing: { username: null, timestamp: null },
+        historyLoaded: false, // NEW
       };
       state.conversations = {
         [connection.connectionId]: {
@@ -435,6 +458,9 @@ export const getMessages = (state) => state.chats.messagesList;
 // export const checkMessageTyping = (connectionId)=>(state) => state.chats.messageTyping;
 export const checkMessageTyping = (connectionId) => (state) =>
   state.chats.conversations[connectionId]?.typing?.timestamp || null;
+export const getChatPagination = (connectionId) => (state) =>
+  state.chats.conversations[connectionId]?.chats?.pagination || {};
+
 export const getNextPage = (state) => state.chats.messagesNext;
 export const getNewChats = (state) => state.chats.newChats;
 

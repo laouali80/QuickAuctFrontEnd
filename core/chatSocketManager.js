@@ -2,6 +2,7 @@ import { BaseAddress, SocketProtocol } from "@/constants/config";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import utils from "./utils";
 import { getStore } from "./storeRef";
+import NetInfo from "@react-native-community/netinfo";
 
 // WebSocket instance (outside Redux)
 let reconnectAttempts = 0;
@@ -152,7 +153,7 @@ export const initializeChatSocket = createAsyncThunk(
           console.log("🔌 Chat WebSocket connected");
           reconnectAttempts = 0;
           // getStore().dispatch({ type: "auctions/clearConversations" }); // clear old
-          getStore()?.dispatch({ type: "chats/setWebSocketConnected" });
+          getStore()?.dispatch({ type: "chats/setChatWebSocketConnected" });
           // getStore()?.dispatch({
           //   type: "chats/setConnectionStatus",
           //   payload: { isConnected: true, error: null },
@@ -200,35 +201,35 @@ export const initializeChatSocket = createAsyncThunk(
         chatSocket.onerror = (error) => {
           console.error("❌ Chat WebSocket error:", error);
           //
-          dispatch(
-            chatsSlice.actions.setConnectionStatus({
-              isConnected: false,
-              error: error.message,
-            })
-          );
+          // dispatch(
+          //   chatsSlice.actions.setConnectionStatus({
+          //     isConnected: false,
+          //     error: error.message,
+          //   })
+          // );
           reject(error);
         };
 
         chatSocket.onclose = () => {
           console.log("🔌 Chat WebSocket disconnected");
-          dispatch(
-            chatsSlice.actions.setConnectionStatus({
-              isConnected: false,
-              error: null,
-            })
-          );
 
-          //       // 🚀 Auto-reconnect after 5 seconds
-          //       // setTimeout(() => {
-          //       //   dispatch(initializeChatSocket(tokens));
-          //       // }, 5000);
-
-          // Auto-reconnect logic
           if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
             reconnectAttempts++;
             setTimeout(() => {
               dispatch(initializeChatSocket(tokens));
-            }, Math.pow(2, reconnectAttempts) * 1000); // Exponential backoff
+            }, Math.pow(2, reconnectAttempts) * 1000);
+          } else {
+            // Wait for network reconnect to retry
+            const unsubscribe = NetInfo.addEventListener((state) => {
+              console.log("Connection type", state.type);
+              console.log("Is connected?", state.isConnected);
+              if (state.isConnected) {
+                console.log("📶 Network restored, retrying WebSocket");
+                reconnectAttempts = 0;
+                dispatch(initializeChatSocket(tokens));
+                unsubscribe(); // cleanup listener
+              }
+            });
           }
         };
       });
@@ -252,6 +253,6 @@ export const ChatSocketClose = () => (dispatch) => {
     chatSocket.close();
     chatSocket = null;
     // Clear the socket reference
-    getStore()?.dispatch({ type: "chats/setWebSocketDisconnected" });
+    // getStore()?.dispatch({ type: "chats/setWebSocketDisconnected" });
   }
 };

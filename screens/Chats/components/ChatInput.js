@@ -2,7 +2,7 @@ import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Entypo } from "@expo/vector-icons";
 
-const ChatInput = ({ message, setMessage, onSend }) => {
+const ChatInput = ({ message, setMessage, onSend, loading }) => {
   return (
     <View
       style={{
@@ -27,6 +27,7 @@ const ChatInput = ({ message, setMessage, onSend }) => {
           backgroundColor: "white",
           height: 50,
         }}
+        disabled={loading}
       />
       <TouchableOpacity onPress={onSend} disabled={!message.trim()}>
         <Entypo
