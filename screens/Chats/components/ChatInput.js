@@ -1,8 +1,10 @@
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Entypo } from "@expo/vector-icons";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 const ChatInput = ({ message, setMessage, onSend, loading }) => {
+  const { type, isConnected } = useNetInfo();
   return (
     <View
       style={{
@@ -14,7 +16,11 @@ const ChatInput = ({ message, setMessage, onSend, loading }) => {
       }}
     >
       <TextInput
-        placeholder="Message..."
+        placeholder={
+          !isConnected
+            ? "You're offline. Waiting for connection..."
+            : "Type your message"
+        }
         placeholderTextColor="#909090"
         value={message}
         onChangeText={setMessage}
@@ -29,7 +35,10 @@ const ChatInput = ({ message, setMessage, onSend, loading }) => {
         }}
         disabled={loading}
       />
-      <TouchableOpacity onPress={onSend} disabled={!message.trim()}>
+      <TouchableOpacity
+        onPress={onSend}
+        disabled={!message.trim() || isConnected}
+      >
         <Entypo
           name="paper-plane"
           size={22}

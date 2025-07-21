@@ -32,6 +32,7 @@ import secure from "@/storage/secure";
 import { persistor } from "@/state/store";
 import { showToast } from "@/animation/CustomToast/ToastManager";
 import CustomInputField from "@/common_components/CustomInputField";
+import NetInfo from "@react-native-community/netinfo";
 
 const LogInForm = () => {
   const [email, setEmail] = useState("");
@@ -108,9 +109,21 @@ const LogInForm = () => {
   }, [loginMssg, loginStatus]);
 
   const handleSubmit = async () => {
+    // help to detect network status
+    const netState = await NetInfo.fetch();
+
     if (validateForm()) {
       console.log("Login attempt with:", { email, password });
 
+      if (!netState.isConnected) {
+        console.warn("📴 Device offline. Cannot requests.");
+        showToast({
+          text: "📴 Please connect to the internet",
+          duration: 2000,
+          type: "error",
+        });
+        return;
+      }
       // Dispatch the action correctly
       dispatch(logInUser({ email: email.toLowerCase(), password }));
     }

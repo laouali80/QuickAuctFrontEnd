@@ -3,6 +3,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import utils from "./utils";
 import { getStore } from "./storeRef";
 import NetInfo from "@react-native-community/netinfo";
+import { showToast } from "@/animation/CustomToast/ToastManager";
 
 // WebSocket instance (outside Redux)
 let reconnectAttempts = 0;
@@ -239,12 +240,30 @@ export const initializeChatSocket = createAsyncThunk(
   }
 );
 
-export const sendChatDataThroughSocket = (data) => {
+export const sendChatDataThroughSocket = async (data) => {
+  const netState = await NetInfo.fetch();
+
   console.log("auctionSocketManager: ", data);
+  if (!netState.isConnected) {
+    console.warn("📴 Device offline. Cannot send message.");
+
+    showToast({
+      text: "📴 Please connect to the internet",
+      duration: 2000,
+      type: "error",
+    });
+    return;
+  }
+
   if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
     chatSocket.send(JSON.stringify(data));
   } else {
     console.warn("Chat WebSocket not open");
+    showToast({
+      text: "💬 Server went down. Please wait or try again.",
+      duration: 2000,
+      type: "warning",
+    });
   }
 };
 
