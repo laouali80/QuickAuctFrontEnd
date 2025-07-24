@@ -7,7 +7,9 @@ import {
   getAuction,
   getAuctionsList,
   getAuctNextPage,
+  getAuctPagination,
   getBidsAuctions,
+  loadMoreAuctions,
   selectAuctionsList,
   updateTime,
 } from "@/state/reducers/auctionsSlice";
@@ -18,27 +20,39 @@ import { EmptyState } from "@/common_components/EmptyState";
 
 const Bids = () => {
   const dispatch = useDispatch();
-  const NextPage = useSelector(getAuctNextPage);
-  const bidsAuctions = useSelector(getAuctionsList(listType='bids'));
+  const bidsAuctions = useSelector(getAuctionsList((listType = "bids")));
   const [isLoading, setIsLoading] = useState(false);
   const isCooldownRef = useRef(false);
-
+  const bidAuctsPagination = useSelector(
+    getAuctPagination((listType = "bids"))
+  );
   // console.log("bidsAuctions: ", bidsAuctions);
 
   // Improved pagination handler
-  const handleLoadMore = useLoadMore({
-    isLoading,
-    setIsLoading,
-    data: { page: 1 },
-    isCooldownRef,
-    Action: fetchBidsAuctions,
-  });
+  const handleLoadMore = bidsAuctions
+    ? useLoadMore({
+        isLoading,
+        setIsLoading,
+        data: {
+          pagination: bidAuctsPagination,
+          listType: "bids",
+        },
+        isCooldownRef,
+        loadMoreAuctions: loadMoreAuctions,
+        auctionsCount: bidsAuctions?.length,
+        minCountToLoadMore: 4,
+      })
+    : () => {};
 
-    // Timer for auction time updates
-    useEffect(() => {
-      const interval = setInterval(() => dispatch(updateTime({ listType: 'bids' })), 1000);
-      return () => clearInterval(interval);
-    }, []);
+  // Timer for auction time updates
+  // useEffect(() => {
+  //   const interval = setInterval(
+  //     () => dispatch(updateTime({ listType: "bids" })),
+  //     1000
+  //   );
+  //   return () => clearInterval(interval);
+  // }, []);
+
   // Show loading indicator
   if (bidsAuctions === null) {
     return <ActivityIndicator style={{ flex: 1 }} />;

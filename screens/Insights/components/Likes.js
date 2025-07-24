@@ -7,7 +7,9 @@ import {
   fetchLikesAuctions,
   getAuctionsList,
   getAuctNextPage,
+  getAuctPagination,
   getLikesAuctions,
+  loadMoreAuctions,
   selectAuctionsList,
 } from "@/state/reducers/auctionsSlice";
 import { useLoadMore } from "@/hooks/useLoadMore";
@@ -15,42 +17,30 @@ import { EmptyState } from "@/common_components/EmptyState";
 
 const Likes = () => {
   const dispatch = useDispatch();
-  const NextPage = useSelector(getAuctNextPage);
-  const likesAuctions = useSelector(getAuctionsList(listType='likes'));
+  const likesAuctions = useSelector(getAuctionsList((listType = "likes")));
   const [isLoading, setIsLoading] = useState(false);
   const isCooldownRef = useRef(false);
+  const likeAuctsPagination = useSelector(
+    getAuctPagination((listType = "likes"))
+  );
 
   console.log("likesAuctions: ", likesAuctions);
 
   // Improved pagination handler
-  // const handleLoadMore = useCallback(() => {
-  //   console.log("reach");
-  //   // setIsLoading(true);
-
-  //   if (isLoading || isCooldownRef.current || !NextPage) return;
-
-  //   console.log("Loading more auctions...");
-  //   setIsLoading(true);
-  //   isCooldownRef.current = true;
-
-  //   dispatch(fetchLikesAuctions({ page: NextPage }));
-
-  //   // Delay cooldown reset until after 30 seconds
-  //   setTimeout(() => {
-  //     isCooldownRef.current = false;
-  //   }, 30 * 1000);
-
-  //   setIsLoading(false);
-  // }, [isLoading, NextPage]);
-
-  const handleLoadMore = useLoadMore({
-    isLoading,
-    setIsLoading,
-    data: { page: NextPage },
-    isCooldownRef,
-    Action: fetchLikesAuctions,
-  });
-
+  const handleLoadMore = likesAuctions
+    ? useLoadMore({
+        isLoading,
+        setIsLoading,
+        data: {
+          pagination: likeAuctsPagination,
+          listType: "bids",
+        },
+        isCooldownRef,
+        loadMoreAuctions: loadMoreAuctions,
+        auctionsCount: likesAuctions?.length,
+        minCountToLoadMore: 4,
+      })
+    : () => {};
   // Show loading indicator
   if (likesAuctions === null) {
     return <ActivityIndicator style={{ flex: 1 }} />;

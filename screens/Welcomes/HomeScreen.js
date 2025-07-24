@@ -11,20 +11,26 @@ import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/COLORS";
 import IconBadge from "./components/IconBadge";
 import { useSelector } from "react-redux";
-import { getNewAuctions, getTotalAuctions } from "@/state/reducers/auctionsSlice";
-import { getNewChats } from "@/state/reducers/chatsSlice";
+import {
+  getNewAuctions,
+  getTotalAuctions,
+} from "@/state/reducers/auctionsSlice";
+import { getNewChats, getUnreadCount } from "@/state/reducers/chatsSlice";
 import { getUserInfo } from "@/state/reducers/userSlice";
 import UpdateProfileModal from "./components/UpdateProfModal";
 import AuctionLimitModal from "./components/AuctionLimitModal";
 
 const HomeScreen = ({ navigation }) => {
   const newAuctions = useSelector(getNewAuctions);
-  const newChats = useSelector(getNewChats);
+  // const newChats = useSelector(getNewChats);
   const user = useSelector(getUserInfo);
   const Total_auctions = useSelector(getTotalAuctions);
+  const unReadCount = useSelector(getUnreadCount);
+
+  console.log("unreadCount: ", unReadCount);
   // const Total_auctions = 10;
-  
-  console.log('Total Auctions from home: ',Total_auctions)
+
+  console.log("Total Auctions from home: ", Total_auctions);
 
   const isProfileIncomplete =
     !user.first_name && !user.last_name && !user.phone_number && !user.address;
@@ -34,11 +40,9 @@ const HomeScreen = ({ navigation }) => {
   const handleCreationButtonPress = () => {
     if (isProfileIncomplete) {
       setIsUpdProfModalOpen(true); // block and ask for update
-    } 
-    else if (Total_auctions === 10){
-setIsAuctLimitModalOpen(true)
-    }
-    else {
+    } else if (Total_auctions === 10) {
+      setIsAuctLimitModalOpen(true);
+    } else {
       navigation.navigate("AuctionCreation");
     }
   };
@@ -93,7 +97,7 @@ setIsAuctLimitModalOpen(true)
           />
         );
 
-        return <IconBadge icon={icon} badgeCount={newChats} />;
+        return <IconBadge icon={icon} badgeCount={unReadCount} />;
       case "Profile":
         icon = (
           <FontAwesome
@@ -131,7 +135,6 @@ setIsAuctLimitModalOpen(true)
         bgColor="white"
         initialRouteName="Auctions"
         borderTopLeftRight
-        
         renderCircle={({ selectedTab, navigate }) => (
           <Animated.View style={styles.btnCircleUp}>
             <TouchableOpacity

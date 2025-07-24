@@ -37,10 +37,16 @@ const initialState = {
     search: { auctions: {}, query: "" },
   },
 
+  // Real-time updates
+  realTimeUpdates: {
+    newAuctions: 0,
+    newBids: 0,
+    endingAuctions: [],
+  },
+
   // Connection state
   isConnected: false,
   searchList: null,
-  newAuctions: 0,
   NextPage: null,
   categories: [],
   error: null,
@@ -134,7 +140,8 @@ const auctionsSlice = createSlice({
 
       // Check if seller exists and isn't the current user
       if (seller?.userId && seller.userId !== currentUserId) {
-        state.newAuctions = (state.newAuctions || 0) + 1;
+        state.realTimeUpdates.newAuctions =
+          (state.realTimeUpdates.newAuctions || 0) + 1;
       } else {
         state.totalAuctions = (state.totalAuctions || 0) + 1;
       }
@@ -153,38 +160,7 @@ const auctionsSlice = createSlice({
         });
       }
     },
-    // updateTime(state) {
-    //   // state.auctions = [
-    //   //   ...state.auctions
-    //   //     .filter((auction) => auction.timeLeft !== "Completed")
-    //   //     .map(updAuctTime),
-    //   // ];
 
-    //   state.auctions = state.auctions.map((auction) =>
-    //     auction.timeLeft === "Completed" ? auction : updAuctTime(auction)
-    //   );
-    // },
-    // auction_deleted(state, action) {
-    //   const { auction_id, sellerId, currentUserId, message, status } =
-    //     action.payload;
-    //   state.auctions = state.auctions.filter(
-    //     (auction) => auction.id !== auction_id
-    //   );
-    //   state.likesAuctions = state.auctions.filter(
-    //     (auction) => auction.id !== auction_id
-    //   );
-    //   state.bidsAuctions = state.auctions.filter(
-    //     (auction) => auction.id !== auction_id
-    //   );
-    //   state.salesAuctions = state.auctions.filter(
-    //     (auction) => auction.id !== auction_id
-    //   );
-    //   if (sellerId === currentUserId) {
-    //     state.totalAuctions = state.totalAuctions - 1;
-    //     state.message = message;
-    //     state.status = status;
-    //   }
-    // },
     updateAuction(state, action) {
       const updatedAuction = action.payload;
 
@@ -221,78 +197,7 @@ const auctionsSlice = createSlice({
       state.pagination = { next: null, hasMore: true };
       state.NextPage = null;
     },
-    // setLikesAuctions(state, action) {
-    //   const { auctions, nextPage, loaded } = action.payload;
 
-    //   const newAuctions = auctions.map(addTimeLeft);
-
-    //   const merged = loaded
-    //     ? [...state.likesAuctions, ...newAuctions]
-    //     : [...newAuctions, ...state.likesAuctions];
-
-    //   // to remove duplicate id
-    //   // Deduplicate by auction.id
-    //   const unique = [];
-    //   const seenIds = new Set();
-
-    //   for (const auction of merged) {
-    //     if (!seenIds.has(auction.id)) {
-    //       seenIds.add(auction.id);
-    //       unique.push(auction);
-    //     }
-    //   }
-
-    //   state.likesAuctions = unique;
-    //   state.NextPage = nextPage;
-    // },
-    // setBidsAuctions(state, action) {
-    //   const { auctions, nextPage, loaded } = action.payload;
-
-    //   const newAuctions = auctions.map(addTimeLeft);
-
-    //   const merged = loaded
-    //     ? [...state.bidsAuctions, ...newAuctions]
-    //     : [...newAuctions, ...state.bidsAuctions];
-
-    //   // to remove duplicate id
-    //   // Deduplicate by auction.id
-    //   const unique = [];
-    //   const seenIds = new Set();
-
-    //   for (const auction of merged) {
-    //     if (!seenIds.has(auction.id)) {
-    //       seenIds.add(auction.id);
-    //       unique.push(auction);
-    //     }
-    //   }
-
-    //   state.bidsAuctions = unique;
-    //   state.NextPage = nextPage;
-    // },
-    // setSalesAuctions(state, action) {
-    //   const { auctions, nextPage, loaded } = action.payload;
-
-    //   const newAuctions = auctions.map(addTimeLeft);
-
-    //   const merged = loaded
-    //     ? [...state.salesAuctions, ...newAuctions]
-    //     : [...newAuctions, ...state.salesAuctions];
-
-    //   // to remove duplicate id
-    //   // Deduplicate by auction.id
-    //   const unique = [];
-    //   const seenIds = new Set();
-
-    //   for (const auction of merged) {
-    //     if (!seenIds.has(auction.id)) {
-    //       seenIds.add(auction.id);
-    //       unique.push(auction);
-    //     }
-    //   }
-
-    //   state.salesAuctions = unique;
-    //   state.NextPage = nextPage;
-    // },
     clearAuctionMessage(state) {
       state.message = null;
       state.status = null;
@@ -426,50 +331,57 @@ export const loadMoreAuctions = (data) => (dispatch) => {
   });
 };
 
-export const fetchLikesAuctions = (data) => (dispatch) => {
-  console.log("fetchLikesAuctions: ", data);
+// export const fetchLikesAuctions = (data) => (dispatch) => {
+//   console.log("fetchLikesAuctions: ", data);
 
-  if (data.page === 1)
-    dispatch(auctionsSlice.actions.clearAuctions({ listType: "likes" }));
+//   if (data.page === 1)
+//     dispatch(auctionsSlice.actions.clearAuctions({ listType: "likes" }));
 
-  sendThroughSocket({
-    source: "likesAuctions",
-    data,
-  });
-};
+//   sendThroughSocket({
+//     source: "likesAuctions",
+//     data,
+//   });
+// };
 
-export const fetchBidsAuctions = (data) => (dispatch) => {
-  console.log("fetchBidsAuctions: ", data);
+// export const fetchBidsAuctions = (data) => (dispatch) => {
+//   console.log("fetchBidsAuctions: ", data);
 
-  if (data.page === 1)
-    dispatch(auctionsSlice.actions.clearAuctions({ listType: "bids" }));
+//   if (data.page === 1)
+//     dispatch(auctionsSlice.actions.clearAuctions({ listType: "bids" }));
 
-  sendThroughSocket({
-    source: "bidsAuctions",
-    data,
-  });
-};
+//   sendThroughSocket({
+//     source: "bidsAuctions",
+//     data,
+//   });
+// };
 
-export const fetchSalesAuctions = (data) => (dispatch) => {
-  // console.log("fetchSalesAuctions: ", data);
+// export const fetchSalesAuctions = (data) => (dispatch) => {
+//   // console.log("fetchSalesAuctions: ", data);
 
-  if (data.page === 1)
-    dispatch(auctionsSlice.actions.clearAuctions({ listType: "sales" }));
+//   if (data.page === 1)
+//     dispatch(auctionsSlice.actions.clearAuctions({ listType: "sales" }));
 
-  sendThroughSocket({
-    source: "salesAuctions",
-    data,
-  });
-};
+//   sendThroughSocket({
+//     source: "salesAuctions",
+//     data,
+//   });
+// };
 
 export const fetchAuctions = (data) => (dispatch) => {
   // console.log("fetchSalesAuctions: ", data);
 
   if (data.page === 1)
-    dispatch(auctionsSlice.actions.clearAuctions({ listType: "all" }));
+    dispatch(auctionsSlice.actions.clearAuctions({ listType: data.listType }));
+
+  const sources = {
+    all: "FetchAuctionsListByCategory",
+    likes: "likesAuctions",
+    bids: "bidsAuctions",
+    sales: "salesAuctions",
+  };
 
   sendThroughSocket({
-    source: "FetchAuctionsListByCategory",
+    source: sources[data.listType],
     data,
   });
 };
@@ -526,7 +438,7 @@ export const getAuctionsList =
   (listType = "all") =>
   (state) => {
     const list = state.auctions.auctions[listType];
-    return list ? Object.values(list.auctions) : [];
+    return list ? Object.values(list.auctions) : null;
   };
 
 // export const getSaveAuctionsList = (listType = 'all') => (state) => {
@@ -541,18 +453,20 @@ export const selectAuction =
     return list ? list.auctions[id] : undefined;
   };
 
-export const getNewAuctions = (state) => state.auctions.newAuctions;
+export const getNewAuctions = (state) => {
+  return state.auctions.realTimeUpdates.newAuctions;
+};
 export const getAuction =
   (id, listType = "all") =>
   (state) => {
     const list = state.auctions.auctions[listType];
     return list ? list.auctions[id] : undefined;
   };
-export const getAuctNextPage =
+export const getAuctPagination =
   (listType = "all") =>
   (state) => {
     const list = state.auctions.auctions[listType];
-    return list ? list.pagination.next : null;
+    return list ? list.pagination : null;
   };
 export const getLikesAuctions = (state) => state.auctions.likesAuctions;
 export const getBidsAuctions = (state) => state.auctions.bidsAuctions;

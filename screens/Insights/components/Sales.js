@@ -6,7 +6,9 @@ import {
   fetchSalesAuctions,
   getAuctionsList,
   getAuctNextPage,
+  getAuctPagination,
   getSalesAuctions,
+  loadMoreAuctions,
   selectAuctionsList,
   updateTime,
 } from "@/state/reducers/auctionsSlice";
@@ -16,23 +18,30 @@ import { EmptyState } from "@/common_components/EmptyState";
 
 const Sales = () => {
   const dispatch = useDispatch();
-  const NextPage = useSelector(getAuctNextPage);
-  const salesAuctions = useSelector(getAuctionsList(listType='sales'));
+  const salesAuctions = useSelector(getAuctionsList((listType = "sales")));
   const [isLoading, setIsLoading] = useState(false);
   const isCooldownRef = useRef(false);
+  const saleAuctsPagination = useSelector(
+    getAuctPagination((listType = "sales"))
+  );
 
   // console.log("salesAuctions: ", salesAuctions);
 
   // Improved pagination handler
-  const handleLoadMore = useLoadMore({
-    isLoading,
-    setIsLoading,
-    data: { page: NextPage },
-    isCooldownRef,
-    Action: fetchSalesAuctions,
-  });
-
-
+  const handleLoadMore = salesAuctions
+    ? useLoadMore({
+        isLoading,
+        setIsLoading,
+        data: {
+          pagination: saleAuctsPagination,
+          listType: "sales",
+        },
+        isCooldownRef,
+        loadMoreAuctions: loadMoreAuctions,
+        auctionsCount: salesAuctions?.length,
+        minCountToLoadMore: 4,
+      })
+    : () => {};
 
   // Show loading indicator
   if (salesAuctions === null) {

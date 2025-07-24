@@ -43,16 +43,32 @@ export const fetchAndSetCurrentLocation = async (
 export const handleRefresh = async (
   setRefreshing,
   dispatch,
-  selectedCategory
+  selectedCategory,
+  auctionsList,
+  newAuctionsCount,
+  minCountToLoadMore = 7
 ) => {
-  // console.log("reach up refresh");
+  const hasEnoughData = auctionsList?.length >= minCountToLoadMore;
+
+  const shouldRefresh = newAuctionsCount > 0 || !hasEnoughData;
+
+  if (!shouldRefresh) {
+    console.log("⛔ Skipping refresh — not enough data and no new updates.");
+    return;
+  }
+
+  console.log("🔄 Refreshing auctions...");
+
   setRefreshing(true);
   try {
     await dispatch(
       fetchAuctions({ page: 1, category: selectedCategory })
     ).unwrap();
+
+    // Reset badge notification count
+    dispatch(resetNewAuctionsBadge());
   } catch (error) {
-    console.error("Refresh failed:", error);
+    console.error("❌ Refresh failed:", error);
   } finally {
     setRefreshing(false);
   }
@@ -74,3 +90,44 @@ export const handleRefresh = async (
 //     isCooldownRef,
 //     Action: loadMore,
 //   });
+
+// ✅ Pure function version
+export const getLoadMoreHandler = ({
+  isLoading,
+  setIsLoading,
+  data,
+  isCooldownRef,
+  loadMoreAuctions,
+  auctionsCount,
+  minCountToLoadMore = 4,
+  dispatch, // you must pass it in
+}) => {
+  console.log("Loading more auctions...", data.pagination);
+
+  return () => {
+    if (
+      isLoading ||
+      isCooldownRef.current ||
+      !data.pagination?.hasMore ||
+      auctionsCount < minCountToLoadMore ||
+      auctionsCount === null
+    )
+      return;
+
+    setIsLoading(true);
+    isCooldownRef.current = true;
+
+    dispatch(
+      loadMoreAuctions({
+        page: data.pagination.next,
+        ...data,
+      })
+    );
+
+    setTimeout(() => {
+      isCooldownRef.current = false;
+    }, 30 * 1000);
+
+    setIsLoading(false);
+  };
+};

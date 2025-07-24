@@ -19,7 +19,7 @@ const initialState = {
   //     receiver: { userId: "...", ... }, // receiver user object
   //     chats: {
   //       messages: [
-  //         { id, is_me, content, created, auction, ... },
+  //         { id, is_me, content, created, auction, is_read ... },
   //         // ...
   //       ],
   //       pagination: {
@@ -460,6 +460,12 @@ export const checkMessageTyping = (connectionId) => (state) =>
   state.chats.conversations[connectionId]?.typing?.timestamp || null;
 export const getChatPagination = (connectionId) => (state) =>
   state.chats.conversations[connectionId]?.chats?.pagination || {};
+
+export const getUnreadCount = (state) =>
+  Object.values(state.chats.conversations).reduce(
+    (total, convo) => total + (convo.unreadCount || 0),
+    0
+  );
 
 export const getNextPage = (state) => state.chats.messagesNext;
 export const getNewChats = (state) => state.chats.newChats;

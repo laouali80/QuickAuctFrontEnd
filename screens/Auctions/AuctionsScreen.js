@@ -28,9 +28,12 @@ import {
   fetchCategories,
   getAuctionsList,
   getAuctNextPage,
+  getAuctPagination,
   getCategories,
+  getNewAuctions,
   getTotalAuctions,
   loadMore,
+  loadMoreAuctions,
   selectAuctionsList,
   updateTime,
 } from "@/state/reducers/auctionsSlice";
@@ -49,6 +52,7 @@ import RenderFlatListHeader from "@/screens/Auctions/components/RenderFlatListHe
 import FilterModal from "./components/FilterModal";
 import {
   fetchAndSetCurrentLocation,
+  getLoadMoreHandler,
   handleRefresh,
 } from "./handlers/auctionsScreenHandlers";
 import { useNavigation } from "@react-navigation/native";
@@ -67,7 +71,11 @@ const AuctionsScreen = ({ route }) => {
 
   const auctionsList = useSelector(getAuctionsList((listType = "all")));
 
-  const NextPage = useSelector(getAuctNextPage);
+  // New auctions for real-time updates (auctions that are not yet in the list)
+  const newAuctions = useSelector(getNewAuctions);
+  // const auctionsList = null;
+
+  const auctPagination = useSelector(getAuctPagination((listType = "all")));
   const user = useSelector(getUserInfo);
   const Total_auctions = useSelector(getTotalAuctions);
 
@@ -160,18 +168,28 @@ const AuctionsScreen = ({ route }) => {
   //     : fetchAndSetCurrentLocation(user, dispatch, setErrorMsg);
   // }, []);
 
-  // Initialize sockets, cleanup on unmount
-  useEffect(() => {
-    setStore(store);
-    dispatch(initializeChatSocket(tokens));
-    dispatch(initializeAuctionSocket(tokens));
-    dispatch(fetchCategories());
+  const auctionsListRef = useRef(auctionsList);
+  const newAuctionsRef = useRef(newAuctions);
 
-    return () => {
-      dispatch(ChatSocketClose());
-      dispatch(AuctionSocketClose());
-    };
-  }, []);
+  useEffect(() => {
+    auctionsListRef.current = auctionsList;
+  }, [auctionsList]);
+
+  useEffect(() => {
+    newAuctionsRef.current = newAuctions;
+  }, [newAuctions]);
+
+  const triggerRefresh = useCallback(() => {
+    console.log("Refreshing auctions...");
+    handleRefresh(
+      setRefreshing,
+      dispatch,
+      selectedCategory,
+      auctionsListRef.current,
+      newAuctionsRef.current,
+      7 // minCountToLoadMore
+    );
+  }, [dispatch, selectedCategory]);
 
   // Timer for auction time updates
   useEffect(() => {
@@ -182,7 +200,7 @@ const AuctionsScreen = ({ route }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Resume-refresh listener
+  // Resume-refresh listener (when we leave and come back to the app after 5 minutes)
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (
@@ -193,7 +211,7 @@ const AuctionsScreen = ({ route }) => {
         const last = lastActiveRef.current;
         const diff = (now - last) / (1000 * 60); // in minutes
 
-        if (diff >= 5) handleRefresh();
+        if (diff >= 5) triggerRefresh();
       }
 
       appState.current = nextAppState;
@@ -201,28 +219,58 @@ const AuctionsScreen = ({ route }) => {
     });
 
     return () => subscription.remove();
-  }, []);
+  }, [triggerRefresh]);
 
-  // Focus refresh logic
+  // Focus refresh logic (when we come back to the screen after navigating away for 5 minutes)
   useFocusEffect(
     useCallback(() => {
       const now = new Date();
       const last = lastActiveRef.current;
       const diff = (now - last) / (1000 * 60);
-      if (diff >= 5) handleRefresh();
+
+      if (diff >= 5) triggerRefresh();
+
       lastActiveRef.current = now;
-    }, [])
+    }, [triggerRefresh])
   );
 
   // -------------------- Handlers --------------------
 
-  const handleLoadMore = useLoadMore({
-    isLoading,
-    setIsLoading,
-    data: { page: NextPage, category: selectedCategory },
-    isCooldownRef,
-    Action: loadMore,
-  });
+  // use to load more auction when reach end of the list
+  // const handleLoadMore = useLoadMore({
+  //   isLoading,
+  //   setIsLoading,
+  //   data: {
+  //     pagination: auctPagination,
+  //     category: selectedCategory,
+  //     listType: "all",
+  //   },
+  //   isCooldownRef,
+  //   loadMoreAuctions: loadMoreAuctions,
+  //   auctionsCount: auctionsList?.length,
+  //   minCountToLoadMore: 4,
+  //   dispatch,
+  // });
+  // if (auctPagination.hasMore){
+
+  // }
+  // const loadMore = () =>
+  const loadMore = () =>
+    getLoadMoreHandler({
+      isLoading,
+      setIsLoading,
+      data: {
+        pagination: auctPagination,
+        category: selectedCategory,
+        listType: "all",
+      },
+      isCooldownRef,
+      loadMoreAuctions,
+      auctionsCount: auctionsList.length,
+      dispatch,
+    });
+
+  // auctionsList === null
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -236,41 +284,41 @@ const AuctionsScreen = ({ route }) => {
         <Header />
       </Animated.View>
 
-      {/* {auctionsList === null ? (
+      {auctionsList === null ? (
         <RenderLoading />
       ) : auctionsList.length === 0 ? (
         <RenderEmpty />
-      ) : ( */}
-      <Animated.FlatList
-        data={auctionsList}
-        // data={auctions}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
-        columnWrapperStyle={styles.columnWrapper}
-        contentContainerStyle={styles.listContent}
-        ListHeaderComponent={
-          <RenderFlatListHeader
-            selectedCategory={selectedCategory}
-            setSelectedCategory={(category) => setSelectedCategory(category)}
-            showModal={() => setIsFilterVisible(true)}
-          />
-        }
-        ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
-        renderItem={({ item }) => <AuctionCard auction={item} />}
-        showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
-        onScroll={onScroll}
-        onScrollEndDrag={onScrollEnd}
-        onMomentumScrollEnd={onScrollEnd}
-        onEndReached={handleLoadMore}
-        useNativeDriver={true}
-        refreshing={refreshing}
-        // pull up refresh
-        onRefresh={() =>
-          handleRefresh(setRefreshing, dispatch, selectedCategory)
-        }
-      />
-      {/* )} */}
+      ) : (
+        <Animated.FlatList
+          data={auctionsList}
+          // data={auctions}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2}
+          columnWrapperStyle={styles.columnWrapper}
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={
+            <RenderFlatListHeader
+              selectedCategory={selectedCategory}
+              setSelectedCategory={(category) => setSelectedCategory(category)}
+              showModal={() => setIsFilterVisible(true)}
+            />
+          }
+          ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
+          renderItem={({ item }) => <AuctionCard auction={item} />}
+          showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          onScroll={onScroll}
+          onScrollEndDrag={onScrollEnd}
+          onMomentumScrollEnd={onScrollEnd}
+          // onEndReached={handleLoadMore}
+          onEndReached={loadMore}
+          // onEndReached={() => console.log("End reached")}
+          useNativeDriver={true}
+          refreshing={refreshing}
+          // pull up refresh
+          onRefresh={triggerRefresh}
+        />
+      )}
       <FilterModal
         visible={isFilterVisible}
         onClose={() => setIsFilterVisible(false)}
