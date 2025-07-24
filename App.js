@@ -17,7 +17,7 @@ import SplashScreen from "./screens/Welcomes/SplashScreen";
 import { Provider, useDispatch, useSelector } from "react-redux";
 // import AuctionScreen from "./screens/Auctions/AuctionScreen";
 import { store, persistor } from "./state/store";
-import { getAuthentication } from "./state/reducers/userSlice";
+import { getAuthentication, getTokens } from "./state/reducers/userSlice";
 import { PersistGate } from "redux-persist/integration/react";
 import SearchScreen from "./screens/Search/SearchScreen";
 import ChatScreen from "./screens/Chats/ChatScreen";
@@ -39,6 +39,16 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { showToast, ToastProvider } from "./animation/CustomToast/ToastManager";
 import BidHistory from "./screens/Auctions/BidHistoryScreen";
 import NetInfo from "@react-native-community/netinfo";
+import {
+  ChatSocketClose,
+  initializeChatSocket,
+} from "./core/chatSocketManager";
+import { setStore } from "./core/storeRef";
+import {
+  AuctionSocketClose,
+  initializeAuctionSocket,
+} from "./core/auctionSocketManager";
+import { fetchCategories } from "./state/reducers/auctionsSlice";
 
 const Stack = createNativeStackNavigator();
 
@@ -51,6 +61,7 @@ const LightTheme = {
 };
 
 function AppContent() {
+  const dispatch = useDispatch();
   const colorScheme = useColorScheme(); // Detects light or dark mode
   const [showSplash, setShowSplash] = useState(true);
   const authenticated = useSelector(getAuthentication);
@@ -61,6 +72,27 @@ function AppContent() {
   const hasInitialized = useRef(false);
   const previousStatus = useRef(null);
   const wasDisconnected = useRef(false); // 🔒 tracks real disconnection
+
+  const tokens = useSelector(getTokens);
+
+  const hasInitializedSockets = useRef(false);
+
+  // Initialize sockets and store
+  useEffect(() => {
+    if (showSplash || !authenticated || hasInitializedSockets.current) return;
+
+    hasInitializedSockets.current = true;
+
+    setStore(store);
+    dispatch(initializeChatSocket(tokens));
+    dispatch(initializeAuctionSocket(tokens));
+    dispatch(fetchCategories());
+
+    return () => {
+      dispatch(ChatSocketClose());
+      dispatch(AuctionSocketClose());
+    };
+  }, [showSplash, authenticated]);
 
   useEffect(() => {
     if (networkStatus === null) return;

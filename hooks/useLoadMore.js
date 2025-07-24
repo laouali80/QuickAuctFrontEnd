@@ -1,26 +1,40 @@
 // hooks/useLoadMore.js
-import { useCallback } from "react";
-import { useDispatch } from "react-redux";
 
 export const useLoadMore = ({
   isLoading,
   setIsLoading,
   data,
   isCooldownRef,
-  Action,
+  loadMoreAuctions,
+  auctionsCount,
+  minCountToLoadMore = 4,
+  dispatch,
 }) => {
-  const dispatch = useDispatch();
-  return useCallback(() => {
-    if (isLoading || isCooldownRef.current || !data.page) return;
+  console.log("Loading more auctions...", data.pagination);
 
-    console.log("Loading more auctions...", data.page);
+  return () => {
+    // Only load more if not loading, not in cooldown, has next page, and enough items to fill screen
+    if (
+      isLoading || // <== Guard against multiple triggers
+      isCooldownRef.current || // <== Guard against multiple triggers/
+      !data.pagination?.hasMore || // <== Guard loadmore being trigered when hasMore is false
+      auctionsCount < minCountToLoadMore || // <== Guard loadmore being trigered when auctionsCount is less than minCountToLoadMore
+      auctionsCount === null // <== Guard loadmore being trigered when auctionsCount is null
+    )
+      return;
+
     setIsLoading(true);
     isCooldownRef.current = true;
-    dispatch(Action(data));
+    dispatch(
+      loadMoreAuctions({
+        page: data.pagination.next,
+        ...data,
+      })
+    );
 
     setTimeout(() => {
       isCooldownRef.current = false;
     }, 30 * 1000);
     setIsLoading(false);
-  }, [isLoading, data.page, Action]);
+  };
 };

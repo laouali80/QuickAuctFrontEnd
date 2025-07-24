@@ -4,6 +4,7 @@ import utils from "./utils";
 import { getStore } from "./storeRef";
 import NetInfo from "@react-native-community/netinfo";
 import { showToast } from "@/animation/CustomToast/ToastManager";
+import { refreshSocketTokenIfNeeded } from "./refreshSocketToken";
 
 // WebSocket instance (outside Redux)
 let reconnectAttempts = 0;
@@ -144,10 +145,28 @@ function responseNewConnection(data, dispatch) {
 // ----------------------------------
 export const initializeChatSocket = createAsyncThunk(
   "chats/initializeSocket",
-  async (tokens, { dispatch, getState, rejectWithValue }) => {
+  async (WebSimuTokens = null, { dispatch, getState, rejectWithValue }) => {
     try {
+      // ✅ Avoid reconnecting if already connected or connecting
+      if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+        console.log("🟢 Chat socket already open — skipping reconnect");
+        return true;
+      }
+
+      // You could optionally guard against CONNECTING state too
+      if (chatSocket && chatSocket.readyState === WebSocket.CONNECTING) {
+        console.log("⏳ Chat socket is still connecting — skipping reconnect");
+        return true;
+      }
+
+      let AccessToken = WebSimuTokens
+        ? WebSimuTokens.access
+        : await secure.getAccessToken();
+
+      AccessToken = await refreshSocketTokenIfNeeded(AccessToken);
+
       chatSocket = new WebSocket(
-        `${SocketProtocol}://${BaseAddress}/ws/chat/?tokens=${tokens.access}`
+        `${SocketProtocol}://${BaseAddress}/ws/chat/?tokens=${AccessToken}`
       );
       return new Promise((resolve, reject) => {
         chatSocket.onopen = () => {
@@ -174,7 +193,7 @@ export const initializeChatSocket = createAsyncThunk(
         chatSocket.onmessage = (event) => {
           try {
             // log the data received
-            // utils.log("Received from server:", event.data);
+            utils.log("Received from chat socket:", event.data);
 
             const parsed = JSON.parse(event.data);
             const handlers = {
@@ -211,8 +230,9 @@ export const initializeChatSocket = createAsyncThunk(
           reject(error);
         };
 
-        chatSocket.onclose = () => {
-          console.log("🔌 Chat WebSocket disconnected");
+        chatSocket.onclose = (e) => {
+          console.log("🔌 Chat WebSocket disconnected", e);
+          console.log("Chat socket closed reason", e.reason);
 
           if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
             reconnectAttempts++;
@@ -235,6 +255,7 @@ export const initializeChatSocket = createAsyncThunk(
         };
       });
     } catch (error) {
+      console.error("Error initializing chat socket:", error);
       return rejectWithValue(error.message);
     }
   }

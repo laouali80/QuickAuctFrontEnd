@@ -87,15 +87,29 @@ export const initializeAuctionSocket = createAsyncThunk(
   "auctions/connection",
   async (tokens, { dispatch, getState, rejectWithValue }) => {
     try {
-      if (auctionSocket) {
-        auctionSocket.close();
+      // ✅ Avoid reconnecting if already connected or connecting
+      if (auctionSocket && auctionSocket.readyState === WebSocket.OPEN) {
+        console.log("🟢 auction socket already open — skipping reconnect");
+        return true;
       }
+
+      // You could optionally guard against CONNECTING state too
+      if (auctionSocket && auctionSocket.readyState === WebSocket.CONNECTING) {
+        console.log(
+          "⏳ auction socket is still connecting — skipping reconnect"
+        );
+        return true;
+      }
+
+      // if (auctionSocket) {
+      //   auctionSocket.close();
+      // }
 
       auctionSocket = new WebSocket(
         `${SocketProtocol}://${BaseAddress}/ws/auctions/?tokens=${tokens.access}`
       );
 
-      console.log("getStore() auction: ", getStore());
+      // console.log("getStore() auction: ", getStore());
       auctionSocket.onopen = () => {
         console.log("Auction Socket connected!");
 
@@ -118,7 +132,7 @@ export const initializeAuctionSocket = createAsyncThunk(
 
       auctionSocket.onmessage = (event) => {
         const parsed = JSON.parse(event.data);
-        // utils.log("received from server: ", parsed);
+        utils.log("received from auction socket: ", parsed);
         const handlers = {
           search: (data) =>
             getStore()?.dispatch({
@@ -154,8 +168,9 @@ export const initializeAuctionSocket = createAsyncThunk(
         getStore()?.dispatch({ type: "auctions/setSocketDisconnected" });
       };
 
-      auctionSocket.onclose = () => {
-        console.log("🔌 Auction WebSocket disconnected");
+      auctionSocket.onclose = (e) => {
+        console.log("🔌 Auction WebSocket disconnected", e);
+        console.log("auction socket closed reason", e.reason);
 
         if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
           reconnectAttempts++;
@@ -178,6 +193,7 @@ export const initializeAuctionSocket = createAsyncThunk(
       };
       return true;
     } catch (err) {
+      console.error("Error initializing auction socket:", err);
       return rejectWithValue(err.message);
     }
   }
