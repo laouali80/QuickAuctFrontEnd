@@ -49,6 +49,7 @@ import {
   initializeAuctionSocket,
 } from "./core/auctionSocketManager";
 import { fetchCategories } from "./state/reducers/auctionsSlice";
+import MyAuctionsScreen from "./screens/Profile/MyAuctionsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -220,6 +221,11 @@ function AppContent() {
                       <Stack.Screen
                         name="Notifications"
                         component={NotificationsScreen}
+                      />
+
+                      <Stack.Screen
+                        name="MyAuctions"
+                        component={MyAuctionsScreen}
                       />
                     </>
                   )}

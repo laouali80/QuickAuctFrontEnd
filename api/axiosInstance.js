@@ -9,7 +9,8 @@ import { showToast } from "@/animation/CustomToast/ToastManager";
 // if using android studio
 // const BaseAddress =
 //   Platform.OS === "ios" ? "http://172.20.10.4:8000" : "http://10.0.2.2:8000";
-
+console.log("Base Address: ", BaseAddress);
+console.log("Protocol: ", Protocol);
 export const api = axios.create({
   baseURL: `${Protocol}://${BaseAddress}/api/`,
   headers: {

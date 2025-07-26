@@ -17,7 +17,7 @@ const UploadModal = ({ show, onClose, onCameraPress, onGalleryPress }) => {
   return (
     <>
       <Modal
-        // className="h-auto"
+        // className="rounded-full"
         isOpen={showModal}
         onClose={() => {
           setShowModal(false);
