@@ -17,8 +17,13 @@ import EditModal from "./components/EditModal";
 import { fetchUserAuctions } from "@/state/reducers/auctionsSlice";
 import ProfileLogout from "./components/ProfileLogout";
 import ProfileInfoModal from "./components/ProfileInfoModal";
+import ProfileImage from "./components/ProfileImage";
+import MyAuctionCard from "./components/MyAuctionCard";
+import { useNavigation } from "@react-navigation/native";
+import AuctionStatistics from "./components/AuctionStatistics";
 
 export default function ProfileScreen({ route }) {
+  const navigation = useNavigation();
   const update = route?.params;
   const user = useSelector(getUserInfo);
   const dispatch = useDispatch();
@@ -47,13 +52,9 @@ export default function ProfileScreen({ route }) {
     <ScrollView className="flex-1 bg-gray-50 px-4 pb-16">
       {/* Profile Header */}
       <View className="mt-6 items-center">
-        <View className="relative">
+        {/* <View className="relative">
           <View className="w-24 h-24 rounded-full overflow-hidden border-2 border-green-500">
-            {/* <Image
-              source={{ uri: "https://readdy.ai/api/search-image?..." }}
-              className="w-full h-full"
-              resizeMode="cover"
-            /> */}
+            
             <Thumbnail
               url={user?.thumbnail}
               width={100}
@@ -64,7 +65,8 @@ export default function ProfileScreen({ route }) {
           <TouchableOpacity className="absolute bottom-0 right-0 w-8 h-8 bg-green-500 rounded-full items-center justify-center">
             <Icon name="camera" size={14} color="white" />
           </TouchableOpacity>
-        </View>
+        </View> */}
+        <ProfileImage />
         <Text className="mt-3 text-xl font-semibold">{user.username}</Text>
         <View className="flex-row items-center mt-1 text-gray-600">
           <Icon name="map-marker-alt" size={14} color="#4B5563" />
@@ -93,7 +95,12 @@ export default function ProfileScreen({ route }) {
       <View className="mt-8">
         <View className="flex-row justify-between items-center mb-4">
           <Text className="text-lg font-semibold">My Auctions</Text>
-          <Text className="text-green-500 text-sm">See All</Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("MyAuctions")}
+            className="text-green-500 text-sm"
+          >
+            See All
+          </TouchableOpacity>
         </View>
         <View className="flex-row border-b border-gray-200 mb-4">
           {["ongoing", "closed", "completed"].map((tab) => (
@@ -116,7 +123,7 @@ export default function ProfileScreen({ route }) {
         </View>
 
         {/* Sample Auction Cards */}
-        <AuctionCard
+        <MyAuctionCard
           title="Gaming Headphones"
           category="Tech"
           timeLeft="Ends in 1d 4h"
@@ -125,7 +132,7 @@ export default function ProfileScreen({ route }) {
           // imageUrl="https://readdy.ai/api/search-image?...&seq=2"
           imageUrl={require("../../assets/auctions/Gheadphone.jpg")}
         />
-        <AuctionCard
+        <MyAuctionCard
           title="Vintage Camera"
           category="Collectibles"
           timeLeft="Ends in 6h 20m"
@@ -136,7 +143,8 @@ export default function ProfileScreen({ route }) {
       </View>
 
       {/* Store Statistics */}
-      <View className="mt-8">
+      <AuctionStatistics />
+      {/* <View className="mt-8">
         <Text className="text-lg font-semibold mb-4">Store Statistics</Text>
         <View className="bg-white rounded-lg shadow-sm p-4">
           <Stats icon="box" label="Items Sold" value="38" />
@@ -144,10 +152,10 @@ export default function ProfileScreen({ route }) {
           <Stats icon="star" label="Avg. Rating" value="4.9/5" />
           <Stats icon="wallet" label="Revenue" value="$2,450" />
         </View>
-      </View>
+      </View> */}
 
       {/* Personal Info */}
-      <View className="mt-8 mb-20">
+      {/* <View className="mt-8 mb-20">
         <View className="flex-row justify-between items-center mb-4">
           <Text className="text-lg font-semibold">Personal Information</Text>
           <TouchableOpacity onPress={() => setIsEditModalOpen(true)}>
@@ -166,7 +174,7 @@ export default function ProfileScreen({ route }) {
             </View>
           </View>
         </View>
-      </View>
+      </View> */}
 
       <ProfileLogout />
 

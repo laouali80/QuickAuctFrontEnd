@@ -127,7 +127,10 @@ const OTPScreen = ({ route }) => {
   };
 
   return (
-    <ScrollView className="flex-1 justify-between px-5">
+    <ScrollView
+      className="px-5"
+      contentContainerStyle={{ flexGrow: 1, justifyContent: "space-between" }}
+    >
       <View className="justify-center items-center flex-1">
         <Image
           source={require("../../assets/icons/OTPImag.png")}
@@ -182,7 +185,7 @@ const OTPScreen = ({ route }) => {
           <CountdownCircleTimer
             key={key}
             isPlaying={isPlaying}
-            duration={10} // 30 seconds
+            duration={900} // 30 seconds
             colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
             colorsTime={[20, 10, 5, 0]}
             onComplete={() => ({ shouldRepeat: false })}

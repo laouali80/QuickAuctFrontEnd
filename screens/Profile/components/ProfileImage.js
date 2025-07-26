@@ -9,6 +9,7 @@ import { getUserInfo } from "@/state/reducers/userSlice";
 import Thumbnail from "@/common_components/Thumbnail";
 import * as ImagePicker from "expo-image-picker";
 import UploadModal from "./UploadModal";
+import Icon from "react-native-vector-icons/FontAwesome5";
 
 const ProfileImage = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -54,10 +55,31 @@ const ProfileImage = () => {
 
   return (
     <TouchableOpacity
-      style={{ marginBottom: 20 }}
+      // style={{ marginBottom: 20 }}
       onPress={() => setShowUploadModal(true)}
     >
-      <Thumbnail
+      <View className="relative">
+        <View className="w-24 h-24 rounded-full overflow-hidden border-2 border-green-500">
+          {/* <Image
+              source={{ uri: "https://readdy.ai/api/search-image?..." }}
+              className="w-full h-full"
+              resizeMode="cover"
+            /> */}
+          <Thumbnail
+            url={user?.thumbnail}
+            width={100}
+            height={100}
+            // borderRadius={90}
+          />
+        </View>
+        <TouchableOpacity
+          className="absolute bottom-0 right-0 w-8 h-8 bg-green-500 rounded-full items-center justify-center"
+          onPress={() => setShowUploadModal(true)}
+        >
+          <Icon name="camera" size={14} color="white" />
+        </TouchableOpacity>
+      </View>
+      {/* <Thumbnail
         url={user.thumbnail}
         width={100}
         height={100}
@@ -79,7 +101,7 @@ const ProfileImage = () => {
         }}
       >
         <EvilIcons name="pencil" size={20} color="#fff" />
-      </View>
+      </View> */}
 
       {showUploadModal && (
         <UploadModal
