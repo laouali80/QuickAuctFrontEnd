@@ -8,13 +8,16 @@ export const refreshSocketTokenIfNeeded = async (currentToken) => {
     console.log("isExpired:", isExpired, "Current token:", currentToken);
     if (!isExpired) return currentToken;
 
-    console.log("🔐 Socket token expired. Refreshing...");
+
+    // return currentToken;
+
+    // console.log("🔐 Socket token expired. Refreshing...");
     const refreshed = await refreshAccessToken(currentToken);
 
     console.log("🔐 Refreshed socket token:", refreshed);
-    // if (refreshed?.access) {
-    //   return refreshed.access;
-    // }
+    if (refreshed?.access) {
+      return refreshed.access;
+    }
 
     // return null;
   } catch (err) {

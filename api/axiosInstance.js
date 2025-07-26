@@ -141,7 +141,7 @@ export const refreshAccessToken = async (overrideTokens = null, dispatch) => {
         refresh: refreshToken,
       },
     });
-    // console.log("response: ", response?.data.data);
+    console.log("response refresh token: ", response?.data.data);
 
     const tokens = response?.data?.data;
     if (tokens?.access && tokens?.refresh) {
@@ -166,8 +166,8 @@ export const refreshAccessToken = async (overrideTokens = null, dispatch) => {
 
 export const attemptSilentLogin = async () => {
   try {
-    // const credsRaw = await secure.getCredentials();
-    const credsRaw = { email: "test@gmail.com", password: "test1234" };
+    const credsRaw = await secure.getCredentials();
+    // const credsRaw = { email: "test@gmail.com", password: "test12345" };
 
     if (!credsRaw) return false;
 

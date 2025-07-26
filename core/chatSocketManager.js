@@ -5,6 +5,7 @@ import { getStore } from "./storeRef";
 import NetInfo from "@react-native-community/netinfo";
 import { showToast } from "@/animation/CustomToast/ToastManager";
 import { refreshSocketTokenIfNeeded } from "./refreshSocketToken";
+import secure from "@/storage/secure";
 
 // WebSocket instance (outside Redux)
 let reconnectAttempts = 0;

@@ -4,6 +4,8 @@ import { BaseAddress, SocketProtocol } from "@/constants/config";
 import { getStore } from "./storeRef";
 import NetInfo from "@react-native-community/netinfo";
 import { showToast } from "@/animation/CustomToast/ToastManager";
+import { refreshSocketTokenIfNeeded } from "./refreshSocketToken";
+import secure from "@/storage/secure";
 
 // core/socketManager.js
 let reconnectAttempts = 0;
@@ -101,12 +103,14 @@ export const initializeAuctionSocket = createAsyncThunk(
         return true;
       }
 
-      // if (auctionSocket) {
-      //   auctionSocket.close();
-      // }
+      let AccessToken = WebSimuTokens
+        ? WebSimuTokens.access
+        : await secure.getAccessToken();
+
+      AccessToken = await refreshSocketTokenIfNeeded(AccessToken);
 
       auctionSocket = new WebSocket(
-        `${SocketProtocol}://${BaseAddress}/ws/auctions/?tokens=${tokens.access}`
+        `${SocketProtocol}://${BaseAddress}/ws/auctions/?tokens=${AccessToken}`
       );
 
       // console.log("getStore() auction: ", getStore());
