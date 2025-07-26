@@ -12,14 +12,86 @@ import { FontAwesome, FontAwesome5 } from "@expo/vector-icons"; // or react-nati
 const tabs = ["ongoing", "closed", "completed"];
 
 const MyAuctionsScreen = ({
-  auctions = [],
-  completedAuctions = [],
-  closedAuctions = [],
+  // auctions = [],
+  // completedAuctions = [],
+  // closedAuctions = [],
   toggleFavorite,
   onCreateAuction,
-  onPublishDraft,
 }) => {
   const [activeTab, setActiveTab] = useState("ongoing");
+
+  const closedAuctions = [
+    {
+      id: 1,
+      title: "Used HP Laptop",
+      category: "Electronics",
+      image: "https://example.com/images/hp-laptop.jpg",
+      startingPrice: 250,
+      closedDate: "2025-07-10",
+      status: "Closed",
+      isFavorite: false,
+    },
+    {
+      id: 2,
+      title: "Leather Backpack",
+      category: "Accessories",
+      image: "https://example.com/images/backpack.jpg",
+      startingPrice: 40,
+      closedDate: "2025-07-15",
+      status: "Expired",
+      isFavorite: true,
+    },
+  ];
+
+  const ongoingAuctions = [
+    {
+      id: 3,
+      title: "iPhone 13 Pro",
+      category: "Mobile Phones",
+      image: "https://example.com/images/iphone13.jpg",
+      currentBid: 600,
+      bids: 12,
+      timeRemaining: "2h 15m",
+      status: "Ending Soon",
+      isFavorite: true,
+    },
+    {
+      id: 4,
+      title: "Samsung Smart TV",
+      category: "Electronics",
+      image: "https://example.com/images/samsung-tv.jpg",
+      currentBid: 320,
+      bids: 8,
+      timeRemaining: "5h 30m",
+      status: "Live",
+      isFavorite: false,
+    },
+  ];
+
+  const completedAuctions = [
+    {
+      id: 5,
+      title: "Mountain Bicycle",
+      category: "Sports",
+      image: "https://example.com/images/bike.jpg",
+      finalBid: 180,
+      bids: 5,
+      endDate: "2025-07-22",
+      status: "Completed",
+      isFavorite: false,
+    },
+    {
+      id: 6,
+      title: "Gaming Keyboard",
+      category: "Computer Accessories",
+      image: "https://example.com/images/keyboard.jpg",
+      finalBid: 65,
+      bids: 3,
+      endDate: "2025-07-20",
+      status: "Sold",
+      isFavorite: true,
+    },
+  ];
 
   const renderAuctionCard = (auction, type) => (
     <View
@@ -176,7 +248,7 @@ const MyAuctionsScreen = ({
   };
 
   const getData = () => {
-    if (activeTab === "ongoing") return auctions;
+    if (activeTab === "ongoing") return ongoingAuctions;
     if (activeTab === "completed") return completedAuctions;
     return closedAuctions;
   };

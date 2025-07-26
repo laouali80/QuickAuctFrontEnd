@@ -1,4 +1,4 @@
-// import { refreshAccessToken } from "@/api/axiosInstance";
+import { refreshAccessToken } from "@/api/axiosInstance";
 
 export const refreshSocketTokenIfNeeded = async (currentToken) => {
   try {
@@ -8,11 +8,10 @@ export const refreshSocketTokenIfNeeded = async (currentToken) => {
     console.log("isExpired:", isExpired, "Current token:", currentToken);
     if (!isExpired) return currentToken;
 
-    return currentToken;
+    console.log("🔐 Socket token expired. Refreshing...");
+    const refreshed = await refreshAccessToken(currentToken);
 
-    // console.log("🔐 Socket token expired. Refreshing...");
-    // const refreshed = await refreshAccessToken();
-
+    console.log("🔐 Refreshed socket token:", refreshed);
     // if (refreshed?.access) {
     //   return refreshed.access;
     // }
